@@ -55,7 +55,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("dark");
   const [accent, setAccent] = useState<string>("blue");
 
-  // Read preferences from localStorage on mount (instant visual styling)
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme) {
@@ -68,7 +67,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setAccent(savedAccent);
   }, []);
 
-  // Sync theme mode to document element
   useEffect(() => {
     const root = document.documentElement;
     if (theme === "dark") {
@@ -83,7 +81,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  // Sync accent color to document element variables
   useEffect(() => {
     const root = document.documentElement;
     const selectedAccent = ACCENTS.find((a) => a.id === accent) || ACCENTS[0];

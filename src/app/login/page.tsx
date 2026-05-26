@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  InputGroup,
-} from "@heroui/react";
+import { Button } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
 import {
@@ -19,6 +13,7 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
+import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../components/theme-provider";
 import { authClient } from "../../lib/auth-client";
@@ -92,15 +87,15 @@ export default function LoginPage() {
           isIconOnly
           variant="ghost"
           onPress={toggleTheme}
-          className="bg-[var(--card)] border border-[var(--card-border)] shadow-sm hover:scale-105 active:scale-95 transition-all text-[var(--foreground)] rounded-full"
+          className="bg-[var(--card-solid)] border border-[var(--card-border)] shadow-sm hover:scale-105 active:scale-95 transition-all text-[var(--foreground)] rounded-full"
         >
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </Button>
       </div>
 
       <div ref={cardRef} className="w-full max-w-[400px] z-10">
-        <Card className="w-full border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] py-8 px-6 apple-squircle text-[var(--foreground)] transition-all duration-300">
-          <CardHeader className="flex flex-col gap-2 items-center justify-center pb-6">
+        <div className="w-full border border-[var(--card-border)] bg-[var(--card-solid)] shadow-[var(--card-shadow)] py-8 px-6 rounded-3xl text-[var(--foreground)] transition-all duration-300">
+          <div className="flex flex-col gap-2 items-center justify-center pb-6">
             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-500 mb-2">
               <Landmark size={26} />
             </div>
@@ -111,9 +106,9 @@ export default function LoginPage() {
               Gestisci le tue finanze personali durante la tua avventura in
               Norvegia.
             </p>
-          </CardHeader>
+          </div>
 
-          <CardContent className="p-0">
+          <div>
             <AnimatePresence mode="wait">
               {isSuccess ? (
                 <motion.div
@@ -170,23 +165,21 @@ export default function LoginPage() {
                     >
                       Email
                     </label>
-                    <InputGroup className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-11 px-3 rounded-xl flex items-center gap-2 border-0 w-full focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 transition-all duration-300">
-                      <InputGroup.Prefix className="flex items-center">
-                        <Mail
-                          size={15}
-                          className="text-[var(--text-muted)] flex-shrink-0"
-                        />
-                      </InputGroup.Prefix>
-                      <InputGroup.Input
+                    <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300">
+                      <Mail
+                        size={15}
+                        className="text-[var(--text-muted)] flex-shrink-0"
+                      />
+                      <input
                         id="email"
                         type="email"
                         placeholder="studente@erasmus.no"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="text-xs placeholder:text-neutral-500 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full h-full"
+                        className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full h-full"
                       />
-                    </InputGroup>
+                    </div>
                   </div>
 
                   <AnimatePresence>
@@ -243,8 +236,8 @@ export default function LoginPage() {
                 </motion.form>
               )}
             </AnimatePresence>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
