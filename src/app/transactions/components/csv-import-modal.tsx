@@ -1,0 +1,402 @@
+"use client";
+
+import { Button } from "@heroui/react";
+import dayjs from "dayjs";
+import { AnimatePresence, motion } from "framer-motion";
+import { FileSpreadsheet, X } from "lucide-react";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { CustomSelect } from "../../../components/ui/custom-select";
+import { formatCurrency } from "../../../lib/utils";
+
+type Category = {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+};
+
+type CsvImportModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  categories: Category[];
+  exchangeRate: number;
+  onImport: (
+    rows: {
+      type: "expense" | "income";
+      amount: number;
+      currency: "EUR" | "NOK";
+      exchangeRate: number;
+      description: string;
+      categoryId: string | null;
+      date: string;
+    }[],
+  ) => Promise<void>;
+};
+
+export function CsvImportModal({
+  isOpen,
+  onClose,
+  categories,
+  exchangeRate,
+  onImport,
+}: CsvImportModalProps) {
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvRows, setCsvRows] = useState<Record<string, string>[]>([]);
+  const [csvMapping, setCsvMapping] = useState<Record<string, string>>({
+    date: "",
+    description: "",
+    amount: "",
+    currency: "",
+    category: "",
+  });
+  const [csvPreviewRows, setCsvPreviewRows] = useState<
+    {
+      date: string;
+      description: string;
+      amount: number;
+      type: "expense" | "income";
+      currency: "EUR" | "NOK";
+      categoryId: string | null;
+    }[]
+  >([]);
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCsvFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      if (lines.length < 2) return;
+
+      const parseCSVLine = (line: string) => {
+        const result = [];
+        let current = "";
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if ((char === "," || char === ";") && !inQuotes) {
+            result.push(current);
+            current = "";
+          } else {
+            current += char;
+          }
+        }
+        result.push(current);
+        return result;
+      };
+
+      const headers = parseCSVLine(lines[0]).map((h) =>
+        h.trim().replace(/^"|"$/g, ""),
+      );
+      setCsvHeaders(headers);
+
+      const parsedRows = lines.slice(1).map((line) => {
+        const vals = parseCSVLine(line).map((v) =>
+          v.trim().replace(/^"|"$/g, ""),
+        );
+        const row: Record<string, string> = {};
+        headers.forEach((h, index) => {
+          row[h] = vals[index] || "";
+        });
+        return row;
+      });
+      setCsvRows(parsedRows);
+
+      const newMapping: Record<string, string> = {
+        date: "",
+        description: "",
+        amount: "",
+        currency: "",
+        category: "",
+      };
+
+      headers.forEach((h) => {
+        const lower = h.toLowerCase();
+        if (
+          lower.includes("dat") ||
+          lower.includes("date") ||
+          lower.includes("giorno")
+        ) {
+          newMapping.date = h;
+        } else if (
+          lower.includes("desc") ||
+          lower.includes("causale") ||
+          lower.includes("note")
+        ) {
+          newMapping.description = h;
+        } else if (
+          lower.includes("importo") ||
+          lower.includes("ammontare") ||
+          lower.includes("amount") ||
+          lower.includes("valore")
+        ) {
+          newMapping.amount = h;
+        } else if (lower.includes("valuta") || lower.includes("curr")) {
+          newMapping.currency = h;
+        } else if (lower.includes("categ") || lower.includes("tipo")) {
+          newMapping.category = h;
+        }
+      });
+
+      setCsvMapping(newMapping);
+    };
+    reader.readAsText(file);
+  };
+
+  useEffect(() => {
+    if (csvRows.length === 0 || !csvMapping.amount) {
+      setCsvPreviewRows([]);
+      return;
+    }
+
+    const preview = csvRows.map((row) => {
+      const parsedDate = row[csvMapping.date]
+        ? dayjs(row[csvMapping.date])
+        : dayjs();
+      const dateVal = parsedDate.isValid() ? parsedDate : dayjs();
+      const rawAmountStr = row[csvMapping.amount] || "0";
+      const amountVal = parseFloat(rawAmountStr.replace(",", ".")) || 0;
+      const currencyVal = (row[csvMapping.currency] || "NOK")
+        .toUpperCase()
+        .includes("EUR")
+        ? "EUR"
+        : "NOK";
+      const descVal = row[csvMapping.description] || "Transazione CSV";
+
+      let matchedCatId: string | null = null;
+      if (csvMapping.category && row[csvMapping.category]) {
+        const catName = row[csvMapping.category].trim().toLowerCase();
+        const found = categories.find((c) =>
+          c.name.toLowerCase().includes(catName),
+        );
+        if (found) {
+          matchedCatId = found.id;
+        }
+      }
+
+      return {
+        date: dateVal.toISOString(),
+        description: descVal,
+        amount: Math.abs(amountVal),
+        type: amountVal >= 0 ? ("income" as const) : ("expense" as const),
+        currency: currencyVal as "EUR" | "NOK",
+        categoryId: matchedCatId,
+      };
+    });
+
+    setCsvPreviewRows(preview);
+  }, [csvRows, csvMapping, categories]);
+
+  const handleCsvImportSubmit = async () => {
+    if (csvPreviewRows.length === 0 || isImporting) return;
+    setIsImporting(true);
+
+    try {
+      const dataToImport = csvPreviewRows.map((row) => ({
+        type: row.type,
+        amount: row.amount,
+        currency: row.currency,
+        exchangeRate,
+        description: row.description,
+        categoryId: row.categoryId,
+        date: row.date,
+      }));
+
+      await onImport(dataToImport);
+      setCsvFile(null);
+      setCsvHeaders([]);
+      setCsvRows([]);
+      setCsvPreviewRows([]);
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[620px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] flex flex-col max-h-[85vh]"
+          >
+            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
+              <h3 className="font-extrabold text-base">
+                Importazione Spese da CSV
+              </h3>
+              <Button
+                isIconOnly
+                variant="ghost"
+                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer"
+                onPress={onClose}
+              >
+                <X size={15} />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
+              <div className="border-2 border-dashed border-[var(--card-border)] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 bg-neutral-500/5 text-center relative">
+                <FileSpreadsheet size={32} className="text-emerald-500 mb-1" />
+                {csvFile ? (
+                  <span className="text-xs font-bold truncate max-w-full text-emerald-500">
+                    File: {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-xs font-bold">
+                      Trascina qui il file CSV o clicca per caricarlo
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)]">
+                      Usa separatore virgola (,) o punto e virgola (;)
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  onChange={handleCsvChange}
+                />
+              </div>
+
+              {csvRows.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wide">
+                    Mappa Colonne CSV
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-neutral-500/5 p-3 rounded-xl border border-[var(--card-border)] overflow-visible">
+                    {Object.keys(csvMapping).map((field) => (
+                      <div
+                        key={field}
+                        className="flex flex-col gap-1 overflow-visible relative z-30"
+                      >
+                        <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                          {field === "date"
+                            ? "Data"
+                            : field === "description"
+                              ? "Descrizione"
+                              : field === "amount"
+                                ? "Importo"
+                                : field === "currency"
+                                  ? "Valuta"
+                                  : "Categoria"}
+                        </span>
+                        <CustomSelect
+                          value={csvMapping[field]}
+                          onChange={(val: string) =>
+                            setCsvMapping((prev) => ({
+                              ...prev,
+                              [field]: val,
+                            }))
+                          }
+                          placeholder="(Ignora/Default)"
+                          triggerClassName="h-9"
+                          options={[
+                            { value: "", label: "(Ignora/Default)" },
+                            ...csvHeaders.map((header) => ({
+                              value: header,
+                              label: header,
+                            })),
+                          ]}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex justify-between items-center mt-2 px-1">
+                    <span className="text-xs font-bold font-sans">
+                      Anteprima Righe ({csvPreviewRows.length})
+                    </span>
+                  </div>
+
+                  <div className="border border-[var(--card-border)] rounded-xl overflow-hidden max-h-40 overflow-y-auto">
+                    <table className="w-full text-left border-collapse text-xs">
+                      <thead>
+                        <tr className="bg-neutral-500/5 border-b border-[var(--card-border)] text-[9px] text-[var(--text-muted)] font-bold uppercase">
+                          <th className="p-2">Data</th>
+                          <th className="p-2">Descrizione</th>
+                          <th className="p-2">Importo</th>
+                          <th className="p-2">Categoria</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {csvPreviewRows.slice(0, 5).map((row) => {
+                          const matchedCat = categories.find(
+                            (c) => c.id === row.categoryId,
+                          );
+                          return (
+                            <tr
+                              key={`preview-${row.date}-${row.amount}-${row.description || ""}`}
+                              className="border-b border-[var(--card-border)] last:border-0"
+                            >
+                              <td className="p-2">
+                                {new Date(row.date).toLocaleDateString("it-IT")}
+                              </td>
+                              <td className="p-2 font-semibold truncate max-w-[120px]">
+                                {row.description}
+                              </td>
+                              <td className="p-2 font-bold font-mono">
+                                {row.type === "expense" ? "-" : "+"}{" "}
+                                {formatCurrency(row.amount, row.currency)}
+                              </td>
+                              <td className="p-2">
+                                {matchedCat ? (
+                                  <span
+                                    className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
+                                    style={{
+                                      backgroundColor: matchedCat.color,
+                                    }}
+                                  >
+                                    {matchedCat.name}
+                                  </span>
+                                ) : (
+                                  <span className="text-[var(--text-muted)] font-medium">
+                                    Generale
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-4 border-t border-[var(--card-border)] mt-4 flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 border border-[var(--card-border)] hover:bg-neutral-500/10 text-xs rounded-xl h-11 text-[var(--foreground)] bg-transparent"
+                onPress={onClose}
+              >
+                Annulla
+              </Button>
+              <Button
+                isDisabled={csvPreviewRows.length === 0 || isImporting}
+                className="flex-1 bg-emerald-500 text-white border-0 hover:opacity-90 text-xs rounded-xl h-11 cursor-pointer"
+                onPress={handleCsvImportSubmit}
+              >
+                {isImporting ? "Importazione..." : "Importa elementi"}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+}
