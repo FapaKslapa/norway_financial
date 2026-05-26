@@ -1,0 +1,15 @@
+import { db } from "../db";
+import { auth } from "../lib/auth";
+
+export async function createContext(req: Request) {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
+
+  return {
+    db,
+    session,
+  };
+}
+
+export type Context = Awaited<ReturnType<typeof createContext>>;
