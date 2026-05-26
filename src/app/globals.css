@@ -1,0 +1,88 @@
+@import "tailwindcss";
+@import "@heroui/react/styles";
+
+:root {
+  --glass-opacity: 0.8;
+  --background: #f5f5f7; /* Apple warm light gray background */
+  --foreground: #1d1d1f; /* Apple's dark text color */
+  --card: rgba(255, 255, 255, var(--glass-opacity));
+  --card-solid: #ffffff;
+  --card-sidebar: #f5f5f7;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.03), 0 12px 48px -8px rgba(0, 0, 0, 0.05);
+  --text-muted: #86868b;
+
+  /* Apple System Colors */
+  --apple-red: #ff3b30;
+  --apple-orange: #ff9500;
+  --apple-yellow: #ffcc00;
+  --apple-green: #34c759;
+  --apple-teal: #00c7be;
+  --apple-blue: #007aff;
+  --apple-purple: #af52de;
+  --apple-pink: #ff2d55;
+  --apple-gray: #8e8e93;
+}
+
+html.dark {
+  --background: #000000; /* Apple's true black background */
+  --foreground: #f5f5f7; /* Apple's light text color */
+  --card: rgba(28, 28, 30, var(--glass-opacity));
+  --card-solid: #18181b;
+  --card-sidebar: #0a0a0a;
+  --card-border: rgba(255, 255, 255, 0.09);
+  --card-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+  --text-muted: #8e8e93;
+}
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition:
+    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-squircle {
+  border-radius: 2rem;
+}
+
+.apple-widget {
+  border-radius: 1.75rem;
+}
+
+.apple-icon-wrapper {
+  border-radius: 0.75rem;
+}
+
+/* Custom scrollbar utility for drawers and lists */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
