@@ -92,10 +92,14 @@ export const auth = betterAuth({
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {
+        const landingUrl = url.replace(
+          "/api/auth/magic-link/verify",
+          "/auth/verify",
+        );
         console.log("\n==================================================");
         console.log("🚀 BETTER AUTH - MAGIC LINK RECEIVED");
         console.log(`✉️  Email: ${email}`);
-        console.log(`🔗  URL:   ${url}`);
+        console.log(`🔗  URL:   ${landingUrl}`);
         console.log("==================================================\n");
       },
     }),
