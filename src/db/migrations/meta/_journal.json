@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1779729547413,
+      "tag": "0000_dear_silhouette",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1779731707120,
+      "tag": "0001_dry_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1779732376228,
+      "tag": "0002_legal_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1779745452086,
+      "tag": "0003_simple_the_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1779746808329,
+      "tag": "0004_brief_selene",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1779747392620,
+      "tag": "0005_daffy_marvel_boy",
+      "breakpoints": true
+    }
+  ]
+}
