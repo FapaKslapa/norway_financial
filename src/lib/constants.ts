@@ -1,0 +1,15 @@
+export const APPLE_COLORS = [
+  "#FF2D55",
+  "#FF3B30",
+  "#FF9500",
+  "#FFCC00",
+  "#34C759",
+  "#00C7BE",
+  "#30B0C7",
+  "#32ADE6",
+  "#007AFF",
+  "#5856D6",
+  "#AF52DE",
+  "#A2845E",
+  "#8E8E93",
+] as const;
