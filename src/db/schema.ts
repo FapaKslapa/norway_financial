@@ -90,6 +90,27 @@ export const userSettings = mysqlTable("user_settings", {
   updatedAt: timestamp("updated_at").notNull(),
 });
 
+export const friendGroup = mysqlTable("friend_group", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  creatorId: varchar("creator_id", { length: 36 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const groupMember = mysqlTable("group_member", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  groupId: varchar("group_id", { length: 36 })
+    .notNull()
+    .references(() => friendGroup.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull(),
+});
+
 export const category = mysqlTable("category", {
   id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 })
@@ -111,14 +132,18 @@ export const transaction = mysqlTable("transaction", {
     () => category.id,
     { onDelete: "set null" },
   ),
-  type: varchar("type", { length: 20 }).notNull(), // "expense" | "income"
+  type: varchar("type", { length: 20 }).notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).notNull(), // "EUR" | "NOK"
+  currency: varchar("currency", { length: 3 }).notNull(),
   amountEur: decimal("amount_eur", { precision: 10, scale: 2 }).notNull(),
   amountNok: decimal("amount_nok", { precision: 10, scale: 2 }).notNull(),
   exchangeRate: decimal("exchange_rate", { precision: 10, scale: 4 }).notNull(),
   description: text("description"),
   date: timestamp("date").notNull(),
+  groupId: varchar("group_id", { length: 36 }).references(
+    () => friendGroup.id,
+    { onDelete: "set null" },
+  ),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -166,7 +191,7 @@ export const friendship = mysqlTable("friendship", {
   friendId: varchar("friend_id", { length: 36 })
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  status: varchar("status", { length: 20 }).notNull(), // "pending" | "accepted"
+  status: varchar("status", { length: 20 }).notNull(),
   senderId: varchar("sender_id", { length: 36 })
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -191,6 +216,10 @@ export const sharedExpense = mysqlTable("shared_expense", {
     scale: 2,
   }).notNull(),
   settled: boolean("settled").notNull().default(false),
+  groupId: varchar("group_id", { length: 36 }).references(
+    () => friendGroup.id,
+    { onDelete: "set null" },
+  ),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
