@@ -10,8 +10,17 @@ import {
   like,
   lte,
   or,
+  sum,
 } from "drizzle-orm";
-import { sharedExpense, transaction, user } from "@/db/schema";
+import type { db as DatabaseType } from "@/db";
+import {
+  categoryBudget,
+  notification,
+  sharedExpense,
+  transaction,
+  user,
+  userSettings,
+} from "@/db/schema";
 import {
   createManyTransactionsSchema,
   createTransactionSchema,
@@ -47,6 +56,180 @@ function computeFriendSplitNok(
       return amountNok / Math.max(value ?? 2, 2);
     default:
       return amountNok / 2;
+  }
+}
+
+async function createUniqueNotification(
+  db: typeof DatabaseType,
+  userId: string,
+  type: string,
+  title: string,
+  message: string,
+  startOfMonth: Date,
+  endOfMonth: Date,
+) {
+  const existing = await db
+    .select()
+    .from(notification)
+    .where(
+      and(
+        eq(notification.userId, userId),
+        eq(notification.type, type),
+        gte(notification.createdAt, startOfMonth),
+        lte(notification.createdAt, endOfMonth),
+      ),
+    )
+    .limit(1);
+
+  if (existing.length === 0) {
+    await db.insert(notification).values({
+      id: crypto.randomUUID(),
+      userId,
+      type,
+      title,
+      message,
+      read: false,
+      createdAt: new Date(),
+    });
+  }
+}
+
+async function triggerBudgetNotifications(
+  db: typeof DatabaseType,
+  userId: string,
+  categoryId: string | null,
+  date: Date,
+) {
+  const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const endOfMonth = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+  const settings = await db
+    .select()
+    .from(userSettings)
+    .where(eq(userSettings.userId, userId))
+    .limit(1);
+
+  if (settings.length > 0) {
+    const s = settings[0];
+    const targetNok = parseFloat(s.targetMonthlyBudget);
+    const maxNok = parseFloat(s.maxMonthlyBudget);
+
+    if (targetNok > 0 || maxNok > 0) {
+      const totalExpenseRes = await db
+        .select({ total: sum(transaction.amountNok) })
+        .from(transaction)
+        .where(
+          and(
+            eq(transaction.userId, userId),
+            eq(transaction.type, "expense"),
+            gte(transaction.date, startOfMonth),
+            lte(transaction.date, endOfMonth),
+          ),
+        );
+
+      const totalSpentNok = parseFloat(totalExpenseRes[0]?.total || "0");
+
+      if (targetNok > 0) {
+        const pct = totalSpentNok / targetNok;
+        if (pct >= 1.0) {
+          await createUniqueNotification(
+            db,
+            userId,
+            "budget_100",
+            "Budget Target Raggiunto",
+            `Hai speso il 100% del tuo budget target mensile (${totalSpentNok.toFixed(2)} NOK).`,
+            startOfMonth,
+            endOfMonth,
+          );
+        } else if (pct >= 0.8) {
+          await createUniqueNotification(
+            db,
+            userId,
+            "budget_80",
+            "Budget Target all'80%",
+            `Hai speso l'80% del tuo budget target mensile (${totalSpentNok.toFixed(2)} NOK).`,
+            startOfMonth,
+            endOfMonth,
+          );
+        }
+      }
+
+      if (maxNok > 0 && totalSpentNok >= maxNok) {
+        await createUniqueNotification(
+          db,
+          userId,
+          "budget_max",
+          "Budget Massimo Superato",
+          `Attenzione: hai superato il budget massimo mensile (${totalSpentNok.toFixed(2)} / ${maxNok.toFixed(2)} NOK).`,
+          startOfMonth,
+          endOfMonth,
+        );
+      }
+    }
+  }
+
+  if (categoryId) {
+    const catBudget = await db
+      .select()
+      .from(categoryBudget)
+      .where(
+        and(
+          eq(categoryBudget.userId, userId),
+          eq(categoryBudget.categoryId, categoryId),
+        ),
+      )
+      .limit(1);
+
+    if (catBudget.length > 0) {
+      const budgetNok = parseFloat(catBudget[0].amount);
+      if (budgetNok > 0) {
+        const catSpentRes = await db
+          .select({ total: sum(transaction.amountNok) })
+          .from(transaction)
+          .where(
+            and(
+              eq(transaction.userId, userId),
+              eq(transaction.type, "expense"),
+              eq(transaction.categoryId, categoryId),
+              gte(transaction.date, startOfMonth),
+              lte(transaction.date, endOfMonth),
+            ),
+          );
+
+        const catSpentNok = parseFloat(catSpentRes[0]?.total || "0");
+        const pct = catSpentNok / budgetNok;
+
+        if (pct >= 1.0) {
+          await createUniqueNotification(
+            db,
+            userId,
+            `cat_100_${categoryId}`,
+            "Budget Categoria Superato",
+            `Hai speso il 100% del budget per questa categoria (${catSpentNok.toFixed(2)} NOK).`,
+            startOfMonth,
+            endOfMonth,
+          );
+        } else if (pct >= 0.8) {
+          await createUniqueNotification(
+            db,
+            userId,
+            `cat_80_${categoryId}`,
+            "Budget Categoria all'80%",
+            `Hai speso l'80% del budget per questa categoria (${catSpentNok.toFixed(2)} NOK).`,
+            startOfMonth,
+            endOfMonth,
+          );
+        }
+      }
+    }
   }
 }
 
@@ -186,6 +369,20 @@ export const transactionRouter = router({
           updatedAt: new Date(),
         }));
         await ctx.db.insert(sharedExpense).values(splitsToInsert);
+
+        const notificationsToInsert = splitsToInsert.map((s) => ({
+          id: crypto.randomUUID(),
+          userId: s.borrowerId,
+          type: "shared_expense_added",
+          title: "Nuova spesa di gruppo",
+          message: `${ctx.session.user.name || ctx.session.user.email} ha aggiunto una spesa "${newTransaction.description}" nel gruppo.`,
+          read: false,
+          link: "/friends",
+          createdAt: new Date(),
+        }));
+        if (notificationsToInsert.length > 0) {
+          await ctx.db.insert(notification).values(notificationsToInsert);
+        }
       } else if (input.sharedWithUserId && input.type === "expense") {
         const friendSplitNok = computeFriendSplitNok(
           amountNok,
@@ -204,6 +401,26 @@ export const transactionRouter = router({
           createdAt: new Date(),
           updatedAt: new Date(),
         });
+
+        await ctx.db.insert(notification).values({
+          id: crypto.randomUUID(),
+          userId: input.sharedWithUserId,
+          type: "shared_expense_added",
+          title: "Spesa condivisa",
+          message: `${ctx.session.user.name || ctx.session.user.email} ha condiviso una spesa con te: "${newTransaction.description}".`,
+          read: false,
+          link: "/friends",
+          createdAt: new Date(),
+        });
+      }
+
+      if (input.type === "expense") {
+        await triggerBudgetNotifications(
+          ctx.db,
+          userId,
+          input.categoryId || null,
+          newTransaction.date,
+        );
       }
 
       return newTransaction;
@@ -242,6 +459,18 @@ export const transactionRouter = router({
       });
 
       await ctx.db.insert(transaction).values(valuesToInsert);
+
+      const expenseTxs = valuesToInsert.filter((t) => t.type === "expense");
+      if (expenseTxs.length > 0) {
+        const first = expenseTxs[0];
+        await triggerBudgetNotifications(
+          ctx.db,
+          userId,
+          first.categoryId,
+          first.date,
+        );
+      }
+
       return { count: valuesToInsert.length };
     }),
 

@@ -16,6 +16,7 @@ import {
   Mail,
   PieChart,
   Plus,
+  Sparkles,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -41,6 +42,12 @@ type GroupItem = {
   createdAt: Date;
   updatedAt: Date;
   members: GroupMember[];
+};
+
+type GroupSettlementProposal = {
+  fromUser: { id: string; name: string; email: string; image: string | null };
+  toUser: { id: string; name: string; email: string; image: string | null };
+  amountNok: number;
 };
 
 import { useDashboard } from "@/components/dashboard-layout";
@@ -93,6 +100,7 @@ export default function FriendsView() {
     onSuccess: () => {
       balanceSummaryQuery.refetch();
       transactionsQuery.refetch();
+      proposalsQuery.refetch();
     },
   });
 
@@ -151,6 +159,11 @@ export default function FriendsView() {
   const [settleConfirmFriend, setSettleConfirmFriend] =
     useState<FriendItem | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<GroupItem | null>(null);
+
+  const proposalsQuery = trpc.friend.getGroupSettlementProposals.useQuery(
+    { groupId: selectedGroup?.id || null },
+    { enabled: !!selectedGroup?.id },
+  );
 
   const convertNokAmount = (val: number | string): number => {
     const num = typeof val === "string" ? parseFloat(val) : val;
@@ -1011,7 +1024,95 @@ export default function FriendsView() {
                     </div>
                   </div>
 
-                  {}
+                  <div className="mb-5 border-t border-[var(--card-border)]/50 pt-4">
+                    <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                      <Sparkles size={12} className="text-blue-500" />
+                      Debiti Semplificati (Algoritmo Splitwise)
+                    </h4>
+                    {proposalsQuery.isLoading ? (
+                      <div className="text-[10px] text-[var(--text-muted)]">
+                        Calcolo liquidazioni ottimali...
+                      </div>
+                    ) : proposalsQuery.data &&
+                      proposalsQuery.data.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {proposalsQuery.data.map(
+                          (p: GroupSettlementProposal) => {
+                            const isFromMe = p.fromUser.id === currentUserId;
+                            const isToMe = p.toUser.id === currentUserId;
+                            const canSettle = isFromMe || isToMe;
+                            const targetFriendId = isFromMe
+                              ? p.toUser.id
+                              : p.fromUser.id;
+
+                            return (
+                              <div
+                                key={`${p.fromUser.id}-${p.toUser.id}-${p.amountNok}`}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/40 rounded-2xl p-3"
+                              >
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span
+                                    className={cn(
+                                      "font-bold",
+                                      isFromMe
+                                        ? "text-rose-500"
+                                        : "text-[var(--foreground)]",
+                                    )}
+                                  >
+                                    {p.fromUser.name} {isFromMe && "(Tu)"}
+                                  </span>
+                                  <span className="text-[10px] text-[var(--text-muted)]">
+                                    deve dare
+                                  </span>
+                                  <span
+                                    className={cn(
+                                      "font-bold",
+                                      isToMe
+                                        ? "text-emerald-500"
+                                        : "text-[var(--foreground)]",
+                                    )}
+                                  >
+                                    {p.toUser.name} {isToMe && "(Tu)"}
+                                  </span>
+                                  <span className="text-xs font-black text-blue-500 ml-1">
+                                    {formatCurrency(
+                                      convertCurrency(
+                                        p.amountNok,
+                                        "NOK",
+                                        displayCurrency,
+                                      ),
+                                      displayCurrency,
+                                    )}
+                                  </span>
+                                </div>
+                                {canSettle && (
+                                  <Button
+                                    variant="outline"
+                                    className="h-7 text-[9px] font-bold bg-neutral-500/10 hover:bg-blue-500 hover:text-white rounded-lg px-3 shrink-0 cursor-pointer border-0 transition-all self-end sm:self-auto"
+                                    onPress={() => {
+                                      settleDebtMutation.mutate({
+                                        friendId: targetFriendId,
+                                      });
+                                    }}
+                                    isDisabled={settleDebtMutation.isPending}
+                                  >
+                                    {settleDebtMutation.isPending
+                                      ? "Salvataggio..."
+                                      : "Salda"}
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          },
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-[10px] text-[var(--text-muted)] italic pl-1">
+                        Tutti i debiti in questo gruppo sono saldati!
+                      </p>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <StatCard
                       title="Spese in Cartella"
@@ -1317,7 +1418,6 @@ export default function FriendsView() {
         defaultGroupId={selectedGroup?.id}
         defaultFriendId={selectedFriend?.user.id}
       />
-      ;{}
       <AnimatePresence>
         {isCreateGroupOpen && (
           <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">

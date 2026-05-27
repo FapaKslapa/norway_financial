@@ -16,6 +16,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
+import { NotificationBell } from "./notifications/notification-bell";
 import {
   SettingsDialog,
   type UserSettingsType,
@@ -94,6 +95,17 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
       settingsQuery.refetch();
     },
   });
+
+  const [hasProcessed, setHasProcessed] = useState(false);
+  const processDueRecurrentMutation =
+    trpc.recurrentTransaction.processDue.useMutation();
+
+  useEffect(() => {
+    if (isRateFetched && !hasProcessed) {
+      setHasProcessed(true);
+      processDueRecurrentMutation.mutate({ rates });
+    }
+  }, [isRateFetched, rates, hasProcessed, processDueRecurrentMutation]);
 
   useEffect(() => {
     const localVal = localStorage.getItem("preferred_currency");
@@ -344,6 +356,8 @@ function DashboardLayoutContent({
               Valuta: {displayCurrency}
             </div>
 
+            <NotificationBell />
+
             <Button
               isIconOnly
               variant="ghost"
@@ -371,6 +385,7 @@ function DashboardLayoutContent({
           <div className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-500 mr-1 select-none">
             {displayCurrency}
           </div>
+          <NotificationBell />
           <Button
             isIconOnly
             variant="ghost"

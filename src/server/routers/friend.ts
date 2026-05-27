@@ -1,6 +1,13 @@
 import crypto from "node:crypto";
 import { and, eq, inArray, or } from "drizzle-orm";
-import { friendship, sharedExpense, transaction, user } from "@/db/schema";
+import { z } from "zod";
+import {
+  friendship,
+  notification,
+  sharedExpense,
+  transaction,
+  user,
+} from "@/db/schema";
 import {
   respondFriendRequestSchema,
   sendFriendRequestSchema,
@@ -64,6 +71,18 @@ export const friendRouter = router({
       };
 
       await ctx.db.insert(friendship).values(newRequest);
+
+      await ctx.db.insert(notification).values({
+        id: crypto.randomUUID(),
+        userId: targetUser.id,
+        type: "friend_request_received",
+        title: "Richiesta di amicizia",
+        message: `${ctx.session.user.name || ctx.session.user.email} ti ha inviato una richiesta di amicizia.`,
+        read: false,
+        link: "/friends",
+        createdAt: new Date(),
+      });
+
       return { success: true };
     }),
 
@@ -95,6 +114,17 @@ export const friendRouter = router({
           .update(friendship)
           .set({ status: "accepted", updatedAt: new Date() })
           .where(eq(friendship.id, req.id));
+
+        await ctx.db.insert(notification).values({
+          id: crypto.randomUUID(),
+          userId: req.userId,
+          type: "friend_request_accepted",
+          title: "Richiesta accettata",
+          message: `${ctx.session.user.name || ctx.session.user.email} ha accettato la tua richiesta di amicizia.`,
+          read: false,
+          link: "/friends",
+          createdAt: new Date(),
+        });
       } else {
         await ctx.db.delete(friendship).where(eq(friendship.id, req.id));
       }
@@ -374,5 +404,132 @@ export const friendRouter = router({
         );
 
       return { success: true };
+    }),
+
+  getGroupSettlementProposals: protectedProcedure
+    .input(
+      z
+        .object({
+          groupId: z.string().nullable().optional(),
+        })
+        .optional(),
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const conditions = [];
+
+      if (input?.groupId) {
+        conditions.push(eq(sharedExpense.groupId, input.groupId));
+      } else {
+        conditions.push(
+          or(
+            eq(sharedExpense.payerId, userId),
+            eq(sharedExpense.borrowerId, userId),
+          ),
+        );
+      }
+
+      const unsettled = await ctx.db
+        .select()
+        .from(sharedExpense)
+        .where(and(eq(sharedExpense.settled, false), ...conditions));
+
+      if (unsettled.length === 0) return [];
+
+      const netBalances: Record<string, number> = {};
+      for (const exp of unsettled) {
+        const payer = exp.payerId;
+        const borrower = exp.borrowerId;
+        const amount = parseFloat(exp.splitAmountNok);
+
+        netBalances[payer] = (netBalances[payer] || 0) + amount;
+        netBalances[borrower] = (netBalances[borrower] || 0) - amount;
+      }
+
+      type Participant = { id: string; balance: number };
+      const debtors: Participant[] = [];
+      const creditors: Participant[] = [];
+
+      for (const [id, bal] of Object.entries(netBalances)) {
+        if (bal < -0.01) {
+          debtors.push({ id, balance: bal });
+        } else if (bal > 0.01) {
+          creditors.push({ id, balance: bal });
+        }
+      }
+
+      const proposals: Array<{
+        fromId: string;
+        toId: string;
+        amountNok: number;
+      }> = [];
+
+      let dIdx = 0;
+      let cIdx = 0;
+
+      debtors.sort((a, b) => a.balance - b.balance);
+      creditors.sort((a, b) => b.balance - a.balance);
+
+      while (dIdx < debtors.length && cIdx < creditors.length) {
+        const debtor = debtors[dIdx];
+        const creditor = creditors[cIdx];
+
+        const debtAmount = Math.abs(debtor.balance);
+        const creditAmount = creditor.balance;
+
+        const settleAmount = Math.min(debtAmount, creditAmount);
+
+        if (settleAmount > 0.01) {
+          proposals.push({
+            fromId: debtor.id,
+            toId: creditor.id,
+            amountNok: settleAmount,
+          });
+        }
+
+        debtor.balance += settleAmount;
+        creditor.balance -= settleAmount;
+
+        if (Math.abs(debtor.balance) < 0.01) {
+          dIdx++;
+        }
+        if (Math.abs(creditor.balance) < 0.01) {
+          cIdx++;
+        }
+      }
+
+      const allUserIds = Array.from(
+        new Set([
+          ...proposals.map((p) => p.fromId),
+          ...proposals.map((p) => p.toId),
+        ]),
+      );
+
+      if (allUserIds.length === 0) return [];
+
+      const usersData = await ctx.db
+        .select({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        })
+        .from(user)
+        .where(inArray(user.id, allUserIds));
+
+      const userMap = new Map(usersData.map((u) => [u.id, u]));
+
+      return proposals
+        .map((p) => {
+          const fromUser = userMap.get(p.fromId);
+          const toUser = userMap.get(p.toId);
+          if (!fromUser || !toUser) return null;
+          return {
+            fromUser,
+            toUser,
+            amountNok: p.amountNok,
+          };
+        })
+        .filter((item): item is NonNullable<typeof item> => item !== null);
     }),
 });
