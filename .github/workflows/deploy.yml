@@ -1,0 +1,41 @@
+name: Deploy to Server
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            # Navigate to deploy directory
+            mkdir -p /var/www/norway_financial
+            cd /var/www/norway_financial
+
+            # If git repo is not initialized, clone it
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            fi
+
+            # Fetch the latest tags and checkout the tagged commit
+            git fetch --all --tags
+            git checkout tags/${{ github.ref_name }}
+
+            # Write the production environment file
+            echo "${{ secrets.ENV_FILE }}" > .env
+
+            # Build and deploy the container
+            docker compose down --remove-orphans
+            docker compose up -d --build
+
+            # Clean up old images to save disk space
+            docker image prune -f
