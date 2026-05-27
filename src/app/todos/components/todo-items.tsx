@@ -96,9 +96,23 @@ export function TodoItems({
                     }}
                     className="text-[10px] font-bold px-2.5 py-1.5 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
                   >
-                    {activeTodos.every((t) => selectedTodoIds.includes(t.id))
-                      ? "Deseleziona Tutti"
-                      : "Seleziona Tutti"}
+                    {activeTodos.every((t) =>
+                      selectedTodoIds.includes(t.id),
+                    ) ? (
+                      <>
+                        <span className="hidden sm:inline">
+                          Deseleziona Tutti
+                        </span>
+                        <span className="sm:hidden">Nessuno</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="hidden sm:inline">
+                          Seleziona Tutti
+                        </span>
+                        <span className="sm:hidden">Tutti</span>
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
@@ -107,7 +121,7 @@ export function TodoItems({
                     className="text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center gap-1 border-0 shadow-sm"
                   >
                     <Sparkles size={11} />
-                    Importa ({selectedTodoIds.length})
+                    <span>Importa ({selectedTodoIds.length})</span>
                   </button>
                   <button
                     type="button"
@@ -124,7 +138,10 @@ export function TodoItems({
                   className="text-[10px] font-black px-2.5 py-1.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center gap-1 bg-transparent"
                 >
                   <Sparkles size={11} className="animate-pulse" />
-                  Importazione di Massa
+                  <span className="hidden sm:inline">
+                    Importazione di Massa
+                  </span>
+                  <span className="sm:hidden">Seleziona</span>
                 </button>
               )}
             </div>
