@@ -1,10 +1,10 @@
 "use client";
 
-import { Card, CardContent } from "@heroui/react";
+import { Card } from "@heroui/react";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { CategoryIcon } from "../../../components/icon-helper";
-import { cn, formatCurrency } from "../../../lib/utils";
+import { CategoryIcon } from "@/components/icon-helper";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type TransactionType = {
   id: string;
@@ -41,19 +41,23 @@ type CategoryType = {
 type RecentTransactionsCardProps = {
   transactions: TransactionType[];
   categories: CategoryType[];
-  displayCurrency: "EUR" | "NOK";
-  exchangeRate: number;
+  displayCurrency: string;
+  convertCurrency: (amount: number, from: string, to: string) => number;
 };
 
 export function RecentTransactionsCard({
   transactions,
   categories,
   displayCurrency,
-  exchangeRate,
+  convertCurrency,
 }: RecentTransactionsCardProps) {
+  const expenses = transactions
+    .filter((tx) => tx.type === "expense")
+    .slice(0, 20);
+
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget h-full flex flex-col justify-between transition-all">
-      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 apple-widget flex flex-col transition-all h-full">
+      <div className="flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 flex-shrink-0">
         <div className="flex gap-2.5 items-center">
           <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
             <TrendingUp size={15} />
@@ -68,18 +72,29 @@ export function RecentTransactionsCard({
         </Link>
       </div>
 
-      <CardContent className="p-0 flex-1 overflow-y-auto max-h-56 flex flex-col gap-2.5">
-        {transactions.slice(0, 4).map((tx) => {
+      <div className="overflow-y-auto flex flex-col gap-2 pr-1 scrollbar-thin flex-1 min-h-0">
+        {expenses.map((tx) => {
           const cat = categories.find((c) => c.id === tx.categoryId);
           const isExpense = tx.type === "expense";
-          const activeAmount =
-            displayCurrency === "NOK"
-              ? tx.sharedInfo?.isBorrowed
-                ? parseFloat(tx.sharedInfo.splitAmountNok)
-                : parseFloat(tx.amountNok)
-              : tx.sharedInfo?.isBorrowed
-                ? parseFloat(tx.sharedInfo.splitAmountNok) / exchangeRate
-                : parseFloat(tx.amountEur);
+
+          const displayAmount = tx.sharedInfo
+            ? tx.sharedInfo.isBorrowed
+              ? convertCurrency(
+                  parseFloat(tx.sharedInfo.splitAmountNok),
+                  "NOK",
+                  displayCurrency,
+                )
+              : convertCurrency(
+                  parseFloat(tx.amountNok),
+                  "NOK",
+                  displayCurrency,
+                ) -
+                convertCurrency(
+                  parseFloat(tx.sharedInfo.splitAmountNok),
+                  "NOK",
+                  displayCurrency,
+                )
+            : convertCurrency(parseFloat(tx.amountEur), "EUR", displayCurrency);
 
           return (
             <div
@@ -125,7 +140,7 @@ export function RecentTransactionsCard({
                 className={`text-xs font-black shrink-0 ${isExpense ? "text-[var(--foreground)]" : "text-emerald-500"}`}
               >
                 {isExpense ? "-" : "+"}{" "}
-                {formatCurrency(activeAmount, displayCurrency)}
+                {formatCurrency(displayAmount, displayCurrency)}
               </span>
             </div>
           );
@@ -136,7 +151,7 @@ export function RecentTransactionsCard({
             Nessuna transazione registrata.
           </div>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

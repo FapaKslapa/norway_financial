@@ -1,11 +1,12 @@
 "use client";
 
 import dayjs from "dayjs";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { BarChart3, Globe, Settings, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
-import { useDashboard } from "../components/dashboard-layout";
-import { LoadingState } from "../components/ui/loading-state";
-import { trpc } from "../lib/trpc/client";
+import { useDashboard } from "@/components/dashboard-layout";
+import { LoadingState } from "@/components/ui/loading-state";
+import { trpc } from "@/lib/trpc/client";
 import { BudgetProgressCard } from "./overview/components/budget-progress-card";
 import { CurrencyConverterCard } from "./overview/components/currency-converter-card";
 import { OverviewHeader } from "./overview/components/overview-header";
@@ -15,8 +16,15 @@ import { RecentTransactionsCard } from "./overview/components/recent-transaction
 import { StatsGrid } from "./overview/components/stats-grid";
 
 export default function OverviewClient() {
-  const { displayCurrency, exchangeRate, settings, setIsSettingsOpen, user } =
-    useDashboard();
+  const {
+    convertCurrency,
+    displayCurrency,
+    rates,
+    settings,
+    setIsSettingsOpen,
+    setSettingsTab,
+    user,
+  } = useDashboard();
 
   const categoriesQuery = trpc.category.list.useQuery();
   const transactionsQuery = trpc.transaction.list.useQuery();
@@ -39,6 +47,19 @@ export default function OverviewClient() {
   });
 
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    if (typeof window !== "undefined") {
+      return (
+        localStorage.getItem("globe_finance_onboarding_dismissed") !== "true"
+      );
+    }
+    return true;
+  });
+
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem("globe_finance_onboarding_dismissed", "true");
+  };
 
   if (
     categoriesQuery.isLoading ||
@@ -54,45 +75,50 @@ export default function OverviewClient() {
     dayjs(t.date).isSame(dayjs(), "month"),
   );
 
-  const totalIncomeNok = currentMonthTransactions
+  const totalIncomeEur = currentMonthTransactions
     .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + parseFloat(t.amountNok), 0);
+    .reduce((sum, t) => sum + parseFloat(t.amountEur), 0);
 
-  const totalExpenseNok = currentMonthTransactions
+  const totalExpenseEur = currentMonthTransactions
     .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + parseFloat(t.amountNok), 0);
+    .reduce((sum, t) => sum + parseFloat(t.amountEur), 0);
 
-  const totalIncome =
-    displayCurrency === "NOK" ? totalIncomeNok : totalIncomeNok / exchangeRate;
-  const totalExpense =
-    displayCurrency === "NOK"
-      ? totalExpenseNok
-      : totalExpenseNok / exchangeRate;
+  const totalIncome = convertCurrency(totalIncomeEur, "EUR", displayCurrency);
+  const totalExpense = convertCurrency(totalExpenseEur, "EUR", displayCurrency);
   const netSavings = totalIncome - totalExpense;
 
-  const targetBudgetVal = settings
+  const targetBudgetValNok = settings
     ? parseFloat(settings.targetMonthlyBudget)
     : 10000;
-  const maxBudgetVal = settings ? parseFloat(settings.maxMonthlyBudget) : 12000;
+  const maxBudgetValNok = settings
+    ? parseFloat(settings.maxMonthlyBudget)
+    : 12000;
+
+  const targetBudgetVal = convertCurrency(
+    targetBudgetValNok,
+    "NOK",
+    displayCurrency,
+  );
+  const maxBudgetVal = convertCurrency(maxBudgetValNok, "NOK", displayCurrency);
 
   const handleSaveQuickAdd = async (tx: {
     description: string;
     type: "expense" | "income";
     amount: number;
-    currency: "EUR" | "NOK";
+    currency: string;
     categoryId: string | null;
     date: string;
-    sharedWithUserId: string | null;
   }) => {
     await createTransactionMutation.mutateAsync({
       description: tx.description,
       type: tx.type,
       amount: tx.amount,
       currency: tx.currency,
-      exchangeRate,
+      exchangeRate: rates[tx.currency] ?? 1.0,
+      exchangeRateNok: rates.NOK ?? 11.85,
       categoryId: tx.categoryId,
       date: tx.date,
-      sharedWithUserId: tx.sharedWithUserId,
+      sharedWithUserId: null,
     });
   };
 
@@ -109,6 +135,83 @@ export default function OverviewClient() {
         />
       </motion.div>
 
+      <AnimatePresence>
+        {showOnboarding && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="relative overflow-hidden rounded-3xl select-none"
+            style={{
+              background:
+                "linear-gradient(135deg, #3b82f6 0%, #6366f1 60%, #8b5cf6 100%)",
+            }}
+          >
+            <div className="absolute top-0 right-0 w-56 h-56 rounded-full bg-white/5 -translate-y-20 translate-x-20 pointer-events-none" />
+            <div className="absolute bottom-0 left-10 w-32 h-32 rounded-full bg-white/5 translate-y-12 pointer-events-none" />
+
+            <button
+              type="button"
+              onClick={handleDismissOnboarding}
+              className="absolute top-4 right-4 h-7 w-7 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 cursor-pointer bg-transparent border-0 transition-all z-10"
+            >
+              <X size={13} />
+            </button>
+
+            <div className="relative z-10 p-6 pb-5">
+              <div className="h-11 w-11 rounded-2xl bg-white/15 flex items-center justify-center mb-4 text-white">
+                <Globe size={22} />
+              </div>
+
+              <h2 className="text-base font-black text-white mb-1 tracking-tight">
+                Benvenuto in GlobeFinance
+              </h2>
+              <p className="text-xs text-white/65 leading-relaxed max-w-md">
+                Tieni traccia delle tue spese in qualsiasi valuta con tassi di
+                cambio in tempo reale. Inizia configurando la tua valuta e il
+                budget mensile.
+              </p>
+
+              <div className="flex items-center gap-3 mt-5">
+                <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                  <BarChart3 size={13} className="text-white/70" />
+                  <span className="text-[10px] font-bold text-white">
+                    Analytics
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                  <Globe size={13} className="text-white/70" />
+                  <span className="text-[10px] font-bold text-white">
+                    Multi-valuta
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
+                  <ShieldCheck size={13} className="text-white/70" />
+                  <span className="text-[10px] font-bold text-white">
+                    Budget
+                  </span>
+                </div>
+              </div>
+
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                  setSettingsTab("general");
+                  setIsSettingsOpen(true);
+                }}
+                className="mt-5 flex items-center gap-2 bg-white text-blue-600 font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer border-0 shadow-lg shadow-black/10 transition-all"
+              >
+                <Settings size={12} />
+                Configura ora
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <StatsGrid
         totalIncome={totalIncome}
         totalExpense={totalExpense}
@@ -121,26 +224,17 @@ export default function OverviewClient() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1"
+          className="md:col-span-1 h-full flex flex-col"
         >
           <BudgetProgressCard
-            totalExpense={
-              displayCurrency === "NOK"
-                ? totalExpenseNok
-                : totalExpenseNok / exchangeRate
-            }
-            targetBudgetVal={
-              displayCurrency === "NOK"
-                ? targetBudgetVal
-                : targetBudgetVal / exchangeRate
-            }
-            maxBudgetVal={
-              displayCurrency === "NOK"
-                ? maxBudgetVal
-                : maxBudgetVal / exchangeRate
-            }
+            totalExpense={totalExpense}
+            targetBudgetVal={targetBudgetVal}
+            maxBudgetVal={maxBudgetVal}
             displayCurrency={displayCurrency}
-            onOpenSettings={() => setIsSettingsOpen(true)}
+            onOpenSettings={() => {
+              setSettingsTab("budget");
+              setIsSettingsOpen(true);
+            }}
           />
         </motion.div>
 
@@ -148,13 +242,13 @@ export default function OverviewClient() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-2"
+          className="md:col-span-2 h-full flex flex-col"
         >
           <RecentTransactionsCard
             transactions={transactions}
             categories={categoriesQuery.data || []}
             displayCurrency={displayCurrency}
-            exchangeRate={exchangeRate}
+            convertCurrency={convertCurrency}
           />
         </motion.div>
 
@@ -163,7 +257,7 @@ export default function OverviewClient() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
         >
-          <CurrencyConverterCard exchangeRate={exchangeRate} />
+          <CurrencyConverterCard />
         </motion.div>
 
         <motion.div
@@ -183,8 +277,6 @@ export default function OverviewClient() {
         isOpen={isQuickAddOpen}
         onClose={() => setIsQuickAddOpen(false)}
         categories={categoriesQuery.data || []}
-        friends={friendsQuery.data || []}
-        exchangeRate={exchangeRate}
         onSave={handleSaveQuickAdd}
       />
     </div>

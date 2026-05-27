@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@heroui/react";
 import { ArrowRight, CheckSquare } from "lucide-react";
 import Link from "next/link";
-import { formatCurrency } from "../../../lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 type TodoType = {
   id: string;
@@ -15,7 +15,7 @@ type TodoType = {
 
 type RecentTodoCardProps = {
   todos: TodoType[];
-  displayCurrency: "EUR" | "NOK";
+  displayCurrency: string;
 };
 
 export function RecentTodoCard({

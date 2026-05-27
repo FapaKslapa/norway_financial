@@ -1,14 +1,14 @@
 "use client";
 
 import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
-import { StatCard } from "../../../components/ui/stat-card";
-import { formatCurrency } from "../../../lib/utils";
+import { StatCard } from "@/components/ui/stat-card";
+import { formatCurrency } from "@/lib/utils";
 
 type StatsGridProps = {
   totalIncome: number;
   totalExpense: number;
   netSavings: number;
-  displayCurrency: "EUR" | "NOK";
+  displayCurrency: string;
 };
 
 export function StatsGrid({
