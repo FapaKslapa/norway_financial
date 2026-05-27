@@ -194,7 +194,7 @@ export function SettingsDialog({
                 )}
               >
                 <Sliders size={14} />
-                <span>Generali</span>
+                <span className="hidden md:inline">Generali</span>
               </button>
 
               <button
@@ -208,7 +208,7 @@ export function SettingsDialog({
                 )}
               >
                 <DollarSign size={14} />
-                <span>Limiti Budget</span>
+                <span className="hidden md:inline">Limiti Budget</span>
               </button>
 
               <button
@@ -222,7 +222,7 @@ export function SettingsDialog({
                 )}
               >
                 <User size={14} />
-                <span>Profilo</span>
+                <span className="hidden md:inline">Profilo</span>
               </button>
             </div>
 

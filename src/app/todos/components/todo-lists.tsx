@@ -28,7 +28,7 @@ export function TodoLists({
         Le mie Liste
       </h4>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-none snap-x snap-mandatory">
         {lists.map((list) => {
           const isActive = list.id === activeListId;
           const count = list.activeCount ?? 0;
@@ -36,7 +36,7 @@ export function TodoLists({
             <div
               key={list.id}
               className={cn(
-                "group relative flex justify-between items-center px-4 py-3.5 rounded-2xl border transition-all select-none",
+                "group relative flex justify-between items-center px-4 py-2.5 md:py-3.5 rounded-2xl border transition-all select-none flex-shrink-0 snap-start w-[200px] md:w-auto",
                 isActive
                   ? "bg-blue-500 text-white border-transparent shadow-md shadow-blue-500/15"
                   : "bg-[var(--card)] text-[var(--foreground)] border-[var(--card-border)] hover:bg-neutral-500/10",
@@ -76,7 +76,7 @@ export function TodoLists({
                     type="button"
                     onClick={() => onDeleteList(list.id)}
                     className={cn(
-                      "p-1 rounded-lg transition-all border-0 bg-transparent cursor-pointer opacity-0 group-hover:opacity-100 focus:opacity-100 flex items-center justify-center h-6 w-6",
+                      "p-1 rounded-lg transition-all border-0 bg-transparent cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 flex items-center justify-center h-6 w-6",
                       isActive
                         ? "text-white/70 hover:bg-white/10"
                         : "text-rose-500 hover:bg-rose-500/10",

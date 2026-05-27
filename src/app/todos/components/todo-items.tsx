@@ -126,7 +126,7 @@ export function TodoItems({
                 <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                   <button
                     type="button"
-                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all md:opacity-0 group-hover:opacity-100"
+                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                     onClick={() => onDeleteTodo(todoItem.id)}
                     title="Elimina"
                   >
@@ -254,7 +254,7 @@ export function TodoItems({
 
                           <button
                             type="button"
-                            className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all md:opacity-0 group-hover:opacity-100"
+                            className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                             onClick={() => onDeleteTodo(todoItem.id)}
                             title="Elimina"
                           >

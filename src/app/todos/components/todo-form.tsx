@@ -70,26 +70,36 @@ export function TodoForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-[var(--card-shadow)] relative z-20"
+      className="flex flex-col sm:flex-row gap-2 p-2 bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-[var(--card-shadow)] relative z-20"
     >
-      <input
-        type="text"
-        placeholder={`Aggiungi articolo a "${listName}"...`}
-        value={todoTitle}
-        onChange={(e) => setTodoTitle(e.target.value)}
-        required
-        className="text-xs text-[var(--foreground)] flex-1 min-w-0 bg-neutral-500/5 dark:bg-zinc-800/30 border border-[var(--card-border)] focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold placeholder:font-normal transition-all"
-      />
-      <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-        <div className="w-[130px] shrink-0">
+      <div className="flex items-center gap-2 flex-1">
+        <input
+          type="text"
+          placeholder={`Aggiungi articolo a "${listName}"...`}
+          value={todoTitle}
+          onChange={(e) => setTodoTitle(e.target.value)}
+          required
+          className="text-xs text-[var(--foreground)] flex-1 min-w-0 bg-neutral-500/5 dark:bg-zinc-800/30 border border-[var(--card-border)] focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold placeholder:font-normal transition-all"
+        />
+        <button
+          type="submit"
+          disabled={isSubmitting || !todoTitle.trim()}
+          className="flex sm:hidden bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white h-10 w-10 rounded-xl cursor-pointer transition-all border-0 shadow-sm shrink-0 items-center justify-center"
+        >
+          {isSubmitting ? "..." : <Plus size={15} />}
+        </button>
+      </div>
+
+      <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex-1 sm:w-[130px] sm:shrink-0">
           <CategorySelect
             value={todoCategoryId}
             onChange={setTodoCategoryId}
             categories={categories}
-            triggerClassName="h-10 text-xs"
+            triggerClassName="h-10 text-xs w-full"
           />
         </div>
-        <div className="w-[160px] shrink-0">
+        <div className="w-[110px] sm:w-[150px] shrink-0">
           <MoneyInput
             value={todoEstAmount}
             onChange={setTodoEstAmount}
@@ -99,17 +109,17 @@ export function TodoForm({
             inputClassName="text-xs font-bold"
           />
         </div>
-        <div className="w-[70px] shrink-0">
+        <div className="w-[60px] sm:w-[70px] shrink-0">
           <CurrencySelect
             value={todoEstCurrency}
             onChange={setTodoEstCurrency}
-            triggerClassName="h-10 text-[11px] font-bold"
+            triggerClassName="h-10 text-[11px] font-bold w-full"
           />
         </div>
         <button
           type="submit"
           disabled={isSubmitting || !todoTitle.trim()}
-          className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white h-10 w-10 rounded-xl cursor-pointer transition-all border-0 shadow-sm shrink-0 flex items-center justify-center"
+          className="hidden sm:flex bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white h-10 w-10 rounded-xl cursor-pointer transition-all border-0 shadow-sm shrink-0 items-center justify-center"
         >
           {isSubmitting ? "..." : <Plus size={15} />}
         </button>
