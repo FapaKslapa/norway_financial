@@ -163,7 +163,16 @@ export function SettingsDialog({
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="relative w-full max-w-[520px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-[2rem] overflow-hidden min-h-[400px]"
           >
-            <div className="w-full md:w-[180px] bg-[var(--card-sidebar)] border-b md:border-b-0 md:border-r border-[var(--card-border)] p-5 flex flex-row md:flex-col gap-1 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-3.5 right-3.5 h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
+              aria-label="Chiudi"
+            >
+              <X size={15} />
+            </button>
+
+            <div className="w-full md:w-[180px] bg-[var(--card-sidebar)] border-b md:border-b-0 md:border-r border-[var(--card-border)] p-3 md:p-5 pr-12 md:pr-5 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
               <div className="hidden md:flex items-center gap-2 mb-4 px-2">
                 <Settings
                   size={16}
@@ -178,7 +187,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("general")}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer w-full text-left bg-transparent",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "general"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
@@ -192,7 +201,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("budget")}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer w-full text-left bg-transparent",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "budget"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
@@ -206,7 +215,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("profile")}
                 className={cn(
-                  "flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer w-full text-left bg-transparent",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "profile"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
