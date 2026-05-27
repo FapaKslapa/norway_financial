@@ -8,6 +8,7 @@ import { useDashboard } from "@/components/dashboard-layout";
 import { LoadingState } from "@/components/ui/loading-state";
 import { trpc } from "@/lib/trpc/client";
 import { BudgetProgressCard } from "./overview/components/budget-progress-card";
+import { CategoryBudgetsCard } from "./overview/components/category-budgets-card";
 import { CurrencyConverterCard } from "./overview/components/currency-converter-card";
 import { OverviewHeader } from "./overview/components/overview-header";
 import { QuickAddForm } from "./overview/components/quick-add-form";
@@ -30,6 +31,7 @@ export default function OverviewClient() {
   const transactionsQuery = trpc.transaction.list.useQuery();
   const friendsQuery = trpc.friend.listFriends.useQuery();
   const listsQuery = trpc.todo.listLists.useQuery();
+  const categoryBudgetsQuery = trpc.categoryBudget.list.useQuery();
 
   const activeListId = listsQuery.data?.[0]?.id;
   const todosQuery = trpc.todo.list.useQuery(
@@ -65,12 +67,14 @@ export default function OverviewClient() {
     categoriesQuery.isLoading ||
     transactionsQuery.isLoading ||
     friendsQuery.isLoading ||
-    listsQuery.isLoading
+    listsQuery.isLoading ||
+    categoryBudgetsQuery.isLoading
   ) {
     return <LoadingState />;
   }
 
   const transactions = transactionsQuery.data || [];
+  const categoryBudgets = categoryBudgetsQuery.data || [];
   const currentMonthTransactions = transactions.filter((t) =>
     dayjs(t.date).isSame(dayjs(), "month"),
   );
@@ -254,6 +258,25 @@ export default function OverviewClient() {
             categories={categoriesQuery.data || []}
             displayCurrency={displayCurrency}
             convertCurrency={convertCurrency}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <CategoryBudgetsCard
+            transactions={currentMonthTransactions}
+            categories={categoriesQuery.data || []}
+            categoryBudgets={categoryBudgets}
+            displayCurrency={displayCurrency}
+            convertCurrency={convertCurrency}
+            onOpenSettings={() => {
+              setSettingsTab("budget");
+              setIsSettingsOpen(true);
+            }}
           />
         </motion.div>
 

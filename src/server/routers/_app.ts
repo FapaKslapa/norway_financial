@@ -2,8 +2,11 @@ import { z } from "zod";
 import { protectedProcedure, publicProcedure, router } from "@/server/trpc";
 import { authRouter } from "./auth";
 import { categoryRouter } from "./category";
+import { categoryBudgetRouter } from "./category-budget";
 import { friendRouter } from "./friend";
 import { groupRouter } from "./group";
+import { notificationRouter } from "./notification";
+import { recurrentTransactionRouter } from "./recurrent-transaction";
 import { todoRouter } from "./todo";
 import { transactionRouter } from "./transaction";
 import { userSettingsRouter } from "./user-settings";
@@ -37,6 +40,9 @@ export const appRouter = router({
   todo: todoRouter,
   friend: friendRouter,
   group: groupRouter,
+  categoryBudget: categoryBudgetRouter,
+  notification: notificationRouter,
+  recurrentTransaction: recurrentTransactionRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -223,3 +223,50 @@ export const sharedExpense = mysqlTable("shared_expense", {
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
+
+export const categoryBudget = mysqlTable("category_budget", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  categoryId: varchar("category_id", { length: 36 })
+    .notNull()
+    .references(() => category.id, { onDelete: "cascade" }),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const notification = mysqlTable("notification", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 30 }).notNull(),
+  title: varchar("title", { length: 100 }).notNull(),
+  message: varchar("message", { length: 255 }).notNull(),
+  read: boolean("read").notNull().default(false),
+  link: varchar("link", { length: 100 }),
+  createdAt: timestamp("created_at").notNull(),
+});
+
+export const recurrentTransaction = mysqlTable("recurrent_transaction", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 })
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  categoryId: varchar("category_id", { length: 36 }).references(
+    () => category.id,
+    { onDelete: "set null" },
+  ),
+  type: varchar("type", { length: 10 }).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).notNull().default("EUR"),
+  description: varchar("description", { length: 255 }).notNull(),
+  frequency: varchar("frequency", { length: 20 }).notNull(),
+  startDate: timestamp("start_date").notNull(),
+  nextOccurrence: timestamp("next_occurrence").notNull(),
+  lastExecuted: timestamp("last_executed"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});

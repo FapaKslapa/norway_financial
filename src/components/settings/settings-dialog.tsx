@@ -17,8 +17,10 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
+import { CategoryIcon } from "@/components/icon-helper";
 import { CurrencySelect } from "@/components/ui/currency-select";
 import { MoneyInput } from "@/components/ui/money-input";
+import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 export const ACCENT_COLORS = [
@@ -90,6 +92,16 @@ export function SettingsDialog({
     useState<string>(displayCurrency);
   const [isSaving, setIsSaving] = useState(false);
 
+  const categoriesQuery = trpc.category.list.useQuery(undefined, {
+    enabled: isOpen,
+  });
+  const categoryBudgetsQuery = trpc.categoryBudget.list.useQuery(undefined, {
+    enabled: isOpen,
+  });
+  const setCategoryBudgetMutation = trpc.categoryBudget.set.useMutation();
+
+  const [catBudgets, setCatBudgets] = useState<Record<string, string>>({});
+
   const toDisplayCurrency = useCallback(
     (nokVal: number): number => convertCurrency(nokVal, "NOK", displayCurrency),
     [convertCurrency, displayCurrency],
@@ -99,6 +111,19 @@ export function SettingsDialog({
       convertCurrency(displayVal, displayCurrency, "NOK"),
     [convertCurrency, displayCurrency],
   );
+
+  useEffect(() => {
+    if (categoryBudgetsQuery.data) {
+      const budgetMap: Record<string, string> = {};
+      for (const cb of categoryBudgetsQuery.data) {
+        const amountDisplay = toDisplayCurrency(parseFloat(cb.amount)).toFixed(
+          2,
+        );
+        budgetMap[cb.categoryId] = amountDisplay;
+      }
+      setCatBudgets(budgetMap);
+    }
+  }, [categoryBudgetsQuery.data, toDisplayCurrency]);
 
   const [targetBudget, setTargetBudget] = useState(() => {
     if (!settings) return toDisplayCurrency(0).toFixed(2);
@@ -133,6 +158,20 @@ export function SettingsDialog({
         themeMode: theme,
         themeAccent: accent,
       });
+
+      if (categoriesQuery.data) {
+        await Promise.all(
+          categoriesQuery.data.map((cat) => {
+            const valStr = catBudgets[cat.id] || "0.00";
+            const valNok = toNok(parseFloat(valStr) || 0);
+            return setCategoryBudgetMutation.mutateAsync({
+              categoryId: cat.id,
+              amount: valNok,
+            });
+          }),
+        );
+      }
+
       onClose();
     } catch (err) {
       console.error(err);
@@ -183,7 +222,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("general")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "general"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
@@ -197,7 +236,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("budget")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "budget"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
@@ -211,7 +250,7 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("profile")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
                   activeTab === "profile"
                     ? "bg-[var(--foreground)] text-[var(--background)]"
                     : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
@@ -351,6 +390,61 @@ export function SettingsDialog({
                         NOK/EUR)
                       </div>
                     )}
+
+                    <div className="border-t border-[var(--card-border)] pt-4 mt-2 flex flex-col gap-3">
+                      <div>
+                        <h5 className="text-xs font-bold mb-0.5">
+                          Budget per Categoria
+                        </h5>
+                        <p className="text-[10px] text-[var(--text-muted)]">
+                          Imposta limiti specifici per categoria di spesa
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1">
+                        {categoriesQuery.isLoading ? (
+                          <div className="text-[10px] text-[var(--text-muted)]">
+                            Caricamento...
+                          </div>
+                        ) : categoriesQuery.data &&
+                          categoriesQuery.data.length > 0 ? (
+                          categoriesQuery.data.map((cat) => (
+                            <div
+                              key={cat.id}
+                              className="flex items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/50 rounded-xl p-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-5 h-5 rounded-md flex items-center justify-center text-white flex-shrink-0"
+                                  style={{ backgroundColor: cat.color }}
+                                >
+                                  <CategoryIcon name={cat.icon} size={11} />
+                                </div>
+                                <span className="text-[11px] font-semibold text-[var(--foreground)]">
+                                  {cat.name}
+                                </span>
+                              </div>
+                              <div className="w-[120px]">
+                                <MoneyInput
+                                  value={catBudgets[cat.id] || "0.00"}
+                                  onChange={(newVal) => {
+                                    setCatBudgets((prev) => ({
+                                      ...prev,
+                                      [cat.id]: newVal,
+                                    }));
+                                  }}
+                                  currency={displayCurrency}
+                                  className="h-8"
+                                />
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-[10px] text-[var(--text-muted)]">
+                            Nessuna categoria
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
