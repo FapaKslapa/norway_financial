@@ -132,6 +132,9 @@ export default function FriendsView() {
   const [emailInput, setEmailInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [activeMobileTab, setActiveMobileTab] = useState<
+    "friends" | "groups" | "manage"
+  >("friends");
 
   const [isSharedExpenseOpen, setIsSharedExpenseOpen] = useState(false);
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
@@ -350,9 +353,58 @@ export default function FriendsView() {
             iconBgColor={stat.iconBg}
             iconColor={stat.iconColor}
             delayIndex={stat.delayIndex}
-            className="w-[72vw] md:w-full flex-shrink-0 snap-start bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 shadow-[var(--card-shadow)]"
+            className="w-[72vw] md:w-full flex-shrink-0 snap-start scroll-ml-4 bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 shadow-[var(--card-shadow)]"
           />
         ))}
+      </div>
+      {/* Mobile Tab Switcher */}
+      <div
+        className={cn(
+          "flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none",
+          (selectedFriend || selectedGroup) && "hidden",
+        )}
+      >
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("friends")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeMobileTab === "friends"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Amici
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("groups")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeMobileTab === "groups"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Gruppi
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("manage")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent flex items-center justify-center gap-1",
+            activeMobileTab === "manage"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Gestisci
+          {(pendingQuery.data?.incoming?.length ?? 0) +
+            (pendingQuery.data?.outgoing?.length ?? 0) >
+            0 && (
+            <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-pulse" />
+          )}
+        </button>
       </div>
       <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
         {}
@@ -367,6 +419,7 @@ export default function FriendsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
             <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
               <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
@@ -433,6 +486,7 @@ export default function FriendsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.33, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
             <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
               <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
@@ -542,6 +596,7 @@ export default function FriendsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(activeMobileTab !== "groups" && "hidden md:block")}
           >
             <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
               <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
@@ -1107,6 +1162,9 @@ export default function FriendsView() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 15 }}
                 transition={{ duration: 0.3 }}
+                className={cn(
+                  activeMobileTab !== "friends" && "hidden md:block",
+                )}
               >
                 <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 rounded-[2rem] h-full flex flex-col">
                   <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full flex-shrink-0">

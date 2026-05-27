@@ -19,7 +19,7 @@ export function StatsGrid({
 }: StatsGridProps) {
   return (
     <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto pb-1 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto">
+      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Entrate (Mese)"
           value={formatCurrency(totalIncome, displayCurrency)}
@@ -31,7 +31,7 @@ export function StatsGrid({
         />
       </div>
 
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto">
+      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Uscite (Mese)"
           value={formatCurrency(totalExpense, displayCurrency)}
@@ -43,7 +43,7 @@ export function StatsGrid({
         />
       </div>
 
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto">
+      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Bilancio Netto"
           value={formatCurrency(netSavings, displayCurrency)}

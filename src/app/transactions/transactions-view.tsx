@@ -114,6 +114,9 @@ export default function TransactionsView() {
   const [viewMode, setViewMode] = useState<ViewMode>("timeline");
   const [sortField, setSortField] = useState<SortField>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [activeMobileTab, setActiveMobileTab] = useState<
+    "list" | "summary" | "filters"
+  >("list");
   const [filterText, setFilterText] = useState("");
   const [filterCategoryId, setFilterCategoryId] = useState("");
   const [filterType, setFilterType] = useState<FilterType>("");
@@ -335,11 +338,59 @@ export default function TransactionsView() {
         </div>
       </motion.div>
 
+      {/* Mobile Tab Switcher */}
+      <div className="flex lg:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none">
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("list")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeMobileTab === "list"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Transazioni
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("summary")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeMobileTab === "summary"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Riepilogo
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("filters")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent flex items-center justify-center gap-1",
+            activeMobileTab === "filters"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Filtri
+          {(filterText ||
+            filterCategoryId ||
+            filterType ||
+            filterStartDate ||
+            filterEndDate) && (
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" />
+          )}
+        </button>
+      </div>
+
       {}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        className={cn(activeMobileTab !== "filters" && "hidden lg:block")}
       >
         <TransactionFilters
           filterText={filterText}
@@ -361,7 +412,10 @@ export default function TransactionsView() {
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-        className="flex bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm max-w-[240px] select-none"
+        className={cn(
+          "flex bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm max-w-[240px] select-none",
+          activeMobileTab !== "list" && "hidden lg:flex",
+        )}
       >
         {(["timeline", "table"] as ViewMode[]).map((mode) => (
           <button
@@ -387,7 +441,10 @@ export default function TransactionsView() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-3 flex flex-col gap-6"
+          className={cn(
+            "lg:col-span-3 flex flex-col gap-6",
+            activeMobileTab !== "list" && "hidden lg:flex",
+          )}
         >
           {viewMode === "timeline" ? (
             <TransactionListTimeline
@@ -418,7 +475,10 @@ export default function TransactionsView() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-1"
+          className={cn(
+            "lg:col-span-1",
+            activeMobileTab !== "summary" && "hidden lg:block",
+          )}
         >
           <CategoryTotalsCard
             categoryTotals={categoryTotals}
