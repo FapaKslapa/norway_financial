@@ -18,6 +18,22 @@ export async function sendEmail({
   html,
   text,
 }: BrevoEmailOptions): Promise<void> {
+  if (env.NODE_ENV === "development") {
+    console.log("\n==================================================");
+    console.log(`[DEV MODE] Email to: ${to} (${toName ?? "No Name"})`);
+    console.log(`Subject: ${subject}`);
+    const urlRegex = /(https?:\/\/[^\s"'>]+)/g;
+    const urls = (text ?? html).match(urlRegex);
+    if (urls) {
+      console.log("Links:");
+      for (const url of urls) {
+        console.log(` 👉 ${url}`);
+      }
+    }
+    console.log("==================================================\n");
+    return;
+  }
+
   const apiKey = env.BREVO_API_KEY;
 
   if (!apiKey) {
