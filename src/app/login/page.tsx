@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { gsap } from "gsap";
 import {
@@ -12,19 +11,19 @@ import {
   Mail,
   Moon,
   Sun,
+  User,
 } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { useTheme } from "../../components/theme-provider";
-import { authClient } from "../../lib/auth-client";
+import { useTheme } from "@/components/theme-provider";
+import { authClient } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc/client";
+
+type Tab = "login" | "register";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>("login");
   const { theme, toggleTheme } = useTheme();
-
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -43,39 +42,8 @@ export default function LoginPage() {
         },
       );
     }, containerRef);
-
     return () => ctx.revert();
   }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsLoading(true);
-    setError(null);
-    setIsSuccess(false);
-
-    try {
-      const { error: authError } = await authClient.signIn.magicLink({
-        email,
-        callbackURL: "/",
-      });
-
-      if (authError) {
-        setError(authError.message || "Qualcosa è andato storto. Riprova.");
-      } else {
-        setIsSuccess(true);
-      }
-    } catch (err: unknown) {
-      const errMsg =
-        err instanceof Error
-          ? err.message
-          : "Errore di rete o server non raggiungibile.";
-      setError(errMsg);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div
@@ -83,14 +51,13 @@ export default function LoginPage() {
       className="relative min-h-screen flex items-center justify-center bg-[var(--background)] px-4 select-none transition-colors duration-500"
     >
       <div className="absolute top-6 right-6 z-50">
-        <Button
-          isIconOnly
-          variant="ghost"
-          onPress={toggleTheme}
-          className="bg-[var(--card-solid)] border border-[var(--card-border)] shadow-sm hover:scale-105 active:scale-95 transition-all text-[var(--foreground)] rounded-full"
+        <button
+          type="button"
+          onClick={toggleTheme}
+          className="w-9 h-9 bg-[var(--card-solid)] border border-[var(--card-border)] shadow-sm hover:scale-105 active:scale-95 transition-all text-[var(--foreground)] rounded-full flex items-center justify-center cursor-pointer"
         >
-          {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        </Button>
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
       </div>
 
       <div ref={cardRef} className="w-full max-w-[400px] z-10">
@@ -99,146 +66,341 @@ export default function LoginPage() {
             <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-500 mb-2">
               <Landmark size={26} />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)] font-sans">
-              Erasmus Finance
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+              GlobeFinance
             </h1>
             <p className="text-xs text-[var(--text-muted)] text-center font-normal max-w-[280px]">
-              Gestisci le tue finanze personali durante la tua avventura in
-              Norvegia.
+              Gestisci le tue finanze personali in qualsiasi valuta.
             </p>
           </div>
 
-          <div>
-            <AnimatePresence mode="wait">
-              {isSuccess ? (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                  className="flex flex-col items-center text-center py-4"
-                >
-                  <motion.div
-                    initial={{ scale: 0, rotate: -20 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 150,
-                      delay: 0.1,
-                    }}
-                    className="p-3 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full mb-4"
-                  >
-                    <CheckCircle2 size={32} />
-                  </motion.div>
-                  <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
-                    Magic Link Inviato
-                  </h3>
-                  <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-w-[260px]">
-                    Siamo in modalità sviluppo. Controlla la{" "}
-                    <strong className="text-[var(--foreground)] font-semibold">
-                      console del server
-                    </strong>{" "}
-                    nel tuo terminale per cliccare sul link.
-                  </p>
-                  <Button
-                    variant="outline"
-                    className="w-full py-2 text-xs font-semibold border-[var(--card-border)] text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer rounded-xl"
-                    onPress={() => setIsSuccess(false)}
-                  >
-                    Usa un'altra email
-                  </Button>
-                </motion.div>
-              ) : (
-                <motion.form
-                  key="form"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  onSubmit={handleSubmit}
-                  className="flex flex-col gap-4"
-                >
-                  <div className="flex flex-col gap-1.5">
-                    <label
-                      htmlFor="email"
-                      className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
-                    >
-                      Email
-                    </label>
-                    <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all duration-300">
-                      <Mail
-                        size={15}
-                        className="text-[var(--text-muted)] flex-shrink-0"
-                      />
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="studente@erasmus.no"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full h-full"
-                      />
-                    </div>
-                  </div>
-
-                  <AnimatePresence>
-                    {error && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs leading-relaxed"
-                      >
-                        <AlertCircle
-                          size={15}
-                          className="flex-shrink-0 mt-0.5"
-                        />
-                        <span>{error}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <motion.div
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    className="mt-2"
-                  >
-                    <Button
-                      type="submit"
-                      className="w-full bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl"
-                      isDisabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2
-                            className="animate-spin text-[var(--background)]"
-                            size={15}
-                          />
-                          <span>Verifica in corso...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Accedi con Magic Link</span>
-                          <ArrowRight
-                            size={14}
-                            className="text-[var(--background)]"
-                          />
-                        </>
-                      )}
-                    </Button>
-                  </motion.div>
-
-                  <div className="text-center text-[10px] text-[var(--text-muted)] mt-4 border-t border-[var(--card-border)] pt-4 leading-relaxed max-w-[280px] mx-auto">
-                    Un link di accesso istantaneo verrà inviato all'indirizzo
-                    email specificato.
-                  </div>
-                </motion.form>
-              )}
-            </AnimatePresence>
+          <div className="relative flex p-1 bg-neutral-500/5 border border-[var(--card-border)] rounded-xl mb-6">
+            <motion.div
+              className="absolute top-1 bottom-1 rounded-lg bg-[var(--card-solid)] shadow-sm border border-[var(--card-border)]"
+              animate={{
+                left: tab === "login" ? 4 : "calc(50%)",
+                width: "calc(50% - 4px)",
+              }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            />
+            <button
+              type="button"
+              onClick={() => setTab("login")}
+              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "login" ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}`}
+            >
+              Accedi
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("register")}
+              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "register" ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}`}
+            >
+              Registrati
+            </button>
           </div>
+
+          <AnimatePresence mode="wait">
+            {tab === "login" ? (
+              <motion.div
+                key="login"
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 12 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <LoginForm />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="register"
+                initial={{ opacity: 0, x: 12 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -12 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <RegisterForm onSuccess={() => setTab("login")} />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
+  );
+}
+
+function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { error: authError } = await authClient.signIn.magicLink({
+        email,
+        callbackURL: "/",
+      });
+      if (authError) {
+        setError(authError.message || "Qualcosa è andato storto. Riprova.");
+      } else {
+        setIsSuccess(true);
+      }
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Errore di rete.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <AnimatePresence mode="wait">
+      {isSuccess ? (
+        <motion.div
+          key="success"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 100, damping: 15 }}
+          className="flex flex-col items-center text-center py-4"
+        >
+          <motion.div
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 150, delay: 0.1 }}
+            className="p-3 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full mb-4"
+          >
+            <CheckCircle2 size={32} />
+          </motion.div>
+          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+            Controlla la tua email
+          </h3>
+          <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-w-[260px]">
+            Abbiamo inviato un link di accesso a{" "}
+            <strong className="text-[var(--foreground)]">{email}</strong>.
+            Controlla anche la cartella spam.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsSuccess(false);
+              setEmail("");
+            }}
+            className="w-full py-2.5 text-xs font-semibold border border-[var(--card-border)] text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer rounded-xl bg-transparent transition-all"
+          >
+            Usa un'altra email
+          </button>
+        </motion.div>
+      ) : (
+        <motion.form
+          key="form"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-4"
+        >
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="login-email"
+              className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+            >
+              Email
+            </label>
+            <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+              <Mail
+                size={15}
+                className="text-[var(--text-muted)] flex-shrink-0"
+              />
+              <input
+                id="login-email"
+                type="email"
+                placeholder="tu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+              />
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs"
+              >
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.button
+            type="submit"
+            disabled={isLoading}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            className="mt-1 w-full bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="animate-spin" size={14} />
+                <span>Invio...</span>
+              </>
+            ) : (
+              <>
+                <span>Accedi con Magic Link</span>
+                <ArrowRight size={14} />
+              </>
+            )}
+          </motion.button>
+
+          <p className="text-center text-[10px] text-[var(--text-muted)] border-t border-[var(--card-border)] pt-4 leading-relaxed">
+            Riceverai un link via email. Nessuna password richiesta.
+          </p>
+        </motion.form>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const registerMutation = trpc.auth.register.useMutation({
+    onSuccess: () => setIsSuccess(true),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !email) return;
+    registerMutation.mutate({ name, email });
+  };
+
+  if (isSuccess) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15 }}
+        className="flex flex-col items-center text-center py-4"
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -20 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 150, delay: 0.1 }}
+          className="p-3 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full mb-4"
+        >
+          <CheckCircle2 size={32} />
+        </motion.div>
+        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+          Controlla la tua email
+        </h3>
+        <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-w-[260px]">
+          Abbiamo inviato un link di attivazione a{" "}
+          <strong className="text-[var(--foreground)]">{email}</strong>. Dopo
+          l'attivazione potrai accedere con Magic Link.
+        </p>
+        <button
+          type="button"
+          onClick={onSuccess}
+          className="w-full py-2.5 text-xs font-semibold bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 cursor-pointer rounded-xl border-0 transition-all"
+        >
+          Vai al login
+        </button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-1.5">
+        <label
+          htmlFor="reg-name"
+          className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+        >
+          Nome
+        </label>
+        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+          <User size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+          <input
+            id="reg-name"
+            type="text"
+            placeholder="Mario Rossi"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label
+          htmlFor="reg-email"
+          className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+        >
+          Email
+        </label>
+        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+          <Mail size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+          <input
+            id="reg-email"
+            type="email"
+            placeholder="tu@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+          />
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {registerMutation.error && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs"
+          >
+            <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+            <span>{registerMutation.error.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        type="submit"
+        disabled={registerMutation.isPending}
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.99 }}
+        className="mt-1 w-full bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
+      >
+        {registerMutation.isPending ? (
+          <>
+            <Loader2 className="animate-spin" size={14} />
+            <span>Registrazione...</span>
+          </>
+        ) : (
+          <>
+            <span>Crea Account</span>
+            <ArrowRight size={14} />
+          </>
+        )}
+      </motion.button>
+
+      <p className="text-center text-[10px] text-[var(--text-muted)] border-t border-[var(--card-border)] pt-4 leading-relaxed">
+        Riceverai un'email di attivazione. Nessuna password.
+      </p>
+    </form>
   );
 }
