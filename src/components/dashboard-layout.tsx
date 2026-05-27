@@ -359,16 +359,16 @@ function DashboardLayoutContent({
         </div>
       </header>
 
-      <div className="md:hidden fixed top-3 left-3 right-3 h-12 rounded-full border border-[var(--card-border)] bg-[var(--card-solid)]/90 backdrop-blur-md flex items-center justify-between px-4 z-40 shadow-md transition-all duration-300">
-        <div className="flex items-center gap-1.5">
-          <div className="p-1.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500">
-            <Landmark size={13} />
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-[var(--card-border)] bg-[var(--card-solid)] flex items-center justify-between px-4 z-40 transition-colors duration-300">
+        <div className="flex items-center gap-2">
+          <div className="p-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500">
+            <Landmark size={14} />
           </div>
-          <span className="font-bold text-xs tracking-tight">GlobeFinance</span>
+          <span className="font-bold text-xs">GlobeFinance</span>
         </div>
 
         <div className="flex items-center gap-1.5">
-          <div className="text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 mr-0.5 select-none">
+          <div className="text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-500 mr-1 select-none">
             {displayCurrency}
           </div>
           <Button
@@ -381,12 +381,12 @@ function DashboardLayoutContent({
             }}
             className="text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 min-w-8 cursor-pointer flex items-center justify-center"
           >
-            <Settings size={13} />
+            <Settings size={14} />
           </Button>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col md:pt-24 pt-[72px] pb-24 md:pb-8">
+      <div className="flex-1 flex flex-col md:pt-24 pt-14 pb-24 md:pb-8">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-6 py-6 flex-1 flex flex-col">
           {children}
         </div>
