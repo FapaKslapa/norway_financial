@@ -30,7 +30,7 @@ export default async function VerifyPage({ searchParams }: VerifyPageProps) {
           <Landmark size={26} />
         </div>
         <h1 className="text-xl font-bold text-[var(--foreground)]">
-          Erasmus Finance
+          GlobeFinance
         </h1>
         <p className="text-xs text-[var(--text-muted)] max-w-[260px] leading-relaxed">
           Clicca il pulsante per completare l'accesso.

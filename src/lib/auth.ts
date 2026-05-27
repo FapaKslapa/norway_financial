@@ -1,9 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { magicLink } from "better-auth/plugins";
-import { db } from "../db";
-import * as schema from "../db/schema";
-import { env } from "../env";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import * as schema from "@/db/schema";
+import { env } from "@/env";
+import { magicLinkEmail, sendEmail } from "./brevo";
 
 type DbRecord = Record<PropertyKey, unknown>;
 type AnyFn = (...args: unknown[]) => unknown;
@@ -86,21 +88,37 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
-  emailAndPassword: {
-    enabled: false,
-  },
   plugins: [
     magicLink({
+      disableSignUp: true,
       sendMagicLink: async ({ email, url }) => {
+        const users = await db
+          .select()
+          .from(schema.user)
+          .where(eq(schema.user.email, email))
+          .limit(1);
+
+        if (users.length > 0 && !users[0].emailVerified) {
+          throw new Error(
+            "Il tuo account non è ancora attivato. Controlla la tua email per il link di attivazione.",
+          );
+        }
+
         const landingUrl = url.replace(
           "/api/auth/magic-link/verify",
           "/auth/verify",
         );
-        console.log("\n==================================================");
-        console.log("🚀 BETTER AUTH - MAGIC LINK RECEIVED");
-        console.log(`✉️  Email: ${email}`);
-        console.log(`🔗  URL:   ${landingUrl}`);
-        console.log("==================================================\n");
+
+        try {
+          await sendEmail({
+            to: email,
+            subject: "Il tuo link di accesso — GlobeFinance",
+            ...magicLinkEmail(landingUrl),
+          });
+        } catch (err) {
+          console.error("[AUTH] sendMagicLink failed:", err);
+          throw err;
+        }
       },
     }),
   ],
