@@ -8,6 +8,7 @@ import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { LoadingState } from "@/components/ui/loading-state";
 import { trpc } from "@/lib/trpc/client";
 import { NewListModal } from "./components/new-list-modal";
+import { TodoBulkConvertModal } from "./components/todo-bulk-convert-modal";
 import { TodoConvertModal } from "./components/todo-convert-modal";
 import { TodoForm } from "./components/todo-form";
 import { type TodoItem, TodoItems } from "./components/todo-items";
@@ -32,6 +33,17 @@ export default function TodosView() {
     }
   }, [listsQuery.data, activeListId]);
 
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedTodoIds, setSelectedTodoIds] = useState<string[]>([]);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeListId) {
+      setSelectedTodoIds([]);
+      setIsSelectionMode(false);
+    }
+  }, [activeListId]);
+
   const createListMutation = trpc.todo.createList.useMutation({
     onSuccess: () => listsQuery.refetch(),
   });
@@ -53,6 +65,15 @@ export default function TodosView() {
   const convertTodoMutation = trpc.todo.convertToTransaction.useMutation({
     onSuccess: () => todosQuery.refetch(),
   });
+  const convertTodoBulkMutation =
+    trpc.todo.convertToTransactionBulk.useMutation({
+      onSuccess: () => {
+        todosQuery.refetch();
+        listsQuery.refetch();
+        setIsSelectionMode(false);
+        setSelectedTodoIds([]);
+      },
+    });
 
   const [isNewListOpen, setIsNewListOpen] = useState(false);
   const [newListName, setNewListName] = useState("");
@@ -128,6 +149,40 @@ export default function TodosView() {
     });
   };
 
+  const handleImportTodoBulk = async (data: {
+    todoIds: string[];
+    amount: number;
+    currency: string;
+    date: string;
+    description: string;
+    categoryId: string | null;
+  }) => {
+    await convertTodoBulkMutation.mutateAsync({
+      todoIds: data.todoIds,
+      amount: data.amount,
+      currency: data.currency,
+      exchangeRate,
+      date: data.date,
+      description: data.description,
+      categoryId: data.categoryId,
+    });
+  };
+
+  const handleToggleSelectTodo = (id: string) => {
+    setSelectedTodoIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  };
+
+  const handleToggleAllSelectTodos = (selected: boolean) => {
+    if (selected) {
+      const activeTodos = (todosQuery.data || []).filter((t) => !t.completed);
+      setSelectedTodoIds(activeTodos.map((t) => t.id));
+    } else {
+      setSelectedTodoIds([]);
+    }
+  };
+
   const activeListName =
     (listsQuery.data || []).find((l) => l.id === activeListId)?.name || "";
 
@@ -196,6 +251,16 @@ export default function TodosView() {
                 onToggleTodo={handleToggleTodo}
                 onDeleteTodo={setTodoToDelete}
                 onImportTodo={setImportingTodo}
+                isSelectionMode={isSelectionMode}
+                selectedTodoIds={selectedTodoIds}
+                onToggleSelectTodo={handleToggleSelectTodo}
+                onToggleAllSelectTodos={handleToggleAllSelectTodos}
+                onStartSelectionMode={() => setIsSelectionMode(true)}
+                onCancelSelectionMode={() => {
+                  setIsSelectionMode(false);
+                  setSelectedTodoIds([]);
+                }}
+                onTriggerBulkImport={() => setIsBulkImportOpen(true)}
               />
             </>
           ) : (
@@ -219,6 +284,16 @@ export default function TodosView() {
         onClose={() => setImportingTodo(null)}
         todoItem={importingTodo}
         onConvert={handleImportTodo}
+      />
+
+      <TodoBulkConvertModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        selectedTodos={(todosQuery.data || []).filter((t) =>
+          selectedTodoIds.includes(t.id),
+        )}
+        categories={categoriesQuery.data || []}
+        onConvertBulk={handleImportTodoBulk}
       />
 
       <ConfirmationDialog

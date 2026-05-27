@@ -3,14 +3,17 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
+  CheckSquare,
   ChevronDown,
   ChevronUp,
   ShoppingBag,
+  Sparkles,
+  Square,
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import { CategoryIcon } from "@/components/icon-helper";
-import { formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 export type TodoItem = {
   id: string;
@@ -39,6 +42,13 @@ type TodoItemsProps = {
   onToggleTodo: (id: string, completed: boolean) => void;
   onDeleteTodo: (id: string) => void;
   onImportTodo: (todo: TodoItem) => void;
+  isSelectionMode: boolean;
+  selectedTodoIds: string[];
+  onToggleSelectTodo: (id: string) => void;
+  onToggleAllSelectTodos: (selected: boolean) => void;
+  onStartSelectionMode: () => void;
+  onCancelSelectionMode: () => void;
+  onTriggerBulkImport: () => void;
 };
 
 export function TodoItems({
@@ -47,6 +57,13 @@ export function TodoItems({
   onToggleTodo,
   onDeleteTodo,
   onImportTodo,
+  isSelectionMode,
+  selectedTodoIds,
+  onToggleSelectTodo,
+  onToggleAllSelectTodos,
+  onStartSelectionMode,
+  onCancelSelectionMode,
+  onTriggerBulkImport,
 }: TodoItemsProps) {
   const [showCompleted, setShowCompleted] = useState(false);
 
@@ -55,15 +72,63 @@ export function TodoItems({
 
   return (
     <div className="flex flex-col gap-4">
-      {}
+      {/* Active Todos Card */}
       <div className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-3xl transition-all">
-        <div className="flex items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4 gap-2">
           <div className="flex items-center gap-2">
             <ShoppingBag size={14} className="text-blue-500" />
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
               Articoli da Acquistare ({activeTodos.length})
             </span>
           </div>
+
+          {activeTodos.length > 0 && (
+            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+              {isSelectionMode ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const allSelected = activeTodos.every((t) =>
+                        selectedTodoIds.includes(t.id),
+                      );
+                      onToggleAllSelectTodos(!allSelected);
+                    }}
+                    className="text-[10px] font-bold px-2.5 py-1.5 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
+                  >
+                    {activeTodos.every((t) => selectedTodoIds.includes(t.id))
+                      ? "Deseleziona Tutti"
+                      : "Seleziona Tutti"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onTriggerBulkImport}
+                    disabled={selectedTodoIds.length === 0}
+                    className="text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center gap-1 border-0 shadow-sm"
+                  >
+                    <Sparkles size={11} />
+                    Importa ({selectedTodoIds.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onCancelSelectionMode}
+                    className="text-[10px] font-bold px-2 py-1 rounded-xl text-rose-500 hover:bg-rose-500/10 cursor-pointer border-0 transition-all"
+                  >
+                    Annulla
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onStartSelectionMode}
+                  className="text-[10px] font-black px-2.5 py-1.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center gap-1 bg-transparent"
+                >
+                  <Sparkles size={11} className="animate-pulse" />
+                  Importazione di Massa
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-col gap-2.5">
@@ -72,24 +137,69 @@ export function TodoItems({
               ? parseFloat(todoItem.estimatedAmount)
               : null;
             const cat = categories.find((c) => c.id === todoItem.categoryId);
+            const isSelected = selectedTodoIds.includes(todoItem.id);
             return (
+              // biome-ignore lint/a11y/useSemanticElements: div is used to avoid nested button elements
               <div
                 key={todoItem.id}
-                className="flex justify-between items-center p-3.5 rounded-2xl border border-[var(--card-border)] bg-neutral-500/5 dark:bg-zinc-800/10 hover:bg-neutral-500/10 dark:hover:bg-zinc-800/20 transition-all group"
+                onClick={
+                  isSelectionMode
+                    ? () => onToggleSelectTodo(todoItem.id)
+                    : undefined
+                }
+                onKeyDown={
+                  isSelectionMode
+                    ? (e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onToggleSelectTodo(todoItem.id);
+                        }
+                      }
+                    : undefined
+                }
+                role="button"
+                tabIndex={isSelectionMode ? 0 : -1}
+                className={cn(
+                  "flex justify-between items-center p-3.5 rounded-2xl border transition-all select-none group",
+                  isSelectionMode && "cursor-pointer",
+                  isSelectionMode && isSelected
+                    ? "bg-blue-500/5 border-blue-500/30 shadow-sm"
+                    : "bg-neutral-500/5 dark:bg-zinc-800/10 border-[var(--card-border)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/20",
+                )}
               >
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                  {}
-                  <button
-                    type="button"
-                    onClick={() => onToggleTodo(todoItem.id, true)}
-                    className="h-5 w-5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 group/check"
-                    title="Segna come completato"
-                  >
-                    <Check
-                      size={11}
-                      className="text-transparent group-hover/check:text-blue-500 transition-colors stroke-[3]"
-                    />
-                  </button>
+                  {isSelectionMode ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleSelectTodo(todoItem.id);
+                      }}
+                      className="h-5 w-5 rounded-lg text-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 border-0 bg-transparent"
+                      title="Seleziona"
+                    >
+                      {isSelected ? (
+                        <CheckSquare size={16} className="stroke-[2.5]" />
+                      ) : (
+                        <Square size={16} className="opacity-40" />
+                      )}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleTodo(todoItem.id, true);
+                      }}
+                      className="h-5 w-5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 group/check"
+                      title="Segna come completato"
+                    >
+                      <Check
+                        size={11}
+                        className="text-transparent group-hover/check:text-blue-500 transition-colors stroke-[3]"
+                      />
+                    </button>
+                  )}
 
                   <div className="flex flex-col min-w-0">
                     <span className="text-xs font-bold text-[var(--foreground)] truncate">
@@ -123,16 +233,21 @@ export function TodoItems({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                  <button
-                    type="button"
-                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
-                    onClick={() => onDeleteTodo(todoItem.id)}
-                    title="Elimina"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </div>
+                {!isSelectionMode && (
+                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                    <button
+                      type="button"
+                      className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteTodo(todoItem.id);
+                      }}
+                      title="Elimina"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}

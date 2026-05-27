@@ -37,3 +37,13 @@ export const convertToTransactionSchema = z.object({
   exchangeRate: z.number(),
   date: z.string(),
 });
+
+export const convertToTransactionBulkSchema = z.object({
+  todoIds: z.array(z.string().uuid()),
+  amount: z.number(),
+  currency: z.string().length(3),
+  exchangeRate: z.number(),
+  date: z.string(),
+  description: z.string(),
+  categoryId: z.string().uuid().nullable().optional(),
+});
