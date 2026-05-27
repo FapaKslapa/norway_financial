@@ -1,7 +1,9 @@
 import { z } from "zod";
-import { protectedProcedure, publicProcedure, router } from "../trpc";
+import { protectedProcedure, publicProcedure, router } from "@/server/trpc";
+import { authRouter } from "./auth";
 import { categoryRouter } from "./category";
 import { friendRouter } from "./friend";
+import { groupRouter } from "./group";
 import { todoRouter } from "./todo";
 import { transactionRouter } from "./transaction";
 import { userSettingsRouter } from "./user-settings";
@@ -15,7 +17,7 @@ export const appRouter = router({
     )
     .query(({ input }) => {
       return {
-        greeting: `Ciao ${input?.name ?? "ospite"}! Benvenuto nel tuo Erasmus Finance Manager.`,
+        greeting: `Ciao ${input?.name ?? "ospite"}! Benvenuto nel tuo GlobeFinance Manager.`,
       };
     }),
 
@@ -28,11 +30,13 @@ export const appRouter = router({
     };
   }),
 
+  auth: authRouter,
   settings: userSettingsRouter,
   category: categoryRouter,
   transaction: transactionRouter,
   todo: todoRouter,
   friend: friendRouter,
+  group: groupRouter,
 });
 
 export type AppRouter = typeof appRouter;

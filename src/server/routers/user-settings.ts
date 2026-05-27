@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
-import { userSettings } from "../../db/schema";
-import { updateUserSettingsSchema } from "../../lib/schemas/user-settings";
-import { protectedProcedure, router } from "../trpc";
+import { userSettings } from "@/db/schema";
+import { updateUserSettingsSchema } from "@/lib/schemas/user-settings";
+import { protectedProcedure, router } from "@/server/trpc";
 
 export const userSettingsRouter = router({
   get: protectedProcedure.query(async ({ ctx }) => {
@@ -23,7 +23,7 @@ export const userSettingsRouter = router({
       userId,
       targetMonthlyBudget: "10000.00",
       maxMonthlyBudget: "12000.00",
-      preferredCurrency: "NOK",
+      preferredCurrency: "EUR",
       themeMode: "dark",
       themeAccent: "blue",
       aiProvider: "local",

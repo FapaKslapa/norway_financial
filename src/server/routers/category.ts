@@ -1,12 +1,12 @@
 import crypto from "node:crypto";
 import { and, eq } from "drizzle-orm";
-import { category } from "../../db/schema";
+import { category } from "@/db/schema";
 import {
   createCategorySchema,
   deleteCategorySchema,
   updateCategorySchema,
-} from "../../lib/schemas/category";
-import { protectedProcedure, router } from "../trpc";
+} from "@/lib/schemas/category";
+import { protectedProcedure, router } from "@/server/trpc";
 
 const DEFAULT_CATEGORIES = [
   { name: "Alloggio", icon: "Home", color: "#007AFF" },
