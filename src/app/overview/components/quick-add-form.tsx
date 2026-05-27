@@ -170,7 +170,7 @@ export function QuickAddForm({
             </div>
 
             <div className="flex flex-col flex-1 overflow-y-auto">
-              <div className="px-6 pt-5 pb-6 flex flex-col gap-5">
+              <div className="px-6 pt-5 pb-36 flex flex-col gap-5">
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
                   <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">

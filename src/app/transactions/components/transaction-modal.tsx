@@ -186,7 +186,7 @@ export function TransactionModal({
               onSubmit={handleSubmit}
               className="flex flex-col flex-1 overflow-y-auto"
             >
-              <div className="px-6 pt-5 pb-5 flex flex-col gap-4">
+              <div className="px-6 pt-5 pb-36 flex flex-col gap-4">
                 {}
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
