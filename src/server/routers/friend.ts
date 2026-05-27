@@ -1,12 +1,12 @@
 import crypto from "node:crypto";
 import { and, eq, inArray, or } from "drizzle-orm";
-import { friendship, sharedExpense, user } from "../../db/schema";
+import { friendship, sharedExpense, transaction, user } from "@/db/schema";
 import {
   respondFriendRequestSchema,
   sendFriendRequestSchema,
   settleDebtSchema,
-} from "../../lib/schemas/friend";
-import { protectedProcedure, router } from "../trpc";
+} from "@/lib/schemas/friend";
+import { protectedProcedure, router } from "@/server/trpc";
 
 export const friendRouter = router({
   sendRequest: protectedProcedure
@@ -269,6 +269,68 @@ export const friendRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
+      const unsettledExpenses = await ctx.db
+        .select()
+        .from(sharedExpense)
+        .where(
+          and(
+            eq(sharedExpense.settled, false),
+            or(
+              and(
+                eq(sharedExpense.payerId, userId),
+                eq(sharedExpense.borrowerId, input.friendId),
+              ),
+              and(
+                eq(sharedExpense.payerId, input.friendId),
+                eq(sharedExpense.borrowerId, userId),
+              ),
+            ),
+          ),
+        );
+
+      if (unsettledExpenses.length === 0) return { success: true };
+
+      const reimbursementTransactions = [];
+
+      for (const exp of unsettledExpenses) {
+        const payerId = exp.payerId;
+        const splitNok = parseFloat(exp.splitAmountNok);
+
+        const [originalTx] = await ctx.db
+          .select()
+          .from(transaction)
+          .where(eq(transaction.id, exp.transactionId))
+          .limit(1);
+
+        const exchangeRate = originalTx
+          ? parseFloat(originalTx.exchangeRate)
+          : 11.5;
+        const amountEur = splitNok / exchangeRate;
+        const description = originalTx
+          ? `Rimborso — ${originalTx.description}`
+          : "Rimborso spesa condivisa";
+
+        reimbursementTransactions.push({
+          id: crypto.randomUUID(),
+          userId: payerId,
+          categoryId: null,
+          type: "income" as const,
+          amount: splitNok.toFixed(2),
+          currency: "NOK" as const,
+          amountNok: splitNok.toFixed(2),
+          amountEur: amountEur.toFixed(2),
+          exchangeRate: exchangeRate.toFixed(4),
+          description,
+          date: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
+      if (reimbursementTransactions.length > 0) {
+        await ctx.db.insert(transaction).values(reimbursementTransactions);
+      }
+
       await ctx.db
         .update(sharedExpense)
         .set({ settled: true, updatedAt: new Date() })
@@ -284,6 +346,29 @@ export const friendRouter = router({
                 eq(sharedExpense.payerId, input.friendId),
                 eq(sharedExpense.borrowerId, userId),
               ),
+            ),
+          ),
+        );
+
+      return { success: true };
+    }),
+
+  deleteFriend: protectedProcedure
+    .input(settleDebtSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      await ctx.db
+        .delete(friendship)
+        .where(
+          or(
+            and(
+              eq(friendship.userId, userId),
+              eq(friendship.friendId, input.friendId),
+            ),
+            and(
+              eq(friendship.userId, input.friendId),
+              eq(friendship.friendId, userId),
             ),
           ),
         );

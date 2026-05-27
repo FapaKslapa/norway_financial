@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { DashboardLayout } from "../../components/dashboard-layout";
-import { auth } from "../../lib/auth";
+import { DashboardLayout } from "@/components/dashboard-layout";
+import { auth } from "@/lib/auth";
 import FriendsView from "./friends-view";
 
 export default async function FriendsPage() {
