@@ -2,6 +2,10 @@
   "name": "norway_financial",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -36,6 +40,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
+    "@changesets/cli": "^2.31.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -43,6 +48,7 @@
     "drizzle-kit": "^0.31.10",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
+    "turbo": "^2.9.15",
     "typescript": "^5"
   }
 }
