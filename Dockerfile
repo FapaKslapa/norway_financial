@@ -20,7 +20,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV DATABASE_URL="mysql://dummy:dummy@127.0.0.1:3306/dummy"
 ENV BETTER_AUTH_SECRET="dummy_secret_dummy_secret_dummy_secret_dummy_secret"
 ENV BETTER_AUTH_URL="http://localhost:3000"
-RUN pnpm build
+RUN --mount=type=cache,target=/app/.next/cache \
+    --mount=type=cache,target=/app/.turbo \
+    pnpm turbo run build
 
 # 4. Runner stage
 FROM base AS runner
