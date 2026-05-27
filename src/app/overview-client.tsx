@@ -251,6 +251,29 @@ export default function OverviewClient() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <CurrencyConverterCard />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <RecentTodoCard
+            todos={todosQuery.data || []}
+            displayCurrency={displayCurrency}
+          />
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
           className="md:col-span-2 h-full flex flex-col"
         >
           <RecentTransactionsCard
@@ -264,7 +287,7 @@ export default function OverviewClient() {
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
           className="md:col-span-1 h-full flex flex-col"
         >
           <CategoryBudgetsCard
@@ -277,26 +300,6 @@ export default function OverviewClient() {
               setSettingsTab("budget");
               setIsSettingsOpen(true);
             }}
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <CurrencyConverterCard />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-2"
-        >
-          <RecentTodoCard
-            todos={todosQuery.data || []}
-            displayCurrency={displayCurrency}
           />
         </motion.div>
       </div>
