@@ -3,7 +3,7 @@
 import { Button } from "@heroui/react";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
-import { FileSpreadsheet, List, Plus, Table } from "lucide-react";
+import { Clock, FileSpreadsheet, List, Plus, Table } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { CategoriesModal } from "./components/categories-modal";
 import { CategoryTotalsCard } from "./components/category-totals-card";
 import { CsvImportModal } from "./components/csv-import-modal";
+import { RecurrentTransactionsManager } from "./components/recurrent-transactions-manager";
 import { TransactionFilters } from "./components/transaction-filters";
 import { TransactionListTimeline } from "./components/transaction-list-timeline";
 import { TransactionModal } from "./components/transaction-modal";
@@ -22,7 +23,7 @@ import "dayjs/locale/it";
 dayjs.locale("it");
 
 type SortField = "date" | "description" | "category" | "type" | "amount";
-type ViewMode = "timeline" | "table";
+type ViewMode = "timeline" | "table" | "recurrent";
 type FilterType = "" | "expense" | "income";
 
 type RawTransaction = {
@@ -389,26 +390,28 @@ export default function TransactionsView() {
       </div>
 
       {}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className={cn(activeMobileTab !== "filters" && "hidden lg:block")}
-      >
-        <TransactionFilters
-          filterText={filterText}
-          setFilterText={handleFilterText}
-          filterCategoryId={filterCategoryId}
-          setFilterCategoryId={handleFilterCategory}
-          filterType={filterType}
-          setFilterType={handleFilterType}
-          filterStartDate={filterStartDate}
-          setFilterStartDate={handleFilterStart}
-          filterEndDate={filterEndDate}
-          setFilterEndDate={handleFilterEnd}
-          categories={categories}
-        />
-      </motion.div>
+      {viewMode !== "recurrent" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className={cn(activeMobileTab !== "filters" && "hidden lg:block")}
+        >
+          <TransactionFilters
+            filterText={filterText}
+            setFilterText={handleFilterText}
+            filterCategoryId={filterCategoryId}
+            setFilterCategoryId={handleFilterCategory}
+            filterType={filterType}
+            setFilterType={handleFilterType}
+            filterStartDate={filterStartDate}
+            setFilterStartDate={handleFilterStart}
+            filterEndDate={filterEndDate}
+            setFilterEndDate={handleFilterEnd}
+            categories={categories}
+          />
+        </motion.div>
+      )}
 
       {}
       <motion.div
@@ -416,11 +419,11 @@ export default function TransactionsView() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "flex bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm max-w-[240px] select-none",
+          "flex bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm max-w-[380px] select-none",
           activeMobileTab !== "list" && "hidden lg:flex",
         )}
       >
-        {(["timeline", "table"] as ViewMode[]).map((mode) => (
+        {(["timeline", "table", "recurrent"] as ViewMode[]).map((mode) => (
           <button
             key={mode}
             type="button"
@@ -432,8 +435,12 @@ export default function TransactionsView() {
                 : "text-[var(--text-muted)] hover:bg-neutral-500/10 hover:text-[var(--foreground)]",
             )}
           >
-            {mode === "timeline" ? <List size={13} /> : <Table size={13} />}
-            {mode === "timeline" ? "Timeline" : "Tabella"}
+            {mode === "timeline" && <List size={13} />}
+            {mode === "table" && <Table size={13} />}
+            {mode === "recurrent" && <Clock size={13} />}
+            {mode === "timeline" && "Timeline"}
+            {mode === "table" && "Tabella"}
+            {mode === "recurrent" && "Pianificatore"}
           </button>
         ))}
       </motion.div>
@@ -445,11 +452,15 @@ export default function TransactionsView() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           className={cn(
-            "lg:col-span-3 flex flex-col gap-6",
+            viewMode === "recurrent"
+              ? "lg:col-span-4 flex flex-col gap-6"
+              : "lg:col-span-3 flex flex-col gap-6",
             activeMobileTab !== "list" && "hidden lg:flex",
           )}
         >
-          {viewMode === "timeline" ? (
+          {viewMode === "recurrent" ? (
+            <RecurrentTransactionsManager categories={categories} />
+          ) : viewMode === "timeline" ? (
             <TransactionListTimeline
               groupedTx={groupedTx}
               categories={categories}
@@ -474,21 +485,23 @@ export default function TransactionsView() {
           )}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
-          className={cn(
-            "lg:col-span-1",
-            activeMobileTab !== "summary" && "hidden lg:block",
-          )}
-        >
-          <CategoryTotalsCard
-            categoryTotals={categoryTotals}
-            displayCurrency={displayCurrency}
-            convertCurrency={convertCurrency}
-          />
-        </motion.div>
+        {viewMode !== "recurrent" && (
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(
+              "lg:col-span-1",
+              activeMobileTab !== "summary" && "hidden lg:block",
+            )}
+          >
+            <CategoryTotalsCard
+              categoryTotals={categoryTotals}
+              displayCurrency={displayCurrency}
+              convertCurrency={convertCurrency}
+            />
+          </motion.div>
+        )}
       </div>
 
       {}
