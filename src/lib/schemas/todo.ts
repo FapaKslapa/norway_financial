@@ -18,7 +18,7 @@ export const createTodoSchema = z.object({
   notes: z.string().optional(),
   categoryId: z.string().uuid().nullable().optional(),
   estimatedAmount: z.number().optional(),
-  estimatedCurrency: z.enum(["EUR", "NOK"]).optional(),
+  estimatedCurrency: z.string().length(3).optional(),
 });
 
 export const toggleTodoSchema = z.object({
@@ -33,7 +33,7 @@ export const deleteTodoSchema = z.object({
 export const convertToTransactionSchema = z.object({
   todoId: z.string().uuid(),
   amount: z.number(),
-  currency: z.enum(["EUR", "NOK"]),
+  currency: z.string().length(3),
   exchangeRate: z.number(),
   date: z.string(),
 });

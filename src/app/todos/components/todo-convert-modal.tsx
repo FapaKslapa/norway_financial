@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { CustomDatePicker } from "../../../components/ui/custom-datepicker";
-import { CustomSelect } from "../../../components/ui/custom-select";
-import { MoneyInput } from "../../../components/ui/money-input";
+import { useDashboard } from "@/components/dashboard-layout";
+import { CurrencySelect } from "@/components/ui/currency-select";
+import { CustomDatePicker } from "@/components/ui/custom-datepicker";
+import { MoneyInput } from "@/components/ui/money-input";
 
 type TodoItem = {
   id: string;
@@ -20,11 +20,10 @@ type TodoConvertModalProps = {
   isOpen: boolean;
   onClose: () => void;
   todoItem: TodoItem | null;
-  exchangeRate: number;
   onConvert: (data: {
     todoId: string;
     amount: number;
-    currency: "EUR" | "NOK";
+    currency: string;
     date: string;
   }) => Promise<void>;
 };
@@ -33,11 +32,11 @@ export function TodoConvertModal({
   isOpen,
   onClose,
   todoItem,
-  exchangeRate,
   onConvert,
 }: TodoConvertModalProps) {
+  const { convertCurrency, displayCurrency } = useDashboard();
   const [txAmount, setTxAmount] = useState("");
-  const [txCurrency, setTxCurrency] = useState<"EUR" | "NOK">("NOK");
+  const [txCurrency, setTxCurrency] = useState<string>(displayCurrency);
   const [txDate, setTxDate] = useState(
     new Date().toISOString().substring(0, 10),
   );
@@ -49,10 +48,10 @@ export function TodoConvertModal({
         ? parseFloat(todoItem.estimatedAmount)
         : null;
       setTxAmount(estAmountNum ? estAmountNum.toString() : "");
-      setTxCurrency((todoItem.estimatedCurrency as "EUR" | "NOK") || "NOK");
+      setTxCurrency(todoItem.estimatedCurrency || displayCurrency);
       setTxDate(new Date().toISOString().substring(0, 10));
     }
-  }, [todoItem]);
+  }, [todoItem, displayCurrency]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,14 +85,13 @@ export function TodoConvertModal({
           >
             <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
               <h3 className="font-extrabold text-base">Importa Spesa</h3>
-              <Button
-                isIconOnly
-                variant="ghost"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer"
-                onPress={onClose}
+              <button
+                type="button"
+                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                onClick={onClose}
               >
                 <X size={15} />
-              </Button>
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -123,35 +121,25 @@ export function TodoConvertModal({
                   <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
                     Valuta
                   </span>
-                  <CustomSelect
-                    value={txCurrency}
-                    onChange={(val: string) =>
-                      setTxCurrency(val as "EUR" | "NOK")
-                    }
-                    options={[
-                      { value: "NOK", label: "NOK" },
-                      { value: "EUR", label: "EUR" },
-                    ]}
-                  />
+                  <CurrencySelect value={txCurrency} onChange={setTxCurrency} />
                 </div>
               </div>
 
-              {txAmount && !Number.isNaN(parseFloat(txAmount)) && (
-                <div className="py-2 px-3 bg-blue-500/5 border border-blue-500/10 rounded-xl text-[10px] text-blue-500 font-bold flex justify-between">
-                  <span>Stima convertito:</span>
-                  <span>
-                    {txCurrency === "EUR" ? (
-                      <>
-                        {(parseFloat(txAmount) * exchangeRate).toFixed(0)} NOK
-                      </>
-                    ) : (
-                      <>
-                        {(parseFloat(txAmount) / exchangeRate).toFixed(2)} EUR
-                      </>
-                    )}
-                  </span>
-                </div>
-              )}
+              {txAmount &&
+                !Number.isNaN(parseFloat(txAmount)) &&
+                txCurrency !== displayCurrency && (
+                  <div className="py-2 px-3 bg-blue-500/5 border border-blue-500/10 rounded-xl text-[10px] text-blue-500 font-bold flex justify-between">
+                    <span>Stima convertito:</span>
+                    <span>
+                      {convertCurrency(
+                        parseFloat(txAmount),
+                        txCurrency,
+                        displayCurrency,
+                      ).toFixed(2)}{" "}
+                      {displayCurrency}
+                    </span>
+                  </div>
+                )}
 
               <div className="flex flex-col gap-1.5">
                 <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
@@ -163,13 +151,13 @@ export function TodoConvertModal({
                 />
               </div>
 
-              <Button
+              <button
                 type="submit"
-                isDisabled={isSubmitting}
-                className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 rounded-xl cursor-pointer hover:opacity-90 mt-2 shadow-sm"
+                disabled={isSubmitting}
+                className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 rounded-xl cursor-pointer hover:opacity-90 mt-2 shadow-sm border-0 w-full disabled:opacity-50"
               >
                 {isSubmitting ? "Importazione..." : "Conferma Spesa & Archivia"}
-              </Button>
+              </button>
             </form>
           </motion.div>
         </div>

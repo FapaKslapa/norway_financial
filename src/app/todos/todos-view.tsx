@@ -1,13 +1,12 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import { motion } from "framer-motion";
 import { FolderPlus } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useDashboard } from "../../components/dashboard-layout";
-import { ConfirmationDialog } from "../../components/ui/confirmation-dialog";
-import { LoadingState } from "../../components/ui/loading-state";
-import { trpc } from "../../lib/trpc/client";
+import { useDashboard } from "@/components/dashboard-layout";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { LoadingState } from "@/components/ui/loading-state";
+import { trpc } from "@/lib/trpc/client";
 import { NewListModal } from "./components/new-list-modal";
 import { TodoConvertModal } from "./components/todo-convert-modal";
 import { TodoForm } from "./components/todo-form";
@@ -96,7 +95,7 @@ export default function TodosView() {
     notes: string;
     categoryId: string | null;
     estimatedAmount?: number;
-    estimatedCurrency?: "EUR" | "NOK";
+    estimatedCurrency?: string;
   }) => {
     if (!activeListId) return;
 
@@ -117,7 +116,7 @@ export default function TodosView() {
   const handleImportTodo = async (data: {
     todoId: string;
     amount: number;
-    currency: "EUR" | "NOK";
+    currency: string;
     date: string;
   }) => {
     await convertTodoMutation.mutateAsync({
@@ -152,13 +151,13 @@ export default function TodosView() {
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl px-4 py-2 flex items-center gap-1.5 cursor-pointer shadow-sm"
-          onPress={() => setIsNewListOpen(true)}
+        <button
+          type="button"
+          onClick={() => setIsNewListOpen(true)}
+          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl px-4 h-10 flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
         >
           <FolderPlus size={14} /> Nuova Lista
-        </Button>
+        </button>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -219,7 +218,6 @@ export default function TodosView() {
         isOpen={importingTodo !== null}
         onClose={() => setImportingTodo(null)}
         todoItem={importingTodo}
-        exchangeRate={exchangeRate}
         onConvert={handleImportTodo}
       />
 

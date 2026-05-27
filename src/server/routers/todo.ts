@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
-import { todo, todoList, transaction } from "../../db/schema";
+import { todo, todoList, transaction } from "@/db/schema";
 import {
   convertToTransactionSchema,
   createTodoListSchema,
@@ -9,8 +9,8 @@ import {
   deleteTodoSchema,
   listTodoSchema,
   toggleTodoSchema,
-} from "../../lib/schemas/todo";
-import { protectedProcedure, router } from "../trpc";
+} from "@/lib/schemas/todo";
+import { protectedProcedure, router } from "@/server/trpc";
 
 function convertAmounts(
   amount: number,
@@ -51,7 +51,25 @@ export const todoRouter = router({
       lists = [defaultList];
     }
 
-    return lists;
+    const activeTodos = await ctx.db
+      .select({ id: todo.id, todoListId: todo.todoListId })
+      .from(todo)
+      .where(and(eq(todo.userId, userId), eq(todo.completed, false)));
+
+    const countMap = activeTodos.reduce(
+      (acc, t) => {
+        if (t.todoListId) {
+          acc[t.todoListId] = (acc[t.todoListId] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
+
+    return lists.map((l) => ({
+      ...l,
+      activeCount: countMap[l.id] || 0,
+    }));
   }),
 
   createList: protectedProcedure
