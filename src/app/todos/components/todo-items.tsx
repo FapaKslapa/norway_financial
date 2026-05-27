@@ -106,16 +106,18 @@ export function TodoItems({
           activeTab !== "active" && "hidden md:block",
         )}
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4 gap-2">
+        <div className="flex flex-row items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4 gap-2">
           <div className="flex items-center gap-2">
             <ShoppingBag size={14} className="text-blue-500" />
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
-              Articoli da Acquistare ({activeTodos.length})
+              <span className="hidden sm:inline">Articoli da Acquistare</span>
+              <span className="sm:hidden">Da Acquistare</span> (
+              {activeTodos.length})
             </span>
           </div>
 
           {activeTodos.length > 0 && (
-            <div className="flex items-center gap-1.5 self-end sm:self-auto">
+            <div className="flex items-center gap-1.5 self-center">
               {isSelectionMode ? (
                 <>
                   <button
@@ -126,7 +128,7 @@ export function TodoItems({
                       );
                       onToggleAllSelectTodos(!allSelected);
                     }}
-                    className="text-[10px] font-bold px-2.5 py-1.5 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
+                    className="text-[10px] font-bold px-2 py-1 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
                   >
                     {activeTodos.every((t) =>
                       selectedTodoIds.includes(t.id),
@@ -150,11 +152,10 @@ export function TodoItems({
                     type="button"
                     onClick={onTriggerBulkImport}
                     disabled={selectedTodoIds.length === 0}
-                    className="text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center justify-center gap-1 border-0 shadow-sm min-w-[32px]"
+                    className="text-[10px] font-black px-2 py-1 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center justify-center gap-1 border-0 shadow-sm"
                   >
                     <Sparkles size={11} />
-                    <span className="hidden sm:inline">Importa </span>
-                    <span>({selectedTodoIds.length})</span>
+                    <span>Importa ({selectedTodoIds.length})</span>
                   </button>
                   <button
                     type="button"
@@ -168,13 +169,14 @@ export function TodoItems({
                 <button
                   type="button"
                   onClick={onStartSelectionMode}
-                  className="text-[10px] font-black h-8 w-8 sm:h-auto sm:w-auto px-0 sm:px-2.5 py-1.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center justify-center gap-1 bg-transparent"
+                  className="text-[10px] font-black h-8 px-2.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center justify-center gap-1 bg-transparent shrink-0"
                   title="Importazione di Massa"
                 >
                   <Sparkles size={11} className="animate-pulse" />
-                  <span className="hidden sm:inline">
+                  <span className="hidden sm:inline font-bold">
                     Importazione di Massa
                   </span>
+                  <span className="sm:hidden font-bold">Seleziona</span>
                 </button>
               )}
             </div>

@@ -284,25 +284,29 @@ export default function FriendsView() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+        className="flex flex-row justify-between items-center gap-4 w-full"
       >
         <div>
-          <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-            <Users size={24} className="text-blue-500" />
-            Spese Condivise & Amici
+          <h2 className="text-lg md:text-2xl font-black tracking-tight flex items-center gap-1.5 md:gap-2">
+            <Users
+              size={18}
+              className="text-blue-500 md:w-[24px] md:h-[24px]"
+            />
+            <span>Amici & Spese</span>
           </h2>
-          <p className="text-[var(--text-muted)] text-xs font-semibold">
+          <p className="text-[var(--text-muted)] text-xs font-semibold hidden md:block">
             Gestisci la tua rubrica e dividi le spese con singoli amici o gruppi
           </p>
         </div>
         <Button
           variant="outline"
-          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-md flex-shrink-0"
+          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-md flex-shrink-0"
           onPress={() => setIsSharedExpenseOpen(true)}
           isDisabled={!friendsQuery.data || friendsQuery.data.length === 0}
         >
           <Plus size={13} />
           <span className="hidden sm:inline">Aggiungi Spesa Condivisa</span>
+          <span className="sm:hidden">Nuova Spesa</span>
         </Button>
       </motion.div>
       {}
@@ -712,11 +716,12 @@ export default function FriendsView() {
                     <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
                       <Button
                         variant="outline"
-                        className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all shrink-0"
+                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all shrink-0"
                         onPress={() => setIsSharedExpenseOpen(true)}
                       >
                         <Plus size={11} />
                         <span className="hidden sm:inline">Aggiungi Spesa</span>
+                        <span className="sm:hidden">Aggiungi</span>
                       </Button>
 
                       {balances.find(
@@ -732,13 +737,13 @@ export default function FriendsView() {
                         )?.balanceNok ?? 0) < 0 && (
                           <Button
                             variant="outline"
-                            className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all"
+                            className="font-bold text-[10px] h-8 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all"
                             onPress={() =>
                               setSettleConfirmFriend(selectedFriend)
                             }
                           >
                             <DollarSign size={11} />
-                            <span className="hidden sm:inline">Salda</span>
+                            <span>Salda</span>
                           </Button>
                         )}
                       <Button
@@ -963,11 +968,12 @@ export default function FriendsView() {
                     <div className="flex items-center gap-2 shrink-0">
                       <Button
                         variant="outline"
-                        className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all"
+                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all"
                         onPress={() => setIsSharedExpenseOpen(true)}
                       >
                         <Plus size={11} />
                         <span className="hidden sm:inline">Aggiungi Spesa</span>
+                        <span className="sm:hidden">Aggiungi</span>
                       </Button>
                       {selectedGroup.creatorId === currentUserId && (
                         <Button

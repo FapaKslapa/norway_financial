@@ -192,16 +192,16 @@ export default function TodosView() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="flex justify-between items-end flex-wrap gap-4 select-none"
+        className="flex flex-row justify-between items-center gap-4 w-full select-none"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">
+          <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider hidden md:inline">
             Liste da fare
           </span>
-          <h2 className="text-2xl font-extrabold tracking-tight">
-            Shopping & Liste Spesa
+          <h2 className="text-lg md:text-2xl font-black tracking-tight">
+            Shopping & Liste
           </h2>
-          <p className="text-[var(--text-muted)] text-xs">
+          <p className="text-[var(--text-muted)] text-xs hidden md:block">
             Gestisci più liste di cose da comprare ed importale come spese
           </p>
         </div>
@@ -209,10 +209,10 @@ export default function TodosView() {
         <button
           type="button"
           onClick={() => setIsNewListOpen(true)}
-          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all"
+          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all flex-shrink-0"
         >
           <FolderPlus size={14} />
-          <span className="hidden sm:inline">Nuova Lista</span>
+          <span>Nuova Lista</span>
         </button>
       </motion.div>
 

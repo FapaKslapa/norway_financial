@@ -296,45 +296,48 @@ export default function TransactionsView() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="flex justify-between items-end flex-wrap gap-4 select-none"
+        className="flex flex-row justify-between items-center gap-4 select-none mb-4 w-full"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">
+          <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider hidden md:inline">
             Gestione Spese
           </span>
-          <h2 className="text-2xl font-extrabold tracking-tight">
-            Registro Transazioni
+          <h2 className="text-lg md:text-2xl font-black tracking-tight">
+            Transazioni
           </h2>
-          <p className="text-[var(--text-muted)] text-xs">
+          <p className="text-[var(--text-muted)] text-xs hidden md:block">
             Visualizza, filtra o importa le tue spese ed entrate
           </p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
           <Button
             variant="outline"
-            className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
+            className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl h-9 md:h-10 px-2.5 md:px-4 flex items-center justify-center gap-1 cursor-pointer shadow-sm"
             onPress={() => setIsTxModalOpen(true)}
           >
-            <Plus size={14} />
+            <Plus size={13} />
             <span className="hidden sm:inline">Nuova Transazione</span>
+            <span className="sm:hidden">Nuova</span>
           </Button>
 
           <Button
             variant="outline"
-            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
+            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
             onPress={() => setIsCsvModalOpen(true)}
           >
-            <FileSpreadsheet size={14} className="text-emerald-500" />
+            <FileSpreadsheet size={13} className="text-emerald-500" />
             <span className="hidden sm:inline">Importa CSV</span>
+            <span className="sm:hidden">CSV</span>
           </Button>
 
           <Button
             variant="outline"
-            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl px-3 py-2 flex items-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
+            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
             onPress={() => setIsCatManageOpen(true)}
           >
-            Categorie
+            <span className="hidden sm:inline">Gestisci Categorie</span>
+            <span className="sm:hidden">Categorie</span>
           </Button>
         </div>
       </motion.div>
