@@ -142,7 +142,7 @@ export default function OverviewClient() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="relative overflow-hidden rounded-3xl select-none"
+            className="relative overflow-hidden rounded-3xl"
             style={{
               background:
                 "linear-gradient(135deg, #3b82f6 0%, #6366f1 60%, #8b5cf6 100%)",
@@ -154,9 +154,14 @@ export default function OverviewClient() {
             <button
               type="button"
               onClick={handleDismissOnboarding}
-              className="absolute top-4 right-4 h-7 w-7 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 cursor-pointer bg-transparent border-0 transition-all z-10"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleDismissOnboarding();
+              }}
+              className="absolute top-2 right-2 h-10 w-10 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 cursor-pointer bg-transparent border-0 transition-all z-30"
+              aria-label="Chiudi onboarding"
             >
-              <X size={13} />
+              <X size={15} />
             </button>
 
             <div className="relative z-10 p-6 pb-5">
