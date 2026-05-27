@@ -1382,7 +1382,6 @@ export default function FriendsView() {
           </div>
         )}
       </AnimatePresence>
-      ;{}
       <ConfirmationDialog
         isOpen={friendToDelete !== null}
         onClose={() => setFriendToDelete(null)}
@@ -1397,7 +1396,6 @@ export default function FriendsView() {
         cancelLabel="Annulla"
         isDestructive={true}
       />
-      ;{}
       <ConfirmationDialog
         isOpen={settleConfirmFriend !== null}
         onClose={() => setSettleConfirmFriend(null)}
@@ -1412,7 +1410,6 @@ export default function FriendsView() {
         cancelLabel="Annulla"
         isDestructive={false}
       />
-      ;{}
       <ConfirmationDialog
         isOpen={groupToDelete !== null}
         onClose={() => setGroupToDelete(null)}
@@ -1429,7 +1426,6 @@ export default function FriendsView() {
         cancelLabel="Annulla"
         isDestructive={true}
       />
-      ;
     </div>
   );
 }
