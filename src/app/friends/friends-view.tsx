@@ -354,9 +354,14 @@ export default function FriendsView() {
           />
         ))}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
         {}
-        <div className="md:col-span-1 flex flex-col gap-6">
+        <div
+          className={cn(
+            "order-2 md:order-1 md:col-span-1 flex flex-col gap-6",
+            (selectedFriend || selectedGroup) && "hidden md:flex",
+          )}
+        >
           {}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -613,7 +618,7 @@ export default function FriendsView() {
         </div>
 
         {}
-        <div className="md:col-span-2 flex flex-col gap-6">
+        <div className="order-1 md:order-2 md:col-span-2 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {}
             {selectedFriend && (
