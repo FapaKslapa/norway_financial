@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
 import { FileSpreadsheet, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { CustomSelect } from "../../../components/ui/custom-select";
-import { formatCurrency } from "../../../lib/utils";
+import { useDashboard } from "@/components/dashboard-layout";
+import { CustomSelect } from "@/components/ui/custom-select";
+import { formatCurrency } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -16,31 +16,77 @@ type Category = {
   color: string;
 };
 
+type ImportRow = {
+  type: "expense" | "income";
+  amount: number;
+  currency: string;
+  exchangeRate: number;
+  exchangeRateNok: number;
+  description: string;
+  categoryId: string | null;
+  date: string;
+};
+
 type CsvImportModalProps = {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
-  exchangeRate: number;
-  onImport: (
-    rows: {
-      type: "expense" | "income";
-      amount: number;
-      currency: "EUR" | "NOK";
-      exchangeRate: number;
-      description: string;
-      categoryId: string | null;
-      date: string;
-    }[],
-  ) => Promise<void>;
+  onImport: (rows: ImportRow[]) => Promise<void>;
 };
+
+type PreviewRow = {
+  date: string;
+  description: string;
+  amount: number;
+  type: "expense" | "income";
+  currency: string;
+  categoryId: string | null;
+};
+
+const CSV_FIELD_LABELS: Record<string, string> = {
+  date: "Data",
+  description: "Descrizione",
+  amount: "Importo",
+  currency: "Valuta",
+  category: "Categoria",
+};
+
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let inQuotes = false;
+  for (const char of line) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if ((char === "," || char === ";") && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+function parseCurrencyCode(raw: string, fallback = "EUR"): string {
+  const clean = raw
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+
+  const match = clean.match(/[A-Z]{3}/);
+  return match ? match[0] : fallback;
+}
 
 export function CsvImportModal({
   isOpen,
   onClose,
   categories,
-  exchangeRate,
   onImport,
 }: CsvImportModalProps) {
+  const { rates } = useDashboard();
+
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [csvRows, setCsvRows] = useState<Record<string, string>[]>([]);
@@ -51,16 +97,7 @@ export function CsvImportModal({
     currency: "",
     category: "",
   });
-  const [csvPreviewRows, setCsvPreviewRows] = useState<
-    {
-      date: string;
-      description: string;
-      amount: number;
-      type: "expense" | "income";
-      currency: "EUR" | "NOK";
-      categoryId: string | null;
-    }[]
-  >([]);
+  const [csvPreviewRows, setCsvPreviewRows] = useState<PreviewRow[]>([]);
   const [isImporting, setIsImporting] = useState(false);
 
   const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,25 +111,6 @@ export function CsvImportModal({
       const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
       if (lines.length < 2) return;
 
-      const parseCSVLine = (line: string) => {
-        const result = [];
-        let current = "";
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if ((char === "," || char === ";") && !inQuotes) {
-            result.push(current);
-            current = "";
-          } else {
-            current += char;
-          }
-        }
-        result.push(current);
-        return result;
-      };
-
       const headers = parseCSVLine(lines[0]).map((h) =>
         h.trim().replace(/^"|"$/g, ""),
       );
@@ -103,50 +121,37 @@ export function CsvImportModal({
           v.trim().replace(/^"|"$/g, ""),
         );
         const row: Record<string, string> = {};
-        headers.forEach((h, index) => {
-          row[h] = vals[index] || "";
+        headers.forEach((h, i) => {
+          row[h] = vals[i] ?? "";
         });
         return row;
       });
       setCsvRows(parsedRows);
 
-      const newMapping: Record<string, string> = {
+      const autoMapping: Record<string, string> = {
         date: "",
         description: "",
         amount: "",
         currency: "",
         category: "",
       };
-
       headers.forEach((h) => {
         const lower = h.toLowerCase();
-        if (
-          lower.includes("dat") ||
-          lower.includes("date") ||
-          lower.includes("giorno")
-        ) {
-          newMapping.date = h;
-        } else if (
-          lower.includes("desc") ||
-          lower.includes("causale") ||
-          lower.includes("note")
-        ) {
-          newMapping.description = h;
-        } else if (
-          lower.includes("importo") ||
-          lower.includes("ammontare") ||
-          lower.includes("amount") ||
-          lower.includes("valore")
-        ) {
-          newMapping.amount = h;
-        } else if (lower.includes("valuta") || lower.includes("curr")) {
-          newMapping.currency = h;
-        } else if (lower.includes("categ") || lower.includes("tipo")) {
-          newMapping.category = h;
-        }
+        if (!autoMapping.date && /dat|date|giorno/.test(lower))
+          autoMapping.date = h;
+        else if (!autoMapping.description && /desc|causale|note/.test(lower))
+          autoMapping.description = h;
+        else if (
+          !autoMapping.amount &&
+          /importo|ammontare|amount|valore/.test(lower)
+        )
+          autoMapping.amount = h;
+        else if (!autoMapping.currency && /valuta|curr/.test(lower))
+          autoMapping.currency = h;
+        else if (!autoMapping.category && /categ|tipo/.test(lower))
+          autoMapping.category = h;
       });
-
-      setCsvMapping(newMapping);
+      setCsvMapping(autoMapping);
     };
     reader.readAsText(file);
   };
@@ -157,38 +162,34 @@ export function CsvImportModal({
       return;
     }
 
-    const preview = csvRows.map((row) => {
-      const parsedDate = row[csvMapping.date]
+    const preview: PreviewRow[] = csvRows.map((row) => {
+      const parsedDate = csvMapping.date
         ? dayjs(row[csvMapping.date])
         : dayjs();
       const dateVal = parsedDate.isValid() ? parsedDate : dayjs();
-      const rawAmountStr = row[csvMapping.amount] || "0";
-      const amountVal = parseFloat(rawAmountStr.replace(",", ".")) || 0;
-      const currencyVal = (row[csvMapping.currency] || "NOK")
-        .toUpperCase()
-        .includes("EUR")
-        ? "EUR"
-        : "NOK";
-      const descVal = row[csvMapping.description] || "Transazione CSV";
+      const rawAmount = (row[csvMapping.amount] || "0").replace(",", ".");
+      const amountVal = parseFloat(rawAmount) || 0;
+      const currency = csvMapping.currency
+        ? parseCurrencyCode(row[csvMapping.currency], "EUR")
+        : "EUR";
+      const description = row[csvMapping.description] || "Transazione CSV";
 
-      let matchedCatId: string | null = null;
+      let categoryId: string | null = null;
       if (csvMapping.category && row[csvMapping.category]) {
-        const catName = row[csvMapping.category].trim().toLowerCase();
+        const search = row[csvMapping.category].trim().toLowerCase();
         const found = categories.find((c) =>
-          c.name.toLowerCase().includes(catName),
+          c.name.toLowerCase().includes(search),
         );
-        if (found) {
-          matchedCatId = found.id;
-        }
+        if (found) categoryId = found.id;
       }
 
       return {
         date: dateVal.toISOString(),
-        description: descVal,
+        description,
         amount: Math.abs(amountVal),
         type: amountVal >= 0 ? ("income" as const) : ("expense" as const),
-        currency: currencyVal as "EUR" | "NOK",
-        categoryId: matchedCatId,
+        currency,
+        categoryId,
       };
     });
 
@@ -200,11 +201,13 @@ export function CsvImportModal({
     setIsImporting(true);
 
     try {
-      const dataToImport = csvPreviewRows.map((row) => ({
+      const nokRate = rates.NOK ?? 11.85;
+      const dataToImport: ImportRow[] = csvPreviewRows.map((row) => ({
         type: row.type,
         amount: row.amount,
         currency: row.currency,
-        exchangeRate,
+        exchangeRate: rates[row.currency] ?? 1,
+        exchangeRateNok: nokRate,
         description: row.description,
         categoryId: row.categoryId,
         date: row.date,
@@ -233,26 +236,25 @@ export function CsvImportModal({
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[620px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] flex flex-col max-h-[85vh]"
           >
+            {}
             <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
-              <h3 className="font-extrabold text-base">
-                Importazione Spese da CSV
-              </h3>
-              <Button
-                isIconOnly
-                variant="ghost"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer"
-                onPress={onClose}
+              <h3 className="font-extrabold text-base">Importazione da CSV</h3>
+              <button
+                type="button"
+                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                onClick={onClose}
               >
                 <X size={15} />
-              </Button>
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
+              {}
               <div className="border-2 border-dashed border-[var(--card-border)] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 bg-neutral-500/5 text-center relative">
                 <FileSpreadsheet size={32} className="text-emerald-500 mb-1" />
                 {csvFile ? (
                   <span className="text-xs font-bold truncate max-w-full text-emerald-500">
-                    File: {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
+                    {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
                   </span>
                 ) : (
                   <>
@@ -272,6 +274,7 @@ export function CsvImportModal({
                 />
               </div>
 
+              {}
               {csvRows.length > 0 && (
                 <div className="flex flex-col gap-3">
                   <h4 className="text-xs font-bold uppercase tracking-wide">
@@ -284,23 +287,12 @@ export function CsvImportModal({
                         className="flex flex-col gap-1 overflow-visible relative z-30"
                       >
                         <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                          {field === "date"
-                            ? "Data"
-                            : field === "description"
-                              ? "Descrizione"
-                              : field === "amount"
-                                ? "Importo"
-                                : field === "currency"
-                                  ? "Valuta"
-                                  : "Categoria"}
+                          {CSV_FIELD_LABELS[field] ?? field}
                         </span>
                         <CustomSelect
                           value={csvMapping[field]}
-                          onChange={(val: string) =>
-                            setCsvMapping((prev) => ({
-                              ...prev,
-                              [field]: val,
-                            }))
+                          onChange={(val) =>
+                            setCsvMapping((prev) => ({ ...prev, [field]: val }))
                           }
                           placeholder="(Ignora/Default)"
                           triggerClassName="h-9"
@@ -316,9 +308,10 @@ export function CsvImportModal({
                     ))}
                   </div>
 
+                  {}
                   <div className="flex justify-between items-center mt-2 px-1">
                     <span className="text-xs font-bold font-sans">
-                      Anteprima Righe ({csvPreviewRows.length})
+                      Anteprima ({csvPreviewRows.length} righe)
                     </span>
                   </div>
 
@@ -339,7 +332,7 @@ export function CsvImportModal({
                           );
                           return (
                             <tr
-                              key={`preview-${row.date}-${row.amount}-${row.description || ""}`}
+                              key={`${row.date}-${row.amount}-${row.description}`}
                               className="border-b border-[var(--card-border)] last:border-0"
                             >
                               <td className="p-2">
@@ -378,21 +371,25 @@ export function CsvImportModal({
               )}
             </div>
 
+            {}
             <div className="pt-4 border-t border-[var(--card-border)] mt-4 flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 border border-[var(--card-border)] hover:bg-neutral-500/10 text-xs rounded-xl h-11 text-[var(--foreground)] bg-transparent"
-                onPress={onClose}
+              <button
+                type="button"
+                className="flex-1 border border-[var(--card-border)] hover:bg-neutral-500/10 text-xs rounded-xl h-11 text-[var(--foreground)] bg-transparent cursor-pointer flex items-center justify-center transition-all"
+                onClick={onClose}
               >
                 Annulla
-              </Button>
-              <Button
-                isDisabled={csvPreviewRows.length === 0 || isImporting}
-                className="flex-1 bg-emerald-500 text-white border-0 hover:opacity-90 text-xs rounded-xl h-11 cursor-pointer"
-                onPress={handleCsvImportSubmit}
+              </button>
+              <button
+                type="button"
+                disabled={csvPreviewRows.length === 0 || isImporting}
+                className="flex-1 bg-emerald-500 text-white border-0 hover:opacity-90 text-xs rounded-xl h-11 cursor-pointer flex items-center justify-center transition-all disabled:opacity-50"
+                onClick={handleCsvImportSubmit}
               >
-                {isImporting ? "Importazione..." : "Importa elementi"}
-              </Button>
+                {isImporting
+                  ? "Importazione..."
+                  : `Importa ${csvPreviewRows.length} elementi`}
+              </button>
             </div>
           </motion.div>
         </div>

@@ -1,9 +1,10 @@
 "use client";
 
-import { Button, InputGroup } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Search, X } from "lucide-react";
-import { CustomDatePicker } from "../../../components/ui/custom-datepicker";
-import { CustomSelect } from "../../../components/ui/custom-select";
+import { CategorySelect } from "@/components/ui/category-select";
+import { CustomDatePicker } from "@/components/ui/custom-datepicker";
+import { CustomSelect } from "@/components/ui/custom-select";
 
 type Category = {
   id: string;
@@ -61,28 +62,25 @@ export function TransactionFilters({
           <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
             Cerca
           </span>
-          <InputGroup className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-9 px-2.5 rounded-xl flex items-center border-0 w-full mt-1 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
-            <Search
-              size={13}
-              className="text-neutral-500 mr-1.5 flex-shrink-0"
-            />
-            <InputGroup.Input
+          <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-9 px-2.5 rounded-xl flex items-center gap-1.5 border-0 w-full mt-1 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
+            <Search size={13} className="text-neutral-500 flex-shrink-0" />
+            <input
               type="text"
               placeholder="Cerca descrizione o importo..."
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full"
+              className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full min-w-0 placeholder:text-[var(--text-muted)]"
             />
             {filterText && (
-              <InputGroup.Suffix className="flex items-center">
-                <X
-                  size={12}
-                  className="cursor-pointer text-neutral-500"
-                  onClick={() => setFilterText("")}
-                />
-              </InputGroup.Suffix>
+              <button
+                type="button"
+                onClick={() => setFilterText("")}
+                className="flex items-center bg-transparent border-0 cursor-pointer p-0.5 text-neutral-500 hover:text-[var(--foreground)] transition-colors flex-shrink-0"
+              >
+                <X size={12} />
+              </button>
             )}
-          </InputGroup>
+          </div>
         </div>
 
         <div className="min-w-[150px]">
@@ -90,19 +88,12 @@ export function TransactionFilters({
             Categoria
           </span>
           <div className="mt-1">
-            <CustomSelect
+            <CategorySelect
               value={filterCategoryId}
               onChange={setFilterCategoryId}
-              placeholder="Tutte le categorie"
+              categories={categories}
+              generalLabel="Tutte le categorie"
               triggerClassName="h-9"
-              options={[
-                { value: "", label: "Tutte le categorie" },
-                ...categories.map((c) => ({
-                  value: c.id,
-                  label: c.name,
-                  color: c.color,
-                })),
-              ]}
             />
           </div>
         </div>

@@ -3,7 +3,7 @@
 import { Button, Card } from "@heroui/react";
 import dayjs from "dayjs";
 import { ArrowUpDown, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
-import { cn, formatCurrency } from "../../../lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -33,7 +33,7 @@ type Transaction = {
   amount: string;
   amountNok: string;
   amountEur: string;
-  currency: "NOK" | "EUR";
+  currency: string;
   date: string | Date;
   payerName: string | null;
   payerEmail: string | null;
@@ -43,92 +43,160 @@ type Transaction = {
 type SortFieldType = "date" | "description" | "category" | "type" | "amount";
 
 type TransactionTableProps = {
-  sortedTx: Transaction[];
+  transactions: Transaction[];
+  totalItems: number;
+  currentPage: number;
+  onChangePage: (page: number) => void;
   categories: Category[];
-  displayCurrency: "NOK" | "EUR";
-  exchangeRate: number;
+  displayCurrency: string;
+  convertCurrency: (amount: number, from: string, to: string) => number;
   sortField: SortFieldType;
   sortDirection: "asc" | "desc";
   onSortChange: (field: SortFieldType) => void;
   onDeleteClick: (id: string) => void;
 };
 
+const ITEMS_PER_PAGE = 10;
+
+function SortHeader({
+  field,
+  label,
+  sortField,
+  sortDirection,
+  onSortChange,
+}: {
+  field: SortFieldType;
+  label: string;
+  sortField: SortFieldType;
+  sortDirection: "asc" | "desc";
+  onSortChange: (f: SortFieldType) => void;
+}) {
+  const isCurrent = sortField === field;
+  return (
+    <button
+      type="button"
+      onClick={() => onSortChange(field)}
+      className="flex items-center gap-1 hover:text-[var(--foreground)] transition-colors font-bold uppercase tracking-wider text-[10px] cursor-pointer border-0 bg-transparent"
+    >
+      {label}
+      {isCurrent ? (
+        sortDirection === "asc" ? (
+          <ChevronUp size={11} className="text-blue-500" />
+        ) : (
+          <ChevronDown size={11} className="text-blue-500" />
+        )
+      ) : (
+        <ArrowUpDown size={10} className="text-neutral-500 opacity-60" />
+      )}
+    </button>
+  );
+}
+
+function AmountCell({
+  tx,
+  displayCurrency,
+  convertCurrency,
+}: {
+  tx: Transaction;
+  displayCurrency: string;
+  convertCurrency: (amount: number, from: string, to: string) => number;
+}) {
+  const isExpense = tx.type === "expense";
+
+  const displayAmount = tx.sharedInfo
+    ? (() => {
+        const splitNok = parseFloat(tx.sharedInfo.splitAmountNok);
+        const totalNok = parseFloat(tx.amountNok);
+        const myNok = tx.sharedInfo.isBorrowed ? splitNok : totalNok - splitNok;
+        return convertCurrency(myNok, "NOK", displayCurrency);
+      })()
+    : convertCurrency(parseFloat(tx.amountEur), "EUR", displayCurrency);
+
+  const showHint = tx.currency !== displayCurrency;
+
+  return (
+    <div className="flex flex-col">
+      <span
+        className={isExpense ? "text-[var(--foreground)]" : "text-emerald-500"}
+      >
+        {isExpense ? "-" : "+"} {formatCurrency(displayAmount, displayCurrency)}
+      </span>
+      {showHint && (
+        <span className="text-[8px] text-[var(--text-muted)] font-medium mt-0.5">
+          {tx.amount} {tx.currency}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function TransactionTable({
-  sortedTx,
+  transactions,
+  totalItems,
+  currentPage,
+  onChangePage,
   categories,
   displayCurrency,
-  exchangeRate,
+  convertCurrency,
   sortField,
   sortDirection,
   onSortChange,
   onDeleteClick,
 }: TransactionTableProps) {
-  const renderSortHeader = (field: SortFieldType, label: string) => {
-    const isCurrent = sortField === field;
-    return (
-      <button
-        type="button"
-        onClick={() => onSortChange(field)}
-        className="flex items-center gap-1 hover:text-[var(--foreground)] transition-colors font-bold uppercase tracking-wider text-[10px] cursor-pointer border-0 bg-transparent"
-      >
-        {label}
-        {isCurrent ? (
-          sortDirection === "asc" ? (
-            <ChevronUp size={11} className="text-blue-500" />
-          ) : (
-            <ChevronDown size={11} className="text-blue-500" />
-          )
-        ) : (
-          <ArrowUpDown size={10} className="text-neutral-500 opacity-60" />
-        )}
-      </button>
-    );
-  };
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+  const startItem =
+    totalItems === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+
+  const sortProps = { sortField, sortDirection, onSortChange };
 
   return (
     <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 apple-widget transition-all">
       <div className="overflow-x-auto w-full">
         <table className="w-full text-left border-collapse text-xs select-none">
           <thead>
-            <tr className="border-b border-[var(--card-border)] bg-neutral-500/5 text-[9px] text-[var(--text-muted)] font-bold">
-              <th className="p-3">{renderSortHeader("date", "Data")}</th>
+            <tr className="border-b border-[var(--card-border)] bg-neutral-500/5 text-[var(--text-muted)]">
               <th className="p-3">
-                {renderSortHeader("description", "Descrizione")}
+                <SortHeader field="date" label="Data" {...sortProps} />
               </th>
               <th className="p-3">
-                {renderSortHeader("category", "Categoria")}
+                <SortHeader
+                  field="description"
+                  label="Descrizione"
+                  {...sortProps}
+                />
               </th>
-              <th className="p-3">{renderSortHeader("type", "Tipo")}</th>
-              <th className="p-3">{renderSortHeader("amount", "Importo")}</th>
-              <th className="p-3 text-right font-bold uppercase tracking-wider text-[10px] text-[var(--text-muted)]">
+              <th className="p-3">
+                <SortHeader field="category" label="Categoria" {...sortProps} />
+              </th>
+              <th className="p-3">
+                <SortHeader field="type" label="Tipo" {...sortProps} />
+              </th>
+              <th className="p-3">
+                <SortHeader field="amount" label="Importo" {...sortProps} />
+              </th>
+              <th className="p-3 text-right font-bold uppercase tracking-wider text-[10px]">
                 Azioni
               </th>
             </tr>
           </thead>
           <tbody>
-            {sortedTx.map((tx) => {
+            {transactions.map((tx) => {
               const cat = categories.find((c) => c.id === tx.categoryId);
               const isExpense = tx.type === "expense";
-
-              const activeAmount =
-                displayCurrency === "NOK"
-                  ? tx.sharedInfo?.isBorrowed
-                    ? parseFloat(tx.sharedInfo.splitAmountNok)
-                    : parseFloat(tx.amountNok)
-                  : tx.sharedInfo?.isBorrowed
-                    ? parseFloat(tx.sharedInfo.splitAmountNok) / exchangeRate
-                    : parseFloat(tx.amountEur);
 
               return (
                 <tr
                   key={tx.id}
                   className="border-b border-[var(--card-border)] last:border-0"
                 >
+                  {}
                   <td className="p-3 whitespace-nowrap text-[var(--text-muted)] font-medium">
                     {dayjs(tx.date).format("DD/MM/YYYY")}
                   </td>
 
-                  <td className="p-3 font-bold text-[var(--foreground)] truncate max-w-[150px]">
+                  {}
+                  <td className="p-3 font-bold text-[var(--foreground)] max-w-[150px]">
                     <div className="flex flex-col min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="truncate">
@@ -157,13 +225,12 @@ export function TransactionTable({
                     </div>
                   </td>
 
+                  {}
                   <td className="p-3">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                        style={{
-                          backgroundColor: cat ? cat.color : "#8E8E93",
-                        }}
+                        style={{ backgroundColor: cat ? cat.color : "#8E8E93" }}
                       />
                       <span className="text-[var(--foreground)] font-semibold text-xs">
                         {cat ? cat.name : "Generale"}
@@ -171,6 +238,7 @@ export function TransactionTable({
                     </div>
                   </td>
 
+                  {}
                   <td className="p-3">
                     <span
                       className={cn(
@@ -184,34 +252,16 @@ export function TransactionTable({
                     </span>
                   </td>
 
+                  {}
                   <td className="p-3 font-extrabold whitespace-nowrap">
-                    <div className="flex flex-col">
-                      <span
-                        className={
-                          isExpense
-                            ? "text-[var(--foreground)]"
-                            : "text-emerald-500"
-                        }
-                      >
-                        {isExpense ? "-" : "+"}{" "}
-                        {formatCurrency(activeAmount, displayCurrency)}
-                      </span>
-                      <span className="text-[8px] text-[var(--text-muted)] font-medium mt-0.5">
-                        {tx.currency === "EUR" ? (
-                          <>
-                            {tx.amount} EUR →{" "}
-                            {parseFloat(tx.amountNok).toFixed(0)} NOK
-                          </>
-                        ) : (
-                          <>
-                            {tx.amount} NOK →{" "}
-                            {parseFloat(tx.amountEur).toFixed(2)} EUR
-                          </>
-                        )}
-                      </span>
-                    </div>
+                    <AmountCell
+                      tx={tx}
+                      displayCurrency={displayCurrency}
+                      convertCurrency={convertCurrency}
+                    />
                   </td>
 
+                  {}
                   <td className="p-3 text-right">
                     <Button
                       isIconOnly
@@ -226,7 +276,7 @@ export function TransactionTable({
               );
             })}
 
-            {sortedTx.length === 0 && (
+            {totalItems === 0 && (
               <tr>
                 <td
                   colSpan={6}
@@ -239,6 +289,36 @@ export function TransactionTable({
           </tbody>
         </table>
       </div>
+
+      {}
+      {totalItems > 0 && (
+        <div className="flex items-center justify-between pt-4 border-t border-[var(--card-border)] mt-4">
+          <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider pl-1">
+            {startItem}–{endItem} di {totalItems}
+          </span>
+          <div className="flex gap-2 items-center">
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => onChangePage(currentPage - 1)}
+              className="px-3 py-1.5 rounded-xl border border-[var(--card-border)] bg-[var(--card)] hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              ←
+            </button>
+            <span className="text-[10px] font-black px-2 text-[var(--foreground)]">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => onChangePage(currentPage + 1)}
+              className="px-3 py-1.5 rounded-xl border border-[var(--card-border)] bg-[var(--card)] hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

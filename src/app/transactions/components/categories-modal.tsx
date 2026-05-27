@@ -1,13 +1,12 @@
 "use client";
 
-import { Button, InputGroup } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { CategoryIcon, CURATED_ICONS } from "../../../components/icon-helper";
-import { APPLE_COLORS } from "../../../lib/constants";
-import { cn } from "../../../lib/utils";
+import { CategoryIcon, CURATED_ICONS } from "@/components/icon-helper";
+import { APPLE_COLORS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -71,14 +70,13 @@ export function CategoriesModal({
           >
             <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 flex-shrink-0">
               <h3 className="font-extrabold text-base">Le mie Categorie</h3>
-              <Button
-                isIconOnly
-                variant="ghost"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer"
-                onPress={onClose}
+              <button
+                type="button"
+                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                onClick={onClose}
               >
                 <X size={15} />
-              </Button>
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5">
@@ -97,14 +95,13 @@ export function CategoriesModal({
                     <span className="text-xs font-bold">{cat.name}</span>
                   </div>
 
-                  <Button
-                    isIconOnly
-                    variant="ghost"
-                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-8 w-8 border-0 cursor-pointer"
-                    onPress={() => onDeleteCategory(cat.id)}
+                  <button
+                    type="button"
+                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                    onClick={() => onDeleteCategory(cat.id)}
                   >
                     <Trash2 size={12} />
-                  </Button>
+                  </button>
                 </div>
               ))}
             </div>
@@ -115,16 +112,16 @@ export function CategoriesModal({
               </h4>
               <form onSubmit={handleSubmit} className="flex flex-col gap-3">
                 <div className="flex gap-2">
-                  <InputGroup className="bg-neutral-500/5 dark:bg-zinc-800/30 h-9 px-2.5 rounded-xl flex items-center border-0 w-full font-sans focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
-                    <InputGroup.Input
+                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 h-9 px-2.5 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
+                    <input
                       type="text"
                       placeholder="Nome categoria..."
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
                       required
-                      className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full"
+                      className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full placeholder:text-[var(--text-muted)]"
                     />
-                  </InputGroup>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
@@ -180,13 +177,13 @@ export function CategoriesModal({
                   </div>
                 </div>
 
-                <Button
+                <button
                   type="submit"
-                  isDisabled={isSubmitting}
-                  className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-9 rounded-xl cursor-pointer hover:opacity-90 mt-1 shadow-sm"
+                  disabled={isSubmitting}
+                  className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-9 rounded-xl cursor-pointer hover:opacity-90 mt-1 shadow-sm border-0 disabled:opacity-50 flex items-center justify-center transition-all w-full"
                 >
                   {isSubmitting ? "Aggiunta..." : "Aggiungi Categoria"}
-                </Button>
+                </button>
               </form>
             </div>
           </motion.div>

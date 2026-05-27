@@ -1,12 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
-import { CategoryIcon } from "../../../components/icon-helper";
-import { formatCurrency } from "../../../lib/utils";
+import { CategoryIcon } from "@/components/icon-helper";
+import { formatCurrency } from "@/lib/utils";
 
 type CategoryTotal = {
-  nok: number;
-  eur: number;
+  amountEur: number;
   count: number;
   color: string;
   icon: string;
@@ -15,17 +14,16 @@ type CategoryTotal = {
 
 type CategoryTotalsCardProps = {
   categoryTotals: CategoryTotal[];
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
+  convertCurrency: (amount: number, from: string, to: string) => number;
 };
 
 export function CategoryTotalsCard({
   categoryTotals,
   displayCurrency,
+  convertCurrency,
 }: CategoryTotalsCardProps) {
-  const totalExpensesAllCategoriesNok = categoryTotals.reduce(
-    (sum, c) => sum + c.nok,
-    0,
-  );
+  const totalEur = categoryTotals.reduce((sum, c) => sum + c.amountEur, 0);
 
   return (
     <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 apple-widget transition-all select-none">
@@ -40,13 +38,16 @@ export function CategoryTotalsCard({
           Basato sui filtri attivi (Solo Uscite)
         </p>
       </CardHeader>
+
       <CardContent className="p-0 flex flex-col gap-3">
         {categoryTotals.map((tot) => {
-          const totalAmount = displayCurrency === "NOK" ? tot.nok : tot.eur;
+          const displayAmount = convertCurrency(
+            tot.amountEur,
+            "EUR",
+            displayCurrency,
+          );
           const percentage =
-            totalExpensesAllCategoriesNok > 0
-              ? (tot.nok / totalExpensesAllCategoriesNok) * 100
-              : 0;
+            totalEur > 0 ? (tot.amountEur / totalEur) * 100 : 0;
 
           return (
             <div
@@ -66,9 +67,10 @@ export function CategoryTotalsCard({
                   </span>
                 </div>
                 <span className="text-xs font-black text-[var(--foreground)] font-mono">
-                  {formatCurrency(totalAmount, displayCurrency)}
+                  {formatCurrency(displayAmount, displayCurrency)}
                 </span>
               </div>
+
               <div className="w-full bg-neutral-500/10 h-1.5 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
@@ -78,6 +80,7 @@ export function CategoryTotalsCard({
                   }}
                 />
               </div>
+
               <div className="flex justify-between items-center text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider pl-1">
                 <span>
                   {tot.count} transazion{tot.count === 1 ? "e" : "i"}
