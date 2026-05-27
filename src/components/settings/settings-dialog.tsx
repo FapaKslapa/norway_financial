@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Check,
   DollarSign,
+  Info,
   Loader2,
   LogOut,
   Moon,
@@ -15,9 +15,11 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { cn } from "../../lib/utils";
-import { MoneyInput } from "../ui/money-input";
+import { useCallback, useEffect, useState } from "react";
+import { useDashboard } from "@/components/dashboard-layout";
+import { CurrencySelect } from "@/components/ui/currency-select";
+import { MoneyInput } from "@/components/ui/money-input";
+import { cn } from "@/lib/utils";
 
 export const ACCENT_COLORS = [
   { id: "blue", name: "Apple Blue", primary: "#007aff" },
@@ -49,13 +51,16 @@ type SettingsDialogProps = {
   changeAccent: (accent: string) => void;
   onLogout: () => void;
   settings: UserSettingsType | null;
+  displayCurrency: string;
+  exchangeRate: number;
   onSaveSettings: (updates: {
     targetMonthlyBudget: number;
     maxMonthlyBudget: number;
-    preferredCurrency: "EUR" | "NOK";
+    preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
   }) => Promise<void>;
+  initialTab?: "general" | "budget" | "profile";
 };
 
 export function SettingsDialog({
@@ -68,32 +73,66 @@ export function SettingsDialog({
   changeAccent,
   onLogout,
   settings,
+  displayCurrency,
+  exchangeRate,
   onSaveSettings,
+  initialTab,
 }: SettingsDialogProps) {
   const [activeTab, setActiveTab] = useState<"general" | "budget" | "profile">(
-    "general",
+    initialTab ?? "general",
   );
-  const [targetBudget, setTargetBudget] = useState("10000.00");
-  const [maxBudget, setMaxBudget] = useState("12000.00");
-  const [preferredCurrency, setPreferredCurrency] = useState<"EUR" | "NOK">(
-    "NOK",
-  );
+
+  useEffect(() => {
+    if (isOpen) setActiveTab(initialTab ?? "general");
+  }, [isOpen, initialTab]);
+  const { convertCurrency } = useDashboard();
+  const [preferredCurrency, setPreferredCurrency] =
+    useState<string>(displayCurrency);
   const [isSaving, setIsSaving] = useState(false);
+
+  const toDisplayCurrency = useCallback(
+    (nokVal: number): number => convertCurrency(nokVal, "NOK", displayCurrency),
+    [convertCurrency, displayCurrency],
+  );
+  const toNok = useCallback(
+    (displayVal: number): number =>
+      convertCurrency(displayVal, displayCurrency, "NOK"),
+    [convertCurrency, displayCurrency],
+  );
+
+  const [targetBudget, setTargetBudget] = useState(() => {
+    if (!settings) return toDisplayCurrency(10000).toFixed(2);
+    return toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(
+      2,
+    );
+  });
+  const [maxBudget, setMaxBudget] = useState(() => {
+    if (!settings) return toDisplayCurrency(12000).toFixed(2);
+    return toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2);
+  });
 
   useEffect(() => {
     if (settings) {
-      setTargetBudget(parseFloat(settings.targetMonthlyBudget).toFixed(2));
-      setMaxBudget(parseFloat(settings.maxMonthlyBudget).toFixed(2));
-      setPreferredCurrency(settings.preferredCurrency as "EUR" | "NOK");
+      setTargetBudget(
+        toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(2),
+      );
+      setMaxBudget(
+        toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2),
+      );
+      setPreferredCurrency(settings.preferredCurrency);
     }
-  }, [settings]);
+  }, [settings, toDisplayCurrency]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
       await onSaveSettings({
-        targetMonthlyBudget: parseFloat(targetBudget) || 10000,
-        maxMonthlyBudget: parseFloat(maxBudget) || 12000,
+        targetMonthlyBudget: toNok(
+          parseFloat(targetBudget) || toDisplayCurrency(10000),
+        ),
+        maxMonthlyBudget: toNok(
+          parseFloat(maxBudget) || toDisplayCurrency(12000),
+        ),
         preferredCurrency,
         themeMode: theme,
         themeAccent: accent,
@@ -192,35 +231,14 @@ export function SettingsDialog({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
                         Valuta Preferita
                       </span>
-                      <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 w-full">
-                        <button
-                          type="button"
-                          onClick={() => setPreferredCurrency("NOK")}
-                          className={cn(
-                            "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer bg-transparent",
-                            preferredCurrency === "NOK"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)]",
-                          )}
-                        >
-                          NOK
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPreferredCurrency("EUR")}
-                          className={cn(
-                            "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer bg-transparent",
-                            preferredCurrency === "EUR"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)]",
-                          )}
-                        >
-                          EUR
-                        </button>
-                      </div>
+                      <CurrencySelect
+                        value={preferredCurrency}
+                        onChange={setPreferredCurrency}
+                        triggerClassName="h-10 text-xs"
+                      />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -288,31 +306,46 @@ export function SettingsDialog({
                         Limiti Budget Mensile
                       </h4>
                       <p className="text-[10px] text-[var(--text-muted)]">
-                        Imposta i tuoi obiettivi di spesa mensili in NOK
+                        Imposta i tuoi obiettivi di spesa mensili in{" "}
+                        <span className="font-bold text-blue-500">
+                          {displayCurrency}
+                        </span>
                       </p>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Budget Target (Obiettivo)
+                        Budget Target (Obiettivo) — {displayCurrency}
                       </span>
                       <MoneyInput
                         value={targetBudget}
                         onChange={setTargetBudget}
-                        currency="NOK"
+                        currency={displayCurrency}
                       />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Budget Massimo (Limite)
+                        Budget Massimo (Limite) — {displayCurrency}
                       </span>
                       <MoneyInput
                         value={maxBudget}
                         onChange={setMaxBudget}
-                        currency="NOK"
+                        currency={displayCurrency}
                       />
                     </div>
+
+                    {displayCurrency === "EUR" && (
+                      <div className="flex items-start gap-2 text-[9px] text-[var(--text-muted)] bg-neutral-500/5 border border-[var(--card-border)] rounded-xl p-2.5">
+                        <Info
+                          size={11}
+                          className="flex-shrink-0 mt-0.5 opacity-60"
+                        />
+                        I valori vengono convertiti in NOK al salvataggio usando
+                        il tasso di cambio corrente ({exchangeRate.toFixed(2)}{" "}
+                        NOK/EUR)
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -340,31 +373,32 @@ export function SettingsDialog({
                         </span>
                       </div>
 
-                      <Button
-                        variant="ghost"
-                        onPress={onLogout}
-                        className="text-rose-500 hover:bg-rose-500/15 text-xs font-bold rounded-xl h-9 px-4 cursor-pointer mt-2 flex items-center gap-1.5 border-0"
+                      <button
+                        type="button"
+                        onClick={onLogout}
+                        className="text-rose-500 hover:bg-rose-500/15 text-xs font-bold rounded-xl h-9 px-4 cursor-pointer mt-2 flex items-center justify-center gap-1.5 border-0 bg-transparent"
                       >
                         <LogOut size={13} />
                         Disconnetti Account
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-2.5 mt-6 pt-4 border-t border-[var(--card-border)]">
-                <Button
-                  variant="ghost"
-                  onPress={onClose}
-                  className="flex-1 text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-xl h-10 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-xl h-10 cursor-pointer bg-transparent"
                 >
                   Annulla
-                </Button>
-                <Button
-                  onPress={handleSave}
-                  isDisabled={isSaving}
-                  className="flex-1 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-bold rounded-xl h-10 cursor-pointer flex items-center justify-center gap-1.5"
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex-1 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-bold rounded-xl h-10 cursor-pointer flex items-center justify-center gap-1.5 border-0 disabled:opacity-50"
                 >
                   {isSaving ? (
                     <Loader2 size={13} className="animate-spin" />
@@ -372,18 +406,17 @@ export function SettingsDialog({
                     <Save size={13} />
                   )}
                   <span>Salva</span>
-                </Button>
+                </button>
               </div>
             </div>
 
-            <Button
-              isIconOnly
-              variant="ghost"
-              onPress={onClose}
-              className="absolute top-4 right-4 text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 hover:text-[var(--foreground)] h-7 w-7 rounded-lg border-0 cursor-pointer flex items-center justify-center z-20"
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute top-4 right-4 text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 hover:text-[var(--foreground)] h-7 w-7 rounded-lg border-0 cursor-pointer flex items-center justify-center z-20 bg-transparent"
             >
               <X size={15} />
-            </Button>
+            </button>
           </motion.div>
         </div>
       )}

@@ -6,16 +6,16 @@ import {
   CheckSquare,
   CreditCard,
   Landmark,
-  Palette,
+  Settings,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { authClient } from "../lib/auth-client";
-import { trpc } from "../lib/trpc/client";
-import { cn } from "../lib/utils";
+import { authClient } from "@/lib/auth-client";
+import { trpc } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 import {
   SettingsDialog,
   type UserSettingsType,
@@ -23,11 +23,11 @@ import {
 import { useTheme } from "./theme-provider";
 
 type DashboardContextType = {
-  displayCurrency: "EUR" | "NOK";
-  setDisplayCurrency: (
-    val: "EUR" | "NOK" | ((prev: "EUR" | "NOK") => "EUR" | "NOK"),
-  ) => void;
+  displayCurrency: string;
+  setDisplayCurrency: (val: string | ((prev: string) => string)) => void;
   exchangeRate: number;
+  rates: Record<string, number>;
+  convertCurrency: (amount: number, from: string, to: string) => number;
   isRateFetched: boolean;
   user: {
     id: string;
@@ -44,12 +44,14 @@ type DashboardContextType = {
   saveSettings: (updates: {
     targetMonthlyBudget: number;
     maxMonthlyBudget: number;
-    preferredCurrency: "EUR" | "NOK";
+    preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
   }) => Promise<void>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
+  settingsTab: "general" | "budget" | "profile";
+  setSettingsTab: (tab: "general" | "budget" | "profile") => void;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -73,12 +75,17 @@ type DashboardProviderProps = {
 };
 
 export function DashboardProvider({ children, user }: DashboardProviderProps) {
-  const [displayCurrency, setDisplayCurrencyRaw] = useState<"EUR" | "NOK">(
-    "NOK",
-  );
+  const [displayCurrency, setDisplayCurrencyRaw] = useState<string>("EUR");
   const [exchangeRate, setExchangeRate] = useState<number>(11.85);
+  const [rates, setRates] = useState<Record<string, number>>({
+    EUR: 1,
+    NOK: 11.85,
+  });
   const [isRateFetched, setIsRateFetched] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<
+    "general" | "budget" | "profile"
+  >("general");
   const { theme, setTheme, accent, setAccent } = useTheme();
 
   const settingsQuery = trpc.settings.get.useQuery();
@@ -90,14 +97,14 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
 
   useEffect(() => {
     const localVal = localStorage.getItem("preferred_currency");
-    if (localVal === "EUR" || localVal === "NOK") {
+    if (localVal && localVal.length === 3) {
       setDisplayCurrencyRaw(localVal);
     }
   }, []);
 
   useEffect(() => {
     if (settingsQuery.data) {
-      const dbCurrency = settingsQuery.data.preferredCurrency as "EUR" | "NOK";
+      const dbCurrency = settingsQuery.data.preferredCurrency;
       setDisplayCurrencyRaw(dbCurrency);
       localStorage.setItem("preferred_currency", dbCurrency);
 
@@ -111,9 +118,9 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
   }, [settingsQuery.data, setTheme, setAccent]);
 
   const setDisplayCurrency = async (
-    val: "EUR" | "NOK" | ((prev: "EUR" | "NOK") => "EUR" | "NOK"),
+    val: string | ((prev: string) => string),
   ) => {
-    let nextVal: "EUR" | "NOK";
+    let nextVal: string;
     if (typeof val === "function") {
       nextVal = val(displayCurrency);
     } else {
@@ -181,11 +188,17 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
   const saveSettings = async (updates: {
     targetMonthlyBudget: number;
     maxMonthlyBudget: number;
-    preferredCurrency: "EUR" | "NOK";
+    preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
   }) => {
     await updateSettingsMutation.mutateAsync(updates);
+  };
+
+  const convertCurrency = (amount: number, from: string, to: string) => {
+    if (!rates?.[from] || !rates[to]) return amount;
+    const amountInEur = from === "EUR" ? amount : amount / rates[from];
+    return to === "EUR" ? amountInEur : amountInEur * rates[to];
   };
 
   useEffect(() => {
@@ -194,9 +207,12 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
         const res = await fetch("https://open.er-api.com/v6/latest/EUR");
         if (res.ok) {
           const data = await res.json();
-          if (data.rates?.NOK) {
-            setExchangeRate(data.rates.NOK);
+          if (data.rates) {
+            setRates(data.rates);
             setIsRateFetched(true);
+            if (data.rates.NOK) {
+              setExchangeRate(data.rates.NOK);
+            }
           }
         }
       } catch (err) {
@@ -214,6 +230,8 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
         displayCurrency,
         setDisplayCurrency,
         exchangeRate,
+        rates,
+        convertCurrency,
         isRateFetched,
         user,
         settings: settingsQuery.data || null,
@@ -227,6 +245,8 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
         saveSettings,
         isSettingsOpen,
         setIsSettingsOpen,
+        settingsTab,
+        setSettingsTab,
       }}
     >
       {children}
@@ -253,6 +273,7 @@ function DashboardLayoutContent({
   const _router = useRouter();
   const {
     displayCurrency,
+    exchangeRate,
     theme,
     changeTheme,
     accent,
@@ -261,6 +282,8 @@ function DashboardLayoutContent({
     saveSettings,
     isSettingsOpen,
     setIsSettingsOpen,
+    settingsTab,
+    setSettingsTab,
   } = useDashboard();
 
   const handleLogout = async () => {
@@ -290,7 +313,7 @@ function DashboardLayoutContent({
               <Landmark size={16} />
             </div>
             <span className="font-bold text-sm tracking-tight">
-              Erasmus Finance
+              GlobeFinance
             </span>
           </div>
 
@@ -324,10 +347,13 @@ function DashboardLayoutContent({
             <Button
               isIconOnly
               variant="ghost"
-              onPress={() => setIsSettingsOpen(true)}
+              onPress={() => {
+                setSettingsTab("general");
+                setIsSettingsOpen(true);
+              }}
               className="text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 min-w-9 cursor-pointer flex items-center justify-center"
             >
-              <Palette size={15} />
+              <Settings size={15} />
             </Button>
           </div>
         </div>
@@ -338,7 +364,7 @@ function DashboardLayoutContent({
           <div className="p-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500">
             <Landmark size={14} />
           </div>
-          <span className="font-bold text-xs">Erasmus Finance</span>
+          <span className="font-bold text-xs">GlobeFinance</span>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -349,10 +375,13 @@ function DashboardLayoutContent({
             isIconOnly
             variant="ghost"
             size="sm"
-            onPress={() => setIsSettingsOpen(true)}
+            onPress={() => {
+              setSettingsTab("general");
+              setIsSettingsOpen(true);
+            }}
             className="text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 min-w-8 cursor-pointer flex items-center justify-center"
           >
-            <Palette size={14} />
+            <Settings size={14} />
           </Button>
         </div>
       </div>
@@ -403,7 +432,10 @@ function DashboardLayoutContent({
         changeAccent={changeAccent}
         onLogout={handleLogout}
         settings={settings}
+        displayCurrency={displayCurrency}
+        exchangeRate={exchangeRate}
         onSaveSettings={saveSettings}
+        initialTab={settingsTab}
       />
     </div>
   );

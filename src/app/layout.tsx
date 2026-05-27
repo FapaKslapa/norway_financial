@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "../components/theme-provider";
-import { TRPCProvider } from "../lib/trpc/Provider";
+import { ThemeProvider } from "@/components/theme-provider";
+import { TRPCProvider } from "@/lib/trpc/Provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Erasmus Finance Manager",
+  title: "GlobeFinance Manager",
   description:
-    "Gestisci le tue finanze personali durante il tuo Erasmus in Norvegia",
+    "Gestione finanziaria globale e multivaluta per le tue spese ed entrate in tempo reale",
 };
 
 export default function RootLayout({

@@ -5,15 +5,37 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number, currency: "EUR" | "NOK") {
-  return currency === "EUR"
-    ? new Intl.NumberFormat("it-IT", {
-        style: "currency",
-        currency: "EUR",
-      }).format(amount)
-    : new Intl.NumberFormat("no-NO", {
-        style: "currency",
-        currency: "NOK",
-        minimumFractionDigits: 0,
-      }).format(amount);
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  "BIF",
+  "CLP",
+  "DJF",
+  "GNF",
+  "ISK",
+  "JPY",
+  "KMF",
+  "KRW",
+  "MGA",
+  "PYG",
+  "RWF",
+  "UGX",
+  "VND",
+  "VUV",
+  "XAF",
+  "XOF",
+  "XPF",
+]);
+
+export function formatCurrency(amount: number, currency: string): string {
+  const code = currency.toUpperCase();
+  const noDecimals = ZERO_DECIMAL_CURRENCIES.has(code);
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits: noDecimals ? 0 : 2,
+      maximumFractionDigits: noDecimals ? 0 : 2,
+    }).format(amount);
+  } catch {
+    return `${noDecimals ? Math.round(amount) : amount.toFixed(2)} ${code}`;
+  }
 }
