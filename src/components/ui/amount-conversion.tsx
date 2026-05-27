@@ -2,26 +2,27 @@
 
 import { motion } from "framer-motion";
 import { ArrowRightLeft } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 type AmountConversionProps = {
   amount: string | number;
-  currency: "EUR" | "NOK";
-  exchangeRate: number;
+  fromCurrency: string;
+  toCurrency: string;
+  convertFn: (amount: number, from: string, to: string) => number;
 };
 
 export function AmountConversion({
   amount,
-  currency,
-  exchangeRate,
+  fromCurrency,
+  toCurrency,
+  convertFn,
 }: AmountConversionProps) {
   const parsed = typeof amount === "string" ? parseFloat(amount) : amount;
-  if (Number.isNaN(parsed) || parsed <= 0) {
+  if (Number.isNaN(parsed) || parsed <= 0 || fromCurrency === toCurrency) {
     return null;
   }
 
-  const isEur = currency === "EUR";
-  const converted = isEur ? parsed * exchangeRate : parsed / exchangeRate;
-  const targetCurrency = isEur ? "NOK" : "EUR";
+  const converted = convertFn(parsed, fromCurrency, toCurrency);
 
   return (
     <motion.div
@@ -37,11 +38,11 @@ export function AmountConversion({
       </div>
       <div className="flex items-center gap-1.5 text-xs font-black text-[var(--foreground)]">
         <span className="text-[var(--text-muted)] font-bold">
-          {parsed.toFixed(isEur ? 2 : 0)} {currency}
+          {formatCurrency(parsed, fromCurrency)}
         </span>
         <span className="text-neutral-400 font-bold">→</span>
         <span className="text-blue-500">
-          {converted.toFixed(isEur ? 0 : 2)} {targetCurrency}
+          {formatCurrency(converted, toCurrency)}
         </span>
       </div>
     </motion.div>

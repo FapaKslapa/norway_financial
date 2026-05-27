@@ -8,7 +8,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/lib/utils";
 import "dayjs/locale/it";
 
 dayjs.locale("it");
