@@ -23,8 +23,8 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             # Navigate to deploy directory
-            mkdir -p /var/www/norway_financial
-            cd /var/www/norway_financial
+            mkdir -p ~/norway_financial
+            cd ~/norway_financial
 
             # If git repo is not initialized, clone it
             if [ ! -d ".git" ]; then
