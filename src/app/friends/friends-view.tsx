@@ -297,11 +297,12 @@ export default function FriendsView() {
         </div>
         <Button
           variant="outline"
-          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl px-4 h-10 flex items-center gap-1.5 cursor-pointer shadow-md flex-shrink-0"
+          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-md flex-shrink-0"
           onPress={() => setIsSharedExpenseOpen(true)}
           isDisabled={!friendsQuery.data || friendsQuery.data.length === 0}
         >
-          <Plus size={13} /> Aggiungi Spesa Condivisa
+          <Plus size={13} />
+          <span className="hidden sm:inline">Aggiungi Spesa Condivisa</span>
         </Button>
       </motion.div>
       {}
@@ -357,7 +358,6 @@ export default function FriendsView() {
           />
         ))}
       </div>
-      {/* Mobile Tab Switcher */}
       <div
         className={cn(
           "flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none",
@@ -712,10 +712,11 @@ export default function FriendsView() {
                     <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
                       <Button
                         variant="outline"
-                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-3 flex items-center gap-1 cursor-pointer transition-all shrink-0"
+                        className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all shrink-0"
                         onPress={() => setIsSharedExpenseOpen(true)}
                       >
-                        <Plus size={11} /> Aggiungi Spesa
+                        <Plus size={11} />
+                        <span className="hidden sm:inline">Aggiungi Spesa</span>
                       </Button>
 
                       {balances.find(
@@ -731,12 +732,13 @@ export default function FriendsView() {
                         )?.balanceNok ?? 0) < 0 && (
                           <Button
                             variant="outline"
-                            className="font-bold text-[10px] h-8 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-0 rounded-xl px-3 flex items-center gap-1 cursor-pointer transition-all"
+                            className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all"
                             onPress={() =>
                               setSettleConfirmFriend(selectedFriend)
                             }
                           >
-                            <DollarSign size={11} /> Salda
+                            <DollarSign size={11} />
+                            <span className="hidden sm:inline">Salda</span>
                           </Button>
                         )}
                       <Button
@@ -961,10 +963,11 @@ export default function FriendsView() {
                     <div className="flex items-center gap-2 shrink-0">
                       <Button
                         variant="outline"
-                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-3 flex items-center gap-1 cursor-pointer transition-all"
+                        className="font-bold text-[10px] h-8 w-8 sm:w-auto px-0 sm:px-3 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl flex items-center justify-center gap-1 cursor-pointer transition-all"
                         onPress={() => setIsSharedExpenseOpen(true)}
                       >
-                        <Plus size={11} /> Aggiungi Spesa
+                        <Plus size={11} />
+                        <span className="hidden sm:inline">Aggiungi Spesa</span>
                       </Button>
                       {selectedGroup.creatorId === currentUserId && (
                         <Button

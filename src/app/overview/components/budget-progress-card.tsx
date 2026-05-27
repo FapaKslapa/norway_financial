@@ -90,153 +90,175 @@ export function BudgetProgressCard({
         </Button>
       </div>
 
-      <CardContent className="p-0 flex flex-col items-center justify-center gap-5 py-1">
-        {}
-        <div className="relative w-32 h-32 flex items-center justify-center">
-          <svg
-            className="w-full h-full transform -rotate-90"
-            viewBox="0 0 128 128"
+      {targetBudgetVal === 0 && maxBudgetVal === 0 ? (
+        <CardContent className="p-0 flex flex-col items-center justify-center text-center gap-4 py-8 flex-1">
+          <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-full animate-pulse">
+            <AlertTriangle size={24} />
+          </div>
+          <div className="flex flex-col gap-1 px-2">
+            <span className="font-extrabold text-sm text-[var(--foreground)]">
+              Limiti Budget non impostati
+            </span>
+            <span className="text-[10px] text-[var(--text-muted)] max-w-[200px] leading-normal mx-auto font-medium">
+              Imposta un budget target e massimo per monitorare le tue spese
+              mensili e visualizzare i grafici di progresso.
+            </span>
+          </div>
+          <Button
+            onPress={onOpenSettings}
+            className="mt-2 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
           >
-            <title>Progresso Budget</title>
-            {}
-            <circle
-              cx="64"
-              cy="64"
-              r="52"
-              className="stroke-neutral-200 dark:stroke-neutral-800"
-              strokeWidth="8"
-              fill="transparent"
-            />
-            {}
-            {targetBudgetVal > 0 && targetBudgetVal <= maxBudgetVal && (
+            <Sliders size={11} />
+            Configura Budget
+          </Button>
+        </CardContent>
+      ) : (
+        <CardContent className="p-0 flex flex-col items-center justify-center gap-5 py-1">
+          <div className="relative w-32 h-32 flex items-center justify-center">
+            <svg
+              className="w-full h-full transform -rotate-90"
+              viewBox="0 0 128 128"
+            >
+              <title>Progresso Budget</title>
               <circle
                 cx="64"
                 cy="64"
                 r="52"
-                stroke="#10b981"
+                className="stroke-neutral-200 dark:stroke-neutral-800"
                 strokeWidth="8"
                 fill="transparent"
-                strokeDasharray={`2 ${326.7 - 2}`}
-                strokeDashoffset={
-                  -(326.7 * ((targetBudgetVal / maxBudgetVal) * 100)) / 100
-                }
-                opacity={0.5}
               />
-            )}
-            {}
-            <motion.circle
-              cx="64"
-              cy="64"
-              r="52"
-              className={budgetColorClass}
-              strokeWidth="8"
-              fill="transparent"
-              strokeDasharray="326.7"
-              initial={{ strokeDashoffset: 326.7 }}
-              animate={{
-                strokeDashoffset: 326.7 - (326.7 * budgetProgressPercent) / 100,
-              }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              strokeLinecap="round"
-            />
-          </svg>
-          <div className="absolute flex flex-col items-center justify-center">
-            <span
-              className={cn("text-lg font-black leading-none", budgetTextColor)}
-            >
-              {budgetProgressPercent.toFixed(0)}%
-            </span>
-            <span className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider font-extrabold mt-1">
-              del max
-            </span>
+              {targetBudgetVal > 0 && targetBudgetVal <= maxBudgetVal && (
+                <circle
+                  cx="64"
+                  cy="64"
+                  r="52"
+                  stroke="#10b981"
+                  strokeWidth="8"
+                  fill="transparent"
+                  strokeDasharray={`2 ${326.7 - 2}`}
+                  strokeDashoffset={
+                    -(326.7 * ((targetBudgetVal / maxBudgetVal) * 100)) / 100
+                  }
+                  opacity={0.5}
+                />
+              )}
+              <motion.circle
+                cx="64"
+                cy="64"
+                r="52"
+                className={budgetColorClass}
+                strokeWidth="8"
+                fill="transparent"
+                strokeDasharray="326.7"
+                initial={{ strokeDashoffset: 326.7 }}
+                animate={{
+                  strokeDashoffset:
+                    326.7 - (326.7 * budgetProgressPercent) / 100,
+                }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+              <span
+                className={cn(
+                  "text-lg font-black leading-none",
+                  budgetTextColor,
+                )}
+              >
+                {budgetProgressPercent.toFixed(0)}%
+              </span>
+              <span className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider font-extrabold mt-1">
+                del max
+              </span>
+            </div>
           </div>
-        </div>
 
-        <div className="w-full flex flex-col gap-1.5">
-          {}
-          <div className="flex justify-between items-center text-xs font-bold px-1">
-            <span className="text-[var(--text-muted)] text-[10px]">
-              Spesa attuale:
-            </span>
-            <span className={budgetTextColor}>
-              {formatCurrency(totalExpense, displayCurrency)}
-            </span>
-          </div>
+          <div className="w-full flex flex-col gap-1.5">
+            <div className="flex justify-between items-center text-xs font-bold px-1">
+              <span className="text-[var(--text-muted)] text-[10px]">
+                Spesa attuale:
+              </span>
+              <span className={budgetTextColor}>
+                {formatCurrency(totalExpense, displayCurrency)}
+              </span>
+            </div>
 
-          {}
-          <div className="flex flex-col gap-1 px-1 pt-2 border-t border-[var(--card-border)]">
-            <div className="flex justify-between items-center text-[10px]">
+            <div className="flex flex-col gap-1 px-1 pt-2 border-t border-[var(--card-border)]">
+              <div className="flex justify-between items-center text-[10px]">
+                <span className="text-[var(--text-muted)] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  Target:
+                </span>
+                <span className="font-semibold">
+                  {formatCurrency(targetBudgetVal, displayCurrency)}
+                </span>
+              </div>
+              <div className="h-1 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+                <motion.div
+                  className={cn(
+                    "h-full rounded-full",
+                    isOverTarget ? "bg-amber-500" : "bg-emerald-500",
+                  )}
+                  initial={{ width: 0 }}
+                  animate={{
+                    width: `${Math.min(targetProgressPercent, 100)}%`,
+                  }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] px-1">
               <span className="text-[var(--text-muted)] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                Target:
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                Limite max:
               </span>
               <span className="font-semibold">
-                {formatCurrency(targetBudgetVal, displayCurrency)}
+                {formatCurrency(maxBudgetVal, displayCurrency)}
               </span>
             </div>
-            <div className="h-1 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-              <motion.div
-                className={cn(
-                  "h-full rounded-full",
-                  isOverTarget ? "bg-amber-500" : "bg-emerald-500",
-                )}
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(targetProgressPercent, 100)}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-              />
-            </div>
-          </div>
 
-          {}
-          <div className="flex justify-between items-center text-[10px] px-1">
-            <span className="text-[var(--text-muted)] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              Limite max:
-            </span>
-            <span className="font-semibold">
-              {formatCurrency(maxBudgetVal, displayCurrency)}
-            </span>
-          </div>
+            {!isOverMax && (
+              <div className="flex justify-between items-center text-[10px] px-1 py-1.5 bg-neutral-500/5 rounded-xl mt-1">
+                <span className="text-[var(--text-muted)]">Rimasto:</span>
+                <span className="font-black text-emerald-500">
+                  {formatCurrency(
+                    Math.max(remainingBudget, 0),
+                    displayCurrency,
+                  )}
+                </span>
+              </div>
+            )}
 
-          {}
-          {!isOverMax && (
-            <div className="flex justify-between items-center text-[10px] px-1 py-1.5 bg-neutral-500/5 rounded-xl mt-1">
-              <span className="text-[var(--text-muted)]">Rimasto:</span>
-              <span className="font-black text-emerald-500">
-                {formatCurrency(Math.max(remainingBudget, 0), displayCurrency)}
+            {isOverMax && (
+              <div className="flex items-center gap-1.5 text-[9px] font-bold text-red-500 bg-red-500/5 border border-red-500/15 rounded-xl px-2.5 py-2 mt-1">
+                <AlertTriangle size={11} />
+                Limite massimo superato di{" "}
+                {formatCurrency(Math.abs(remainingBudget), displayCurrency)}
+              </div>
+            )}
+
+            <div className="flex justify-between items-center text-[10px] px-1 border-t border-[var(--card-border)] pt-2 mt-1">
+              <span className="text-[var(--text-muted)] flex items-center gap-1">
+                <TrendingUp size={10} className={projectedColor} />
+                Proiezione fine mese:
+              </span>
+              <span className={cn("font-bold text-[10px]", projectedColor)}>
+                {formatCurrency(projectedMonthly, displayCurrency)}
               </span>
             </div>
-          )}
 
-          {}
-          {isOverMax && (
-            <div className="flex items-center gap-1.5 text-[9px] font-bold text-red-500 bg-red-500/5 border border-red-500/15 rounded-xl px-2.5 py-2 mt-1">
-              <AlertTriangle size={11} />
-              Limite massimo superato di{" "}
-              {formatCurrency(Math.abs(remainingBudget), displayCurrency)}
+            <div className="flex justify-between items-center text-[10px] px-1 text-[var(--text-muted)]">
+              <span>Media giornaliera:</span>
+              <span className="font-semibold">
+                {formatCurrency(dailyAvg, displayCurrency)}/giorno
+              </span>
             </div>
-          )}
-
-          {}
-          <div className="flex justify-between items-center text-[10px] px-1 border-t border-[var(--card-border)] pt-2 mt-1">
-            <span className="text-[var(--text-muted)] flex items-center gap-1">
-              <TrendingUp size={10} className={projectedColor} />
-              Proiezione fine mese:
-            </span>
-            <span className={cn("font-bold text-[10px]", projectedColor)}>
-              {formatCurrency(projectedMonthly, displayCurrency)}
-            </span>
           </div>
-
-          {}
-          <div className="flex justify-between items-center text-[10px] px-1 text-[var(--text-muted)]">
-            <span>Media giornaliera:</span>
-            <span className="font-semibold">
-              {formatCurrency(dailyAvg, displayCurrency)}/giorno
-            </span>
-          </div>
-        </div>
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 }

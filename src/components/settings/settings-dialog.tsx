@@ -101,13 +101,13 @@ export function SettingsDialog({
   );
 
   const [targetBudget, setTargetBudget] = useState(() => {
-    if (!settings) return toDisplayCurrency(10000).toFixed(2);
+    if (!settings) return toDisplayCurrency(0).toFixed(2);
     return toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(
       2,
     );
   });
   const [maxBudget, setMaxBudget] = useState(() => {
-    if (!settings) return toDisplayCurrency(12000).toFixed(2);
+    if (!settings) return toDisplayCurrency(0).toFixed(2);
     return toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2);
   });
 
@@ -127,12 +127,8 @@ export function SettingsDialog({
     setIsSaving(true);
     try {
       await onSaveSettings({
-        targetMonthlyBudget: toNok(
-          parseFloat(targetBudget) || toDisplayCurrency(10000),
-        ),
-        maxMonthlyBudget: toNok(
-          parseFloat(maxBudget) || toDisplayCurrency(12000),
-        ),
+        targetMonthlyBudget: toNok(parseFloat(targetBudget) || 0),
+        maxMonthlyBudget: toNok(parseFloat(maxBudget) || 0),
         preferredCurrency,
         themeMode: theme,
         themeAccent: accent,

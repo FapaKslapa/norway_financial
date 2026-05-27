@@ -128,7 +128,7 @@ export function AnalyticsHeader({
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="absolute right-0 mt-2 w-72 bg-[var(--card)]/90 backdrop-blur-xl border border-[var(--card-border)] p-4 rounded-3xl shadow-2xl z-50"
+                className="absolute left-0 md:left-auto md:right-0 mt-2 w-72 bg-[var(--card)]/90 backdrop-blur-xl border border-[var(--card-border)] p-4 rounded-3xl shadow-2xl z-50"
               >
                 <div className="flex justify-between items-center pb-3 border-b border-[var(--card-border)] mb-3">
                   <span className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">

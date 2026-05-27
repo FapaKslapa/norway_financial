@@ -313,19 +313,20 @@ export default function TransactionsView() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl px-4 py-2 flex items-center gap-1.5 cursor-pointer shadow-sm"
+            className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
             onPress={() => setIsTxModalOpen(true)}
           >
-            <Plus size={14} /> Nuova Transazione
+            <Plus size={14} />
+            <span className="hidden sm:inline">Nuova Transazione</span>
           </Button>
 
           <Button
             variant="outline"
-            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl px-3 py-2 flex items-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
+            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
             onPress={() => setIsCsvModalOpen(true)}
           >
-            <FileSpreadsheet size={14} className="text-emerald-500" /> Importa
-            CSV
+            <FileSpreadsheet size={14} className="text-emerald-500" />
+            <span className="hidden sm:inline">Importa CSV</span>
           </Button>
 
           <Button
@@ -338,7 +339,6 @@ export default function TransactionsView() {
         </div>
       </motion.div>
 
-      {/* Mobile Tab Switcher */}
       <div className="flex lg:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none">
         <button
           type="button"

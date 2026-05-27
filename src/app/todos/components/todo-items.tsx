@@ -66,14 +66,46 @@ export function TodoItems({
   onTriggerBulkImport,
 }: TodoItemsProps) {
   const [showCompleted, setShowCompleted] = useState(false);
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
 
   const activeTodos = todos.filter((t) => !t.completed);
   const completedTodos = todos.filter((t) => t.completed);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Active Todos Card */}
-      <div className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-3xl transition-all">
+      <div className="flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none mb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab("active")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeTab === "active"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Da Acquistare ({activeTodos.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("completed")}
+          className={cn(
+            "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
+            activeTab === "completed"
+              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+          )}
+        >
+          Completati ({completedTodos.length})
+        </button>
+      </div>
+
+      <div
+        className={cn(
+          "border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-3xl transition-all",
+          activeTab !== "active" && "hidden md:block",
+        )}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4 gap-2">
           <div className="flex items-center gap-2">
             <ShoppingBag size={14} className="text-blue-500" />
@@ -118,10 +150,11 @@ export function TodoItems({
                     type="button"
                     onClick={onTriggerBulkImport}
                     disabled={selectedTodoIds.length === 0}
-                    className="text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center gap-1 border-0 shadow-sm"
+                    className="text-[10px] font-black px-2.5 py-1.5 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 cursor-pointer transition-all flex items-center justify-center gap-1 border-0 shadow-sm min-w-[32px]"
                   >
                     <Sparkles size={11} />
-                    <span>Importa ({selectedTodoIds.length})</span>
+                    <span className="hidden sm:inline">Importa </span>
+                    <span>({selectedTodoIds.length})</span>
                   </button>
                   <button
                     type="button"
@@ -135,13 +168,13 @@ export function TodoItems({
                 <button
                   type="button"
                   onClick={onStartSelectionMode}
-                  className="text-[10px] font-black px-2.5 py-1.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center gap-1 bg-transparent"
+                  className="text-[10px] font-black h-8 w-8 sm:h-auto sm:w-auto px-0 sm:px-2.5 py-1.5 rounded-xl border border-blue-500/20 text-blue-500 hover:bg-blue-500/10 cursor-pointer transition-all flex items-center justify-center gap-1 bg-transparent"
+                  title="Importazione di Massa"
                 >
                   <Sparkles size={11} className="animate-pulse" />
                   <span className="hidden sm:inline">
                     Importazione di Massa
                   </span>
-                  <span className="sm:hidden">Seleziona</span>
                 </button>
               )}
             </div>
@@ -277,9 +310,13 @@ export function TodoItems({
         </div>
       </div>
 
-      {}
       {completedTodos.length > 0 && (
-        <div className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 rounded-3xl transition-all">
+        <div
+          className={cn(
+            "border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 rounded-3xl transition-all",
+            activeTab !== "completed" && "hidden md:block",
+          )}
+        >
           <button
             type="button"
             onClick={() => setShowCompleted(!showCompleted)}
@@ -293,15 +330,17 @@ export function TodoItems({
                 Articoli Completati ({completedTodos.length})
               </span>
             </div>
-            {showCompleted ? (
-              <ChevronUp size={14} />
-            ) : (
-              <ChevronDown size={14} />
-            )}
+            <span className="hidden md:inline">
+              {showCompleted ? (
+                <ChevronUp size={14} />
+              ) : (
+                <ChevronDown size={14} />
+              )}
+            </span>
           </button>
 
           <AnimatePresence initial={false}>
-            {showCompleted && (
+            {(showCompleted || activeTab === "completed") && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}

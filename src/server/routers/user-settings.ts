@@ -21,8 +21,8 @@ export const userSettingsRouter = router({
     const defaults = {
       id: crypto.randomUUID(),
       userId,
-      targetMonthlyBudget: "10000.00",
-      maxMonthlyBudget: "12000.00",
+      targetMonthlyBudget: "0.00",
+      maxMonthlyBudget: "0.00",
       preferredCurrency: "EUR",
       themeMode: "dark",
       themeAccent: "blue",

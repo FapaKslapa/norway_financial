@@ -209,9 +209,10 @@ export default function TodosView() {
         <button
           type="button"
           onClick={() => setIsNewListOpen(true)}
-          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl px-4 h-10 flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-10 w-10 sm:w-auto px-0 sm:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all"
         >
-          <FolderPlus size={14} /> Nuova Lista
+          <FolderPlus size={14} />
+          <span className="hidden sm:inline">Nuova Lista</span>
         </button>
       </motion.div>
 
