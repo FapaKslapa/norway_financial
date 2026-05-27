@@ -183,7 +183,7 @@ export function TodoItems({
           )}
         </div>
 
-        <div className="flex flex-col gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {activeTodos.map((todoItem) => {
             const estAmountNum = todoItem.estimatedAmount
               ? parseFloat(todoItem.estimatedAmount)
@@ -305,7 +305,7 @@ export function TodoItems({
           })}
 
           {activeTodos.length === 0 && (
-            <div className="text-center py-10 text-xs text-[var(--text-muted)] font-medium">
+            <div className="text-center py-10 text-xs text-[var(--text-muted)] font-medium col-span-full">
               Nessun elemento attivo in questa lista. Aggiungine uno qui sopra!
             </div>
           )}
