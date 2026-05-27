@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useDashboard } from "../../components/dashboard-layout";
-import { LoadingState } from "../../components/ui/loading-state";
-import { trpc } from "../../lib/trpc/client";
+import { useDashboard } from "@/components/dashboard-layout";
+import { LoadingState } from "@/components/ui/loading-state";
+import { trpc } from "@/lib/trpc/client";
 import { AnalyticsHeader } from "./components/analytics-header";
 import { AnalyticsSummaryCards } from "./components/analytics-summary-cards";
 import { CategoryBreakdown } from "./components/category-breakdown";
@@ -30,7 +30,7 @@ const MONTH_SHORT = [
 ];
 
 export default function AnalyticsView() {
-  const { displayCurrency, exchangeRate } = useDashboard();
+  const { displayCurrency, convertCurrency } = useDashboard();
 
   const categoriesQuery = trpc.category.list.useQuery();
   const transactionsQuery = trpc.transaction.list.useQuery();
@@ -51,14 +51,12 @@ export default function AnalyticsView() {
   const transactions = rawTxs.map((t) => ({
     ...t,
     type: t.type as "expense" | "income",
-    currency: t.currency as "EUR" | "NOK",
+    currency: t.currency,
   }));
   const categories = categoriesQuery.data || [];
 
-  const convertNokAmount = (nokVal: string) => {
-    const val = parseFloat(nokVal) || 0;
-    return displayCurrency === "NOK" ? val : val / exchangeRate;
-  };
+  const convertNokAmount = (nokVal: string) =>
+    convertCurrency(parseFloat(nokVal) || 0, "NOK", displayCurrency);
 
   const monthTransactions = transactions.filter((t) => {
     const d = new Date(t.date);
@@ -257,34 +255,38 @@ export default function AnalyticsView() {
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <SpendingCalendarCard
-          currentMonth={currentMonth}
-          currentYear={currentYear}
-          dailyExpensesMap={dailyExpensesMap}
-          maxDailyExpense={maxDailyExpense}
-          selectedDay={selectedDay}
-          setSelectedDay={setSelectedDay}
-          displayCurrency={displayCurrency}
-        />
-      </motion.div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
+          className="h-full"
+        >
+          <SpendingCalendarCard
+            currentMonth={currentMonth}
+            currentYear={currentYear}
+            dailyExpensesMap={dailyExpensesMap}
+            maxDailyExpense={maxDailyExpense}
+            selectedDay={selectedDay}
+            setSelectedDay={setSelectedDay}
+            displayCurrency={displayCurrency}
+          />
+        </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <RecentLogs
-          sortedTimeline={sortedTimeline}
-          categories={categories}
-          displayCurrency={displayCurrency}
-          exchangeRate={exchangeRate}
-        />
-      </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="h-full"
+        >
+          <RecentLogs
+            sortedTimeline={sortedTimeline}
+            categories={categories}
+            displayCurrency={displayCurrency}
+            convertCurrency={convertCurrency}
+          />
+        </motion.div>
+      </div>
     </div>
   );
 }

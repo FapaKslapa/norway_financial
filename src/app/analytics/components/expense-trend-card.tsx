@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@heroui/react";
 import { TrendingDown } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { formatCurrency } from "../../../lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 type MonthTrend = {
   label: string;
@@ -15,7 +15,7 @@ type MonthTrend = {
 
 type ExpenseTrendCardProps = {
   trendData: MonthTrend[];
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
 };
 
 export function ExpenseTrendCard({

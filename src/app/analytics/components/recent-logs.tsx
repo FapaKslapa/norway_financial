@@ -3,8 +3,8 @@
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import dayjs from "dayjs";
 import { Clock } from "lucide-react";
-import { CategoryIcon } from "../../../components/icon-helper";
-import { cn, formatCurrency } from "../../../lib/utils";
+import { CategoryIcon } from "@/components/icon-helper";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type Category = {
   id: string;
@@ -22,31 +22,29 @@ type Transaction = {
   amount: string;
   amountNok: string;
   amountEur: string;
-  currency: "NOK" | "EUR";
+  currency: string;
   date: string | Date;
 };
 
 type RecentLogsProps = {
   sortedTimeline: Transaction[];
   categories: Category[];
-  displayCurrency: "NOK" | "EUR";
-  exchangeRate: number;
+  displayCurrency: string;
+  convertCurrency: (amount: number, from: string, to: string) => number;
 };
 
 export function RecentLogs({
   sortedTimeline,
   categories,
   displayCurrency,
-  exchangeRate,
+  convertCurrency,
 }: RecentLogsProps) {
-  const convertNokAmount = (nokVal: string) => {
-    const val = parseFloat(nokVal) || 0;
-    return displayCurrency === "NOK" ? val : val / exchangeRate;
-  };
+  const convertNokAmount = (nokVal: string) =>
+    convertCurrency(parseFloat(nokVal) || 0, "NOK", displayCurrency);
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] w-full">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1">
+    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] w-full max-h-[480px] flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1 flex-shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <Clock size={14} className="text-blue-500" />
           Timeline delle Spese
@@ -56,7 +54,7 @@ export function RecentLogs({
         </p>
       </CardHeader>
 
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 min-h-0 overflow-y-auto pr-1 scrollbar-thin flex flex-col">
         {sortedTimeline.length === 0 ? (
           <div className="py-12 text-center text-xs text-[var(--text-muted)] flex flex-col gap-1">
             <span>Nessun movimento trovato per questa selezione.</span>
@@ -123,17 +121,11 @@ export function RecentLogs({
                       )}
                     </span>
 
-                    <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase mt-0.5">
-                      {tx.currency === "NOK" ? (
-                        <>
-                          Originale: {parseFloat(tx.amountNok).toFixed(0)} NOK
-                        </>
-                      ) : (
-                        <>
-                          Originale: {parseFloat(tx.amountEur).toFixed(2)} EUR
-                        </>
-                      )}
-                    </span>
+                    {tx.currency !== displayCurrency && (
+                      <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase mt-0.5">
+                        {tx.amount} {tx.currency}
+                      </span>
+                    )}
                   </div>
                 </div>
               );

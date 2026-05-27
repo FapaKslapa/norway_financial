@@ -6,15 +6,15 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { StatCard } from "../../../components/ui/stat-card";
-import { formatCurrency } from "../../../lib/utils";
+import { StatCard } from "@/components/ui/stat-card";
+import { formatCurrency } from "@/lib/utils";
 
 type AnalyticsSummaryCardsProps = {
   totalIncome: number;
   totalExpense: number;
   netSavings: number;
   savingsRate: number;
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
 };
 
 export function AnalyticsSummaryCards({

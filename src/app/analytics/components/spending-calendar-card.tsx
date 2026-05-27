@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { cn, formatCurrency } from "../../../lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const MONTH_NAMES = [
   "Gennaio",
@@ -41,7 +41,7 @@ type SpendingCalendarCardProps = {
   maxDailyExpense: number;
   selectedDay: number | null;
   setSelectedDay: (day: number | null) => void;
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
 };
 
 export function SpendingCalendarCard({

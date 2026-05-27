@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader } from "@heroui/react";
 import { motion } from "framer-motion";
 import { PieChart } from "lucide-react";
 import { useState } from "react";
-import { CategoryIcon } from "../../../components/icon-helper";
-import { formatCurrency } from "../../../lib/utils";
+import { CategoryIcon } from "@/components/icon-helper";
+import { formatCurrency } from "@/lib/utils";
 
 type CategoryExpense = {
   id: string;
@@ -19,7 +19,7 @@ type CategoryExpense = {
 type CategoryBreakdownProps = {
   categoryExpenses: CategoryExpense[];
   totalExpense: number;
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
 };
 
 export function CategoryBreakdown({

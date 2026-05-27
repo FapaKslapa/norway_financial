@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { motion } from "framer-motion";
 import { Activity } from "lucide-react";
-import { cn, formatCurrency } from "../../../lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 type MonthTrend = {
   label: string;
@@ -14,7 +14,7 @@ type MonthTrend = {
 
 type SavingsTrendCardProps = {
   trendData: MonthTrend[];
-  displayCurrency: "NOK" | "EUR";
+  displayCurrency: string;
 };
 
 export function SavingsTrendCard({
