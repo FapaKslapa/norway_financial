@@ -27,18 +27,8 @@ import {
   deleteTransactionSchema,
   listTransactionsSchema,
 } from "@/lib/schemas/transaction";
+import { convertAmounts } from "@/lib/utils";
 import { protectedProcedure, router } from "@/server/trpc";
-
-function convertAmounts(
-  amount: number,
-  currency: string,
-  exchangeRate: number,
-  exchangeRateNok = 11.85,
-) {
-  const amountEur = currency === "EUR" ? amount : amount / exchangeRate;
-  const amountNok = amountEur * exchangeRateNok;
-  return { amountEur, amountNok };
-}
 
 function computeFriendSplitNok(
   amountNok: number,
@@ -122,7 +112,7 @@ async function triggerBudgetNotifications(
     const targetNok = parseFloat(s.targetMonthlyBudget);
     const maxNok = parseFloat(s.maxMonthlyBudget);
 
-    if (targetNok > 0 || maxNok > 0) {
+    if (s.notifyBudget80 && (targetNok > 0 || maxNok > 0)) {
       const totalExpenseRes = await db
         .select({ total: sum(transaction.amountNok) })
         .from(transaction)
@@ -370,16 +360,26 @@ export const transactionRouter = router({
         }));
         await ctx.db.insert(sharedExpense).values(splitsToInsert);
 
-        const notificationsToInsert = splitsToInsert.map((s) => ({
-          id: crypto.randomUUID(),
-          userId: s.borrowerId,
-          type: "shared_expense_added",
-          title: "Nuova spesa di gruppo",
-          message: `${ctx.session.user.name || ctx.session.user.email} ha aggiunto una spesa "${newTransaction.description}" nel gruppo.`,
-          read: false,
-          link: "/friends",
-          createdAt: new Date(),
-        }));
+          const borrowerIds = splitsToInsert.map((s) => s.borrowerId);
+        const borrowerSettingsList = await ctx.db
+          .select({ userId: userSettings.userId, notifyFriendActions: userSettings.notifyFriendActions })
+          .from(userSettings)
+          .where(inArray(userSettings.userId, borrowerIds));
+        const notifySet = new Set(
+          borrowerSettingsList.filter((s) => s.notifyFriendActions).map((s) => s.userId),
+        );
+        const notificationsToInsert = splitsToInsert
+          .filter((s) => !borrowerSettingsList.find((bs) => bs.userId === s.borrowerId) || notifySet.has(s.borrowerId))
+          .map((s) => ({
+            id: crypto.randomUUID(),
+            userId: s.borrowerId,
+            type: "shared_expense_added",
+            title: "Nuova spesa di gruppo",
+            message: `${ctx.session.user.name || ctx.session.user.email} ha aggiunto una spesa "${newTransaction.description}" nel gruppo.`,
+            read: false,
+            link: "/friends",
+            createdAt: new Date(),
+          }));
         if (notificationsToInsert.length > 0) {
           await ctx.db.insert(notification).values(notificationsToInsert);
         }
@@ -402,16 +402,23 @@ export const transactionRouter = router({
           updatedAt: new Date(),
         });
 
-        await ctx.db.insert(notification).values({
-          id: crypto.randomUUID(),
-          userId: input.sharedWithUserId,
-          type: "shared_expense_added",
-          title: "Spesa condivisa",
-          message: `${ctx.session.user.name || ctx.session.user.email} ha condiviso una spesa con te: "${newTransaction.description}".`,
-          read: false,
-          link: "/friends",
-          createdAt: new Date(),
-        });
+          const borrowerSettings = await ctx.db
+          .select({ notifyFriendActions: userSettings.notifyFriendActions })
+          .from(userSettings)
+          .where(eq(userSettings.userId, input.sharedWithUserId))
+          .limit(1);
+        if (borrowerSettings[0]?.notifyFriendActions !== false) {
+          await ctx.db.insert(notification).values({
+            id: crypto.randomUUID(),
+            userId: input.sharedWithUserId,
+            type: "shared_expense_added",
+            title: "Spesa condivisa",
+            message: `${ctx.session.user.name || ctx.session.user.email} ha condiviso una spesa con te: "${newTransaction.description}".`,
+            read: false,
+            link: "/friends",
+            createdAt: new Date(),
+          });
+        }
       }
 
       if (input.type === "expense") {

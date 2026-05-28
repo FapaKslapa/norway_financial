@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  Bell,
+  Camera,
   Check,
   DollarSign,
   Info,
@@ -12,10 +14,13 @@ import {
   Settings,
   Sliders,
   Sun,
+  Trash2,
   User,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import NextImage from "next/image";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
 import { CategoryIcon } from "@/components/icon-helper";
 import { CurrencySelect } from "@/components/ui/currency-select";
@@ -37,6 +42,9 @@ export type UserSettingsType = {
   preferredCurrency: string;
   themeMode: string;
   themeAccent: string;
+  notifyBudget80?: boolean;
+  notifyRecurrentApplied?: boolean;
+  notifyFriendActions?: boolean;
 };
 
 type SettingsDialogProps = {
@@ -61,8 +69,11 @@ type SettingsDialogProps = {
     preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
+    notifyBudget80: boolean;
+    notifyRecurrentApplied: boolean;
+    notifyFriendActions: boolean;
   }) => Promise<void>;
-  initialTab?: "general" | "budget" | "profile";
+  initialTab?: "general" | "budget" | "profile" | "notifications";
 };
 
 export function SettingsDialog({
@@ -80,9 +91,9 @@ export function SettingsDialog({
   onSaveSettings,
   initialTab,
 }: SettingsDialogProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "budget" | "profile">(
-    initialTab ?? "general",
-  );
+  const [activeTab, setActiveTab] = useState<
+    "general" | "budget" | "profile" | "notifications"
+  >(initialTab ?? "general");
 
   useEffect(() => {
     if (isOpen) setActiveTab(initialTab ?? "general");
@@ -91,6 +102,55 @@ export function SettingsDialog({
   const [preferredCurrency, setPreferredCurrency] =
     useState<string>(displayCurrency);
   const [isSaving, setIsSaving] = useState(false);
+
+  const [notifyBudget80, setNotifyBudget80] = useState(true);
+  const [notifyRecurrentApplied, setNotifyRecurrentApplied] = useState(true);
+  const [notifyFriendActions, setNotifyFriendActions] = useState(true);
+
+  const router = useRouter();
+  const updateProfileMutation = trpc.settings.updateProfile.useMutation();
+  const [profileName, setProfileName] = useState(user.name || "");
+  const [profileImage, setProfileImage] = useState<string | null>(
+    user.image || null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setProfileName(user.name || "");
+      setProfileImage(user.image || null);
+    }
+  }, [isOpen, user]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const size = 128;
+        canvas.width = size;
+        canvas.height = size;
+
+        const minSide = Math.min(img.width, img.height);
+        const sx = (img.width - minSide) / 2;
+        const sy = (img.height - minSide) / 2;
+
+        ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+
+        const compressedBase64 = canvas.toDataURL("image/jpeg", 0.5);
+        setProfileImage(compressedBase64);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   const categoriesQuery = trpc.category.list.useQuery(undefined, {
     enabled: isOpen,
@@ -145,6 +205,9 @@ export function SettingsDialog({
         toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2),
       );
       setPreferredCurrency(settings.preferredCurrency);
+      setNotifyBudget80(settings.notifyBudget80 ?? true);
+      setNotifyRecurrentApplied(settings.notifyRecurrentApplied ?? true);
+      setNotifyFriendActions(settings.notifyFriendActions ?? true);
     }
   }, [settings, toDisplayCurrency]);
 
@@ -157,6 +220,9 @@ export function SettingsDialog({
         preferredCurrency,
         themeMode: theme,
         themeAccent: accent,
+        notifyBudget80,
+        notifyRecurrentApplied,
+        notifyFriendActions,
       });
 
       if (categoriesQuery.data) {
@@ -172,6 +238,14 @@ export function SettingsDialog({
         );
       }
 
+      if (profileName !== user.name || profileImage !== user.image) {
+        await updateProfileMutation.mutateAsync({
+          name: profileName,
+          image: profileImage,
+        });
+      }
+
+      router.refresh();
       onClose();
     } catch (err) {
       console.error(err);
@@ -183,7 +257,7 @@ export function SettingsDialog({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <button
             type="button"
             className="absolute inset-0 cursor-pointer bg-transparent border-0 w-full h-full"
@@ -192,25 +266,25 @@ export function SettingsDialog({
           />
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            initial={{ opacity: 0, scale: 0.97, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 12 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-[520px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-[2rem] overflow-hidden min-h-[400px]"
+            exit={{ opacity: 0, scale: 0.97, y: 16 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-[780px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-[2.5rem] overflow-hidden min-h-[500px]"
           >
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-3.5 right-3.5 h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
+              className="absolute top-4 right-4 h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
               aria-label="Chiudi"
             >
-              <X size={15} />
+              <X size={16} />
             </button>
 
-            <div className="w-full md:w-[180px] bg-[var(--card-sidebar)] border-b md:border-b-0 md:border-r border-[var(--card-border)] p-3 md:p-5 pr-12 md:pr-5 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
-              <div className="hidden md:flex items-center gap-2 mb-4 px-2">
+            <div className="w-full md:w-[220px] bg-[var(--card-sidebar)] border-b md:border-b-0 md:border-r border-[var(--card-border)] p-5 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
+              <div className="hidden md:flex items-center gap-2.5 mb-5 px-2">
                 <Settings
-                  size={16}
+                  size={18}
                   className="text-blue-500 animate-spin-slow"
                 />
                 <span className="font-black text-xs uppercase tracking-wider">
@@ -222,187 +296,212 @@ export function SettingsDialog({
                 type="button"
                 onClick={() => setActiveTab("general")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "general"
-                    ? "bg-[var(--foreground)] text-[var(--background)]"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
+                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
+                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
                 )}
               >
-                <Sliders size={14} />
-                <span className="hidden md:inline">Generali</span>
+                <Sliders size={15} />
+                <span>Generali</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab("budget")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "budget"
-                    ? "bg-[var(--foreground)] text-[var(--background)]"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
+                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
+                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
                 )}
               >
-                <DollarSign size={14} />
-                <span className="hidden md:inline">Limiti Budget</span>
+                <DollarSign size={15} />
+                <span>Limiti Budget</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveTab("profile")}
                 className={cn(
-                  "flex items-center justify-center md:justify-start gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0",
+                  "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "profile"
-                    ? "bg-[var(--foreground)] text-[var(--background)]"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40",
+                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
+                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
                 )}
               >
-                <User size={14} />
-                <span className="hidden md:inline">Profilo</span>
+                <User size={15} />
+                <span>Profilo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("notifications")}
+                className={cn(
+                  "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
+                  activeTab === "notifications"
+                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
+                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
+                )}
+              >
+                <Bell size={15} />
+                <span>Notifiche</span>
               </button>
             </div>
 
-            <div className="flex-1 p-6 flex flex-col justify-between overflow-y-auto max-h-[60vh] md:max-h-[500px]">
-              <div className="flex flex-col gap-4">
+            <div className="flex-1 p-8 flex flex-col justify-between h-[75vh] md:h-[560px] overflow-hidden">
+              <div className="flex-1 overflow-y-auto pr-1.5 flex flex-col gap-6">
                 {activeTab === "general" && (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-5">
                     <div>
-                      <h4 className="text-sm font-extrabold mb-1">
+                      <h4 className="text-base font-black tracking-tight mb-1">
                         Visualizzazione & Stile
                       </h4>
-                      <p className="text-[10px] text-[var(--text-muted)]">
+                      <p className="text-xs text-[var(--text-muted)]">
                         Modifica le preferenze estetiche dell'applicazione
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                        Valuta Preferita
-                      </span>
-                      <CurrencySelect
-                        value={preferredCurrency}
-                        onChange={setPreferredCurrency}
-                        triggerClassName="h-10 text-xs"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Modalità Tema
-                      </span>
-                      <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 w-full">
-                        <button
-                          type="button"
-                          onClick={() => changeTheme("light")}
-                          className={cn(
-                            "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 bg-transparent",
-                            theme === "light"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)]",
-                          )}
-                        >
-                          <Sun size={12} /> Chiaro
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => changeTheme("dark")}
-                          className={cn(
-                            "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-1.5 bg-transparent",
-                            theme === "dark"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)]",
-                          )}
-                        >
-                          <Moon size={12} /> Scuro
-                        </button>
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          Valuta Preferita
+                        </span>
+                        <CurrencySelect
+                          value={preferredCurrency}
+                          onChange={setPreferredCurrency}
+                          triggerClassName="h-11 text-xs rounded-xl"
+                        />
                       </div>
-                    </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Colore Accento
-                      </span>
-                      <div className="flex flex-wrap gap-2.5 p-3 bg-neutral-100 dark:bg-zinc-800/30 rounded-xl">
-                        {ACCENT_COLORS.map((col) => (
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          Modalità Tema
+                        </span>
+                        <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 w-full border border-[var(--card-border)]/40">
                           <button
-                            key={col.id}
                             type="button"
-                            onClick={() => changeAccent(col.id)}
-                            className="h-7 w-7 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-105 border-0"
-                            style={{ backgroundColor: col.primary }}
-                          >
-                            {accent === col.id && (
-                              <Check
-                                size={14}
-                                className="text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.4)]"
-                              />
+                            onClick={() => changeTheme("light")}
+                            className={cn(
+                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-[var(--foreground)]",
+                              theme === "light"
+                                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                                : "text-[var(--text-muted)]",
                             )}
+                          >
+                            <Sun size={13} /> Chiaro
                           </button>
-                        ))}
+                          <button
+                            type="button"
+                            onClick={() => changeTheme("dark")}
+                            className={cn(
+                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-[var(--foreground)]",
+                              theme === "dark"
+                                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                                : "text-[var(--text-muted)]",
+                            )}
+                          >
+                            <Moon size={13} /> Scuro
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          Colore Accento
+                        </span>
+                        <div className="flex flex-wrap gap-3 p-3 bg-neutral-100/50 dark:bg-zinc-800/20 rounded-xl border border-[var(--card-border)]/40">
+                          {ACCENT_COLORS.map((col) => (
+                            <button
+                              key={col.id}
+                              type="button"
+                              onClick={() => changeAccent(col.id)}
+                              className="h-8 w-8 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 border-0 shadow-sm"
+                              style={{ backgroundColor: col.primary }}
+                            >
+                              {accent === col.id && (
+                                <Check
+                                  size={15}
+                                  className="text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.4)] font-bold"
+                                />
+                              )}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {activeTab === "budget" && (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-5">
                     <div>
-                      <h4 className="text-sm font-extrabold mb-1">
+                      <h4 className="text-base font-black tracking-tight mb-1">
                         Limiti Budget Mensile
                       </h4>
-                      <p className="text-[10px] text-[var(--text-muted)]">
+                      <p className="text-xs text-[var(--text-muted)]">
                         Imposta i tuoi obiettivi di spesa mensili in{" "}
-                        <span className="font-bold text-blue-500">
+                        <span className="font-extrabold text-blue-500">
                           {displayCurrency}
                         </span>
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Budget Target (Obiettivo) — {displayCurrency}
-                      </span>
-                      <MoneyInput
-                        value={targetBudget}
-                        onChange={setTargetBudget}
-                        currency={displayCurrency}
-                      />
-                    </div>
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                            Budget Target (Obiettivo)
+                          </span>
+                          <MoneyInput
+                            value={targetBudget}
+                            onChange={setTargetBudget}
+                            currency={displayCurrency}
+                            className="h-11"
+                          />
+                        </div>
 
-                    <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                        Budget Massimo (Limite) — {displayCurrency}
-                      </span>
-                      <MoneyInput
-                        value={maxBudget}
-                        onChange={setMaxBudget}
-                        currency={displayCurrency}
-                      />
-                    </div>
-
-                    {displayCurrency === "EUR" && (
-                      <div className="flex items-start gap-2 text-[9px] text-[var(--text-muted)] bg-neutral-500/5 border border-[var(--card-border)] rounded-xl p-2.5">
-                        <Info
-                          size={11}
-                          className="flex-shrink-0 mt-0.5 opacity-60"
-                        />
-                        I valori vengono convertiti in NOK al salvataggio usando
-                        il tasso di cambio corrente ({exchangeRate.toFixed(2)}{" "}
-                        NOK/EUR)
+                        <div className="flex flex-col gap-2">
+                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                            Budget Massimo (Limite)
+                          </span>
+                          <MoneyInput
+                            value={maxBudget}
+                            onChange={setMaxBudget}
+                            currency={displayCurrency}
+                            className="h-11"
+                          />
+                        </div>
                       </div>
-                    )}
 
-                    <div className="border-t border-[var(--card-border)] pt-4 mt-2 flex flex-col gap-3">
+                      {displayCurrency === "EUR" && (
+                        <div className="flex items-start gap-2.5 text-[10px] text-[var(--text-muted)] bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
+                          <Info
+                            size={13}
+                            className="flex-shrink-0 mt-0.5 text-blue-500"
+                          />
+                          <span>
+                            I valori vengono convertiti in NOK al salvataggio
+                            usando il tasso di cambio corrente (
+                            {exchangeRate.toFixed(2)} NOK/EUR)
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-3">
                       <div>
-                        <h5 className="text-xs font-bold mb-0.5">
+                        <h5 className="text-xs font-black mb-0.5">
                           Budget per Categoria
                         </h5>
                         <p className="text-[10px] text-[var(--text-muted)]">
                           Imposta limiti specifici per categoria di spesa
                         </p>
                       </div>
-                      <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto pr-1">
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                         {categoriesQuery.isLoading ? (
-                          <div className="text-[10px] text-[var(--text-muted)]">
+                          <div className="text-xs text-[var(--text-muted)] py-4 text-center font-bold col-span-2">
                             Caricamento...
                           </div>
                         ) : categoriesQuery.data &&
@@ -410,20 +509,20 @@ export function SettingsDialog({
                           categoriesQuery.data.map((cat) => (
                             <div
                               key={cat.id}
-                              className="flex items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/50 rounded-xl p-2"
+                              className="flex items-center justify-between gap-3 bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/50 rounded-2xl p-2.5"
                             >
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 min-w-0">
                                 <div
-                                  className="w-5 h-5 rounded-md flex items-center justify-center text-white flex-shrink-0"
+                                  className="w-7 h-7 rounded-xl flex items-center justify-center text-white flex-shrink-0"
                                   style={{ backgroundColor: cat.color }}
                                 >
-                                  <CategoryIcon name={cat.icon} size={11} />
+                                  <CategoryIcon name={cat.icon} size={13} />
                                 </div>
-                                <span className="text-[11px] font-semibold text-[var(--foreground)]">
+                                <span className="text-[11px] font-bold text-[var(--foreground)] truncate">
                                   {cat.name}
                                 </span>
                               </div>
-                              <div className="w-[120px]">
+                              <div className="w-[110px] flex-shrink-0">
                                 <MoneyInput
                                   value={catBudgets[cat.id] || "0.00"}
                                   onChange={(newVal) => {
@@ -433,13 +532,13 @@ export function SettingsDialog({
                                     }));
                                   }}
                                   currency={displayCurrency}
-                                  className="h-8"
+                                  className="h-8 text-[11px]"
                                 />
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className="text-[10px] text-[var(--text-muted)]">
+                          <div className="text-xs text-[var(--text-muted)] py-4 text-center font-bold col-span-2">
                             Nessuna categoria
                           </div>
                         )}
@@ -449,47 +548,188 @@ export function SettingsDialog({
                 )}
 
                 {activeTab === "profile" && (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-6">
                     <div>
-                      <h4 className="text-sm font-extrabold mb-1">
+                      <h4 className="text-base font-black tracking-tight mb-1">
                         Informazioni Profilo
                       </h4>
-                      <p className="text-[10px] text-[var(--text-muted)]">
-                        I tuoi dati registrati nel sistema
+                      <p className="text-xs text-[var(--text-muted)]">
+                        Gestisci le tue informazioni personali e l'immagine del
+                        profilo
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-3.5 p-4 bg-neutral-100 dark:bg-zinc-800/30 rounded-2xl select-none items-center text-center">
-                      <div className="h-16 w-16 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center font-bold text-xl uppercase shadow-inner">
-                        {user.name ? user.name[0] : "S"}
+                    <div className="flex flex-col gap-6 p-6 bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] items-center">
+                      <button
+                        type="button"
+                        className="relative group cursor-pointer border-0 p-0 bg-transparent rounded-full outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <div className="h-24 w-24 rounded-full overflow-hidden border-2 border-blue-500/30 bg-blue-500/10 text-blue-500 flex items-center justify-center font-black text-3xl uppercase shadow-md transition-all duration-300 group-hover:border-blue-500/60">
+                          {profileImage ? (
+                            <NextImage
+                              src={profileImage}
+                              alt={profileName}
+                              width={96}
+                              height={96}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span>{profileName ? profileName[0] : "S"}</span>
+                          )}
+                        </div>
+                        <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white text-[10px] font-bold transition-opacity duration-200">
+                          <Camera size={18} className="mb-1" />
+                          <span>Cambia foto</span>
+                        </div>
+                      </button>
+
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="hidden"
+                      />
+
+                      {profileImage && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setProfileImage(null);
+                          }}
+                          className="text-[10px] font-black text-rose-500 hover:text-rose-600 transition-colors bg-transparent border-0 cursor-pointer flex items-center gap-1.5"
+                        >
+                          <Trash2 size={12} />
+                          Rimuovi foto
+                        </button>
+                      )}
+
+                      <div className="w-full flex flex-col gap-4 mt-2">
+                        <div className="flex flex-col gap-1.5 text-left">
+                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                            Nome Profilo
+                          </span>
+                          <input
+                            type="text"
+                            placeholder="Il tuo nome"
+                            value={profileName}
+                            onChange={(e) => setProfileName(e.target.value)}
+                            required
+                            className="h-11 px-3.5 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 text-left opacity-75">
+                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                            Indirizzo Email
+                          </span>
+                          <input
+                            type="email"
+                            value={user.email}
+                            disabled
+                            className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--text-muted)] cursor-not-allowed"
+                          />
+                        </div>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="font-extrabold text-sm text-[var(--foreground)]">
-                          {user.name || "Studente"}
-                        </span>
-                        <span className="text-[10px] text-[var(--text-muted)] font-medium mt-0.5">
-                          {user.email}
-                        </span>
-                      </div>
+
+                      <div className="w-full border-t border-[var(--card-border)]/40 my-2" />
 
                       <button
                         type="button"
                         onClick={onLogout}
-                        className="text-rose-500 hover:bg-rose-500/15 text-xs font-bold rounded-xl h-9 px-4 cursor-pointer mt-2 flex items-center justify-center gap-1.5 border-0 bg-transparent"
+                        className="text-rose-500 hover:bg-rose-500/10 text-xs font-bold rounded-2xl h-10 px-5 cursor-pointer flex items-center justify-center gap-2 border border-rose-500/20 bg-transparent transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        <LogOut size={13} />
+                        <LogOut size={14} />
                         Disconnetti Account
                       </button>
                     </div>
                   </div>
                 )}
-              </div>
 
-              <div className="flex gap-2.5 mt-6 pt-4 border-t border-[var(--card-border)]">
+                {activeTab === "notifications" && (
+                  <div className="flex flex-col gap-5">
+                    <div>
+                      <h4 className="text-base font-black tracking-tight mb-1">
+                        Preferenze Notifiche
+                      </h4>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        Scegli quando ricevere notifiche in-app
+                      </p>
+                    </div>
+
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col divide-y divide-[var(--card-border)]/40">
+                      {(
+                        [
+                          {
+                            label: "Avvisi Budget",
+                            description:
+                              "Notifica quando raggiungi l'80%, il 100% o il massimo del budget mensile",
+                            checked: notifyBudget80,
+                            onChange: setNotifyBudget80,
+                          },
+                          {
+                            label: "Transazioni Ricorrenti",
+                            description:
+                              "Notifica quando le transazioni ricorrenti vengono elaborate automaticamente",
+                            checked: notifyRecurrentApplied,
+                            onChange: setNotifyRecurrentApplied,
+                          },
+                          {
+                            label: "Azioni Amici",
+                            description:
+                              "Notifica quando un amico aggiunge una spesa condivisa con te",
+                            checked: notifyFriendActions,
+                            onChange: setNotifyFriendActions,
+                          },
+                        ] as {
+                          label: string;
+                          description: string;
+                          checked: boolean;
+                          onChange: (v: boolean) => void;
+                        }[]
+                      ).map(({ label, description, checked, onChange }) => (
+                        <div
+                          key={label}
+                          className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0"
+                        >
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <span className="text-xs font-bold text-[var(--foreground)]">
+                              {label}
+                            </span>
+                            <span className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                              {description}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onChange(!checked)}
+                            className={cn(
+                              "relative h-6 w-11 rounded-full transition-colors shrink-0 border-0 cursor-pointer",
+                              checked
+                                ? "bg-blue-500"
+                                : "bg-neutral-400/30 dark:bg-zinc-700/60",
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all",
+                                checked ? "left-[calc(100%-1.375rem)]" : "left-0.5",
+                              )}
+                            />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-3 mt-6 pt-5 border-t border-[var(--card-border)] shrink-0 bg-[var(--card-solid)]">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-xl h-10 cursor-pointer bg-transparent"
+                  className="flex-1 text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-2xl h-11 cursor-pointer bg-transparent transition-all"
                 >
                   Annulla
                 </button>
@@ -497,25 +737,17 @@ export function SettingsDialog({
                   type="button"
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex-1 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-bold rounded-xl h-10 cursor-pointer flex items-center justify-center gap-1.5 border-0 disabled:opacity-50"
+                  className="flex-1 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-black rounded-2xl h-11 cursor-pointer flex items-center justify-center gap-2 border-0 disabled:opacity-50 transition-all"
                 >
                   {isSaving ? (
-                    <Loader2 size={13} className="animate-spin" />
+                    <Loader2 size={14} className="animate-spin" />
                   ) : (
-                    <Save size={13} />
+                    <Save size={14} />
                   )}
                   <span>Salva</span>
                 </button>
               </div>
             </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute top-4 right-4 text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 hover:text-[var(--foreground)] h-7 w-7 rounded-lg border-0 cursor-pointer flex items-center justify-center z-20 bg-transparent"
-            >
-              <X size={15} />
-            </button>
           </motion.div>
         </div>
       )}
