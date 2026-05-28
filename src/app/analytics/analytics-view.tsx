@@ -208,84 +208,94 @@ export default function AnalyticsView() {
         displayCurrency={displayCurrency}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <SavingsTrendCard
-            trendData={last6MonthsData}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <CategoryBreakdown
-            categoryExpenses={categoryExpenses}
-            totalExpense={totalExpense}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+          >
+            <SavingsTrendCard
+              trendData={last6MonthsData}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+          >
+            <CategoryBreakdown
+              categoryExpenses={categoryExpenses}
+              totalExpense={totalExpense}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <ExpenseTrendCard
-            trendData={last6MonthsData}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <IncomeTrendCard
-            trendData={last6MonthsData}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+          >
+            <ExpenseTrendCard
+              trendData={last6MonthsData}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+          >
+            <IncomeTrendCard
+              trendData={last6MonthsData}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-          className="h-full"
-        >
-          <SpendingCalendarCard
-            currentMonth={currentMonth}
-            currentYear={currentYear}
-            dailyExpensesMap={dailyExpensesMap}
-            maxDailyExpense={maxDailyExpense}
-            selectedDay={selectedDay}
-            setSelectedDay={setSelectedDay}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 h-full md:w-auto md:shrink"
+          >
+            <SpendingCalendarCard
+              currentMonth={currentMonth}
+              currentYear={currentYear}
+              dailyExpensesMap={dailyExpensesMap}
+              maxDailyExpense={maxDailyExpense}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="h-full"
-        >
-          <RecentLogs
-            sortedTimeline={sortedTimeline}
-            categories={categories}
-            displayCurrency={displayCurrency}
-            convertCurrency={convertCurrency}
-          />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 h-full md:w-auto md:shrink"
+          >
+            <RecentLogs
+              sortedTimeline={sortedTimeline}
+              categories={categories}
+              displayCurrency={displayCurrency}
+              convertCurrency={convertCurrency}
+            />
+          </motion.div>
+        </div>
       </div>
     </div>
   );
