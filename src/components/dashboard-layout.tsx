@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@heroui/react";
 import {
   BarChart3,
   CheckSquare,
@@ -13,15 +12,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { authClient } from "@/lib/auth-client";
 import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./notifications/notification-bell";
-import {
-  SettingsDialog,
-  type UserSettingsType,
-} from "./settings/settings-dialog";
 import { useTheme } from "./theme-provider";
+
+export type UserSettingsType = {
+  targetMonthlyBudget: string;
+  maxMonthlyBudget: string;
+  preferredCurrency: string;
+  themeMode: string;
+  themeAccent: string;
+  notifyBudget80?: boolean;
+  notifyRecurrentApplied?: boolean;
+  notifyFriendActions?: boolean;
+};
 
 type DashboardContextType = {
   displayCurrency: string;
@@ -52,10 +57,6 @@ type DashboardContextType = {
     notifyRecurrentApplied?: boolean;
     notifyFriendActions?: boolean;
   }) => Promise<void>;
-  isSettingsOpen: boolean;
-  setIsSettingsOpen: (open: boolean) => void;
-  settingsTab: "general" | "budget" | "profile" | "notifications";
-  setSettingsTab: (tab: "general" | "budget" | "profile" | "notifications") => void;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -81,27 +82,17 @@ type DashboardProviderProps = {
 export function DashboardProvider({ children, user }: DashboardProviderProps) {
   const [displayCurrency, setDisplayCurrencyRaw] = useState<string>("EUR");
   const [exchangeRate, setExchangeRate] = useState<number>(11.85);
-  const [rates, setRates] = useState<Record<string, number>>({
-    EUR: 1,
-    NOK: 11.85,
-  });
+  const [rates, setRates] = useState<Record<string, number>>({ EUR: 1, NOK: 11.85 });
   const [isRateFetched, setIsRateFetched] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [settingsTab, setSettingsTab] = useState<
-    "general" | "budget" | "profile" | "notifications"
-  >("general");
   const { theme, setTheme, accent, setAccent } = useTheme();
 
   const settingsQuery = trpc.settings.get.useQuery();
   const updateSettingsMutation = trpc.settings.update.useMutation({
-    onSuccess: () => {
-      settingsQuery.refetch();
-    },
+    onSuccess: () => { settingsQuery.refetch(); },
   });
 
   const [hasProcessed, setHasProcessed] = useState(false);
-  const processDueRecurrentMutation =
-    trpc.recurrentTransaction.processDue.useMutation();
+  const processDueRecurrentMutation = trpc.recurrentTransaction.processDue.useMutation();
 
   useEffect(() => {
     if (isRateFetched && !hasProcessed) {
@@ -122,7 +113,6 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
       const dbCurrency = settingsQuery.data.preferredCurrency;
       setDisplayCurrencyRaw(dbCurrency);
       localStorage.setItem("preferred_currency", dbCurrency);
-
       if (settingsQuery.data.themeMode) {
         setTheme(settingsQuery.data.themeMode as "light" | "dark");
       }
@@ -132,25 +122,14 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     }
   }, [settingsQuery.data, setTheme, setAccent]);
 
-  const setDisplayCurrency = async (
-    val: string | ((prev: string) => string),
-  ) => {
-    let nextVal: string;
-    if (typeof val === "function") {
-      nextVal = val(displayCurrency);
-    } else {
-      nextVal = val;
-    }
-
+  const setDisplayCurrency = async (val: string | ((prev: string) => string)) => {
+    const nextVal = typeof val === "function" ? val(displayCurrency) : val;
     setDisplayCurrencyRaw(nextVal);
     localStorage.setItem("preferred_currency", nextVal);
-
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
+          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: nextVal,
           themeMode: theme,
@@ -167,9 +146,7 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
+          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: displayCurrency,
           themeMode: newTheme,
@@ -186,9 +163,7 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
+          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: displayCurrency,
           themeMode: theme,
@@ -228,9 +203,7 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
           if (data.rates) {
             setRates(data.rates);
             setIsRateFetched(true);
-            if (data.rates.NOK) {
-              setExchangeRate(data.rates.NOK);
-            }
+            if (data.rates.NOK) setExchangeRate(data.rates.NOK);
           }
         }
       } catch (err) {
@@ -253,18 +226,12 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
         isRateFetched,
         user,
         settings: settingsQuery.data || null,
-        refetchSettings: () => {
-          settingsQuery.refetch();
-        },
+        refetchSettings: () => { settingsQuery.refetch(); },
         theme,
         changeTheme,
         accent,
         changeAccent,
         saveSettings,
-        isSettingsOpen,
-        setIsSettingsOpen,
-        settingsTab,
-        setSettingsTab,
       }}
     >
       {children}
@@ -275,43 +242,14 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
 export function DashboardLayout({ children, user }: DashboardProviderProps) {
   return (
     <DashboardProvider user={user}>
-      <DashboardLayoutContent user={user}>{children}</DashboardLayoutContent>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
     </DashboardProvider>
   );
 }
 
-function DashboardLayoutContent({
-  children,
-  user,
-}: {
-  children: React.ReactNode;
-  user: { name: string; email: string; image?: string | null };
-}) {
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const {
-    displayCurrency,
-    exchangeRate,
-    theme,
-    changeTheme,
-    accent,
-    changeAccent,
-    settings,
-    saveSettings,
-    isSettingsOpen,
-    setIsSettingsOpen,
-    settingsTab,
-    setSettingsTab,
-  } = useDashboard();
-
-  const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          window.location.href = "/login";
-        },
-      },
-    });
-  };
+  const { displayCurrency } = useDashboard();
 
   const navLinks = [
     { label: "Overview", href: "/", icon: Landmark },
@@ -329,9 +267,7 @@ function DashboardLayoutContent({
             <div className="p-1.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500">
               <Landmark size={16} />
             </div>
-            <span className="font-bold text-sm tracking-tight">
-              GlobeFinance
-            </span>
+            <span className="font-bold text-sm tracking-tight">GlobeFinance</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -360,20 +296,16 @@ function DashboardLayoutContent({
             <div className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 select-none">
               Valuta: {displayCurrency}
             </div>
-
             <NotificationBell />
-
-            <Button
-              isIconOnly
-              variant="ghost"
-              onPress={() => {
-                setSettingsTab("general");
-                setIsSettingsOpen(true);
-              }}
-              className="text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 min-w-9 cursor-pointer flex items-center justify-center"
+            <Link
+              href="/settings"
+              className={cn(
+                "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 flex items-center justify-center transition-all",
+                pathname === "/settings" && "bg-[var(--foreground)] text-[var(--background)]",
+              )}
             >
               <Settings size={15} />
-            </Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -391,18 +323,15 @@ function DashboardLayoutContent({
             {displayCurrency}
           </div>
           <NotificationBell />
-          <Button
-            isIconOnly
-            variant="ghost"
-            size="sm"
-            onPress={() => {
-              setSettingsTab("general");
-              setIsSettingsOpen(true);
-            }}
-            className="text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 min-w-8 cursor-pointer flex items-center justify-center"
+          <Link
+            href="/settings"
+            className={cn(
+              "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 flex items-center justify-center transition-all",
+              pathname === "/settings" && "bg-[var(--foreground)] text-[var(--background)]",
+            )}
           >
             <Settings size={14} />
-          </Button>
+          </Link>
         </div>
       </div>
 
@@ -423,40 +352,16 @@ function DashboardLayoutContent({
                 href={link.href}
                 className={cn(
                   "flex flex-col items-center justify-center flex-1 h-11 rounded-full gap-0.5 text-[9px] font-bold transition-all",
-                  isActive
-                    ? "text-blue-500"
-                    : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                  isActive ? "text-blue-500" : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
                 )}
               >
-                <Icon
-                  size={15}
-                  className={cn(
-                    "transition-transform",
-                    isActive && "scale-105",
-                  )}
-                />
+                <Icon size={15} className={cn("transition-transform", isActive && "scale-105")} />
                 <span className="text-[8px] tracking-tight">{link.label}</span>
               </Link>
             );
           })}
         </div>
       </div>
-
-      <SettingsDialog
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        user={user}
-        theme={theme}
-        changeTheme={changeTheme}
-        accent={accent}
-        changeAccent={changeAccent}
-        onLogout={handleLogout}
-        settings={settings}
-        displayCurrency={displayCurrency}
-        exchangeRate={exchangeRate}
-        onSaveSettings={saveSettings}
-        initialTab={settingsTab}
-      />
     </div>
   );
 }
