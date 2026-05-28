@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Edit2, Trash2, X } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryIcon, CURATED_ICONS } from "@/components/icon-helper";
 import { APPLE_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -47,6 +47,15 @@ export function CategoriesModal({
   const [newCatColor, setNewCatColor] = useState("#007AFF");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<"list" | "form">("list");
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const handleStartEdit = (cat: Category) => {
     setEditingId(cat.id);
@@ -99,12 +108,12 @@ export function CategoriesModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-4">
+        <div className="fixed inset-0 bg-black/40 md:bg-black/70 md:backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.97, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.97, y: 16 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            transition={isMobile ? { duration: 0.35, ease: [0.32, 0.72, 0, 1] } : { duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[760px] rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl text-[var(--foreground)] flex flex-col h-[88dvh] md:h-auto md:max-h-[620px] overflow-hidden"
           >
             <div className="flex md:hidden justify-center pt-3 shrink-0">
