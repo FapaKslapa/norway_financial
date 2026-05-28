@@ -222,7 +222,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
+            className="w-[85vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-1"
           >
             <BudgetProgressCard
               totalExpense={totalExpense}
@@ -237,7 +237,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-2"
+            className="w-[85vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-2"
           >
             <RecentTransactionsCard
               transactions={transactions}
@@ -255,7 +255,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-1"
           >
             <CategoryBudgetsCard
               transactions={currentMonthTransactions}
@@ -271,7 +271,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-1"
           >
             <RecentTodoCard
               todos={todosQuery.data || []}
@@ -283,7 +283,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-1"
           >
             <CurrencyConverterCard />
           </motion.div>
@@ -296,7 +296,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-2"
+            className="w-[85vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-2"
           >
             <OverviewAnalyticsCard
               transactions={transactions}
@@ -308,7 +308,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] flex flex-col md:w-auto md:shrink md:h-full md:col-span-1"
           >
             <OverviewFriendBalancesCard />
           </motion.div>
