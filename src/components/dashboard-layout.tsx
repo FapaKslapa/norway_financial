@@ -4,10 +4,11 @@ import {
   BarChart3,
   CheckSquare,
   CreditCard,
-  Landmark,
+  Home,
   Settings,
   Users,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
@@ -252,7 +253,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const { displayCurrency } = useDashboard();
 
   const navLinks = [
-    { label: "Overview", href: "/", icon: Landmark },
+    { label: "Overview", href: "/", icon: Home },
     { label: "Transazioni", href: "/transactions", icon: CreditCard },
     { label: "Liste Spesa", href: "/todos", icon: CheckSquare },
     { label: "Statistiche", href: "/analytics", icon: BarChart3 },
@@ -264,10 +265,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-[var(--card-solid)] border border-[var(--card-border)] rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
         <div className="w-full px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="p-1.5 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500">
-              <Landmark size={16} />
-            </div>
-            <span className="font-bold text-sm tracking-tight">GlobeFinance</span>
+            <Image src="/logo.png" alt="Gravio" width={28} height={28} className="rounded-xl" />
+            <span className="font-bold text-sm tracking-tight">Gravio</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -312,10 +311,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-[var(--card-border)] bg-[var(--card-solid)] flex items-center justify-between px-4 z-40 transition-colors duration-300">
         <div className="flex items-center gap-2">
-          <div className="p-1 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-500">
-            <Landmark size={14} />
-          </div>
-          <span className="font-bold text-xs">GlobeFinance</span>
+          <Image src="/logo.png" alt="Gravio" width={24} height={24} className="rounded-lg" />
+          <span className="font-bold text-xs">Gravio</span>
         </div>
 
         <div className="flex items-center gap-1.5">
