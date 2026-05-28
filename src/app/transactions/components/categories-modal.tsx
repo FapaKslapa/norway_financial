@@ -114,6 +114,14 @@ export function CategoriesModal({
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
             transition={isMobile ? { duration: 0.35, ease: [0.32, 0.72, 0, 1] } : { duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            drag={isMobile ? "y" : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={(_, info) => {
+              if (isMobile && (info.offset.y > 120 || info.velocity.y > 500)) {
+                onClose();
+              }
+            }}
             className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[760px] rounded-t-[2.5rem] md:rounded-[2.5rem] shadow-2xl text-[var(--foreground)] flex flex-col h-[88dvh] md:h-auto md:max-h-[620px] overflow-hidden"
           >
             <div className="flex md:hidden justify-center pt-3 shrink-0">
