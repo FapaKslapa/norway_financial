@@ -71,6 +71,13 @@
       "when": 1779949339620,
       "tag": "0009_curved_shotgun",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1779951088559,
+      "tag": "0010_rich_zaran",
+      "breakpoints": true
     }
   ]
 }
