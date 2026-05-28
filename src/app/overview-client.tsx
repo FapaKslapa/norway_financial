@@ -5,7 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BarChart3, Globe, Settings, ShieldCheck, X } from "lucide-react";
 import { useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
-import { LoadingState } from "@/components/ui/loading-state";
 import { trpc } from "@/lib/trpc/client";
 import { BudgetProgressCard } from "./overview/components/budget-progress-card";
 import { CategoryBudgetsCard } from "./overview/components/category-budgets-card";
@@ -64,16 +63,6 @@ export default function OverviewClient() {
     setShowOnboarding(false);
     localStorage.setItem("globe_finance_onboarding_dismissed", "true");
   };
-
-  if (
-    categoriesQuery.isLoading ||
-    transactionsQuery.isLoading ||
-    friendsQuery.isLoading ||
-    listsQuery.isLoading ||
-    categoryBudgetsQuery.isLoading
-  ) {
-    return <LoadingState />;
-  }
 
   const transactions = transactionsQuery.data || [];
   const categoryBudgets = categoryBudgetsQuery.data || [];
@@ -230,103 +219,109 @@ export default function OverviewClient() {
         displayCurrency={displayCurrency}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <BudgetProgressCard
-            totalExpense={totalExpense}
-            targetBudgetVal={targetBudgetVal}
-            maxBudgetVal={maxBudgetVal}
-            displayCurrency={displayCurrency}
-            onOpenSettings={() => {
-              setSettingsTab("budget");
-              setIsSettingsOpen(true);
-            }}
-          />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 w-max md:w-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+          >
+            <BudgetProgressCard
+              totalExpense={totalExpense}
+              targetBudgetVal={targetBudgetVal}
+              maxBudgetVal={maxBudgetVal}
+              displayCurrency={displayCurrency}
+              onOpenSettings={() => {
+                setSettingsTab("budget");
+                setIsSettingsOpen(true);
+              }}
+            />
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-2 h-full flex flex-col"
-        >
-          <RecentTransactionsCard
-            transactions={transactions}
-            categories={categoriesQuery.data || []}
-            displayCurrency={displayCurrency}
-            convertCurrency={convertCurrency}
-          />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-2"
+          >
+            <RecentTransactionsCard
+              transactions={transactions}
+              categories={categoriesQuery.data || []}
+              displayCurrency={displayCurrency}
+              convertCurrency={convertCurrency}
+            />
+          </motion.div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <CategoryBudgetsCard
-            transactions={currentMonthTransactions}
-            categories={categoriesQuery.data || []}
-            categoryBudgets={categoryBudgets}
-            displayCurrency={displayCurrency}
-            convertCurrency={convertCurrency}
-            onOpenSettings={() => {
-              setSettingsTab("budget");
-              setIsSettingsOpen(true);
-            }}
-          />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 w-max md:w-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+          >
+            <CategoryBudgetsCard
+              transactions={currentMonthTransactions}
+              categories={categoriesQuery.data || []}
+              categoryBudgets={categoryBudgets}
+              displayCurrency={displayCurrency}
+              convertCurrency={convertCurrency}
+              onOpenSettings={() => {
+                setSettingsTab("budget");
+                setIsSettingsOpen(true);
+              }}
+            />
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <RecentTodoCard
-            todos={todosQuery.data || []}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+          >
+            <RecentTodoCard
+              todos={todosQuery.data || []}
+              displayCurrency={displayCurrency}
+            />
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <CurrencyConverterCard />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+          >
+            <CurrencyConverterCard />
+          </motion.div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-2 h-full flex flex-col"
-        >
-          <OverviewAnalyticsCard
-            transactions={transactions}
-            displayCurrency={displayCurrency}
-            convertCurrency={convertCurrency}
-          />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <OverviewFriendBalancesCard />
-        </motion.div>
+      <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
+        <div className="flex gap-4 md:grid md:grid-cols-3 md:gap-6 w-max md:w-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-2"
+          >
+            <OverviewAnalyticsCard
+              transactions={transactions}
+              displayCurrency={displayCurrency}
+              convertCurrency={convertCurrency}
+            />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+          >
+            <OverviewFriendBalancesCard />
+          </motion.div>
+        </div>
       </div>
 
       <QuickAddForm
