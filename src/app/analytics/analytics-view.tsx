@@ -214,7 +214,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <SavingsTrendCard
               trendData={last6MonthsData}
@@ -225,7 +225,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <CategoryBreakdown
               categoryExpenses={categoryExpenses}
@@ -242,7 +242,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <ExpenseTrendCard
               trendData={last6MonthsData}
@@ -253,7 +253,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <IncomeTrendCard
               trendData={last6MonthsData}
@@ -269,7 +269,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-full md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <SpendingCalendarCard
               currentMonth={currentMonth}
@@ -286,7 +286,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-full md:w-auto md:shrink"
+            className="w-[85vw] snap-start shrink-0 h-[380px] overflow-hidden md:w-auto md:shrink md:h-full md:overflow-visible"
           >
             <RecentLogs
               sortedTimeline={sortedTimeline}
