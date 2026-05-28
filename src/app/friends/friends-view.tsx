@@ -82,7 +82,9 @@ function AmountWithTooltip({
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
@@ -95,32 +97,56 @@ function AmountWithTooltip({
   const full = formatCurrency(amount, currency);
 
   if (!isRounded) {
-    return <span className={className}>{prefix}{full}</span>;
+    return (
+      <span className={className}>
+        {prefix}
+        {full}
+      </span>
+    );
   }
 
   const compact = formatCompact(amount);
 
   return (
     <>
-      <span
-        className={cn(className, "underline decoration-dotted underline-offset-2 cursor-help")}
-        onMouseEnter={(e) => { setPos({ x: e.clientX, y: e.clientY }); setVisible(true); }}
+      <button
+        type="button"
+        className={cn(
+          className,
+          "underline decoration-dotted underline-offset-2 cursor-help bg-transparent border-0 p-0 font-[inherit]",
+        )}
+        onMouseEnter={(e) => {
+          setPos({ x: e.clientX, y: e.clientY });
+          setVisible(true);
+        }}
         onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
         onMouseLeave={() => setVisible(false)}
-        onClick={(e) => { e.stopPropagation(); setPos({ x: e.clientX, y: e.clientY }); setVisible(true); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setPos({ x: e.clientX, y: e.clientY });
+          setVisible(true);
+        }}
       >
         {prefix}≈{compact} {currency}
-      </span>
-      {mounted && visible && createPortal(
-        <div
-          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-2 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap flex flex-col gap-0.5"
-          style={{ left: pos.x, top: pos.y, transform: "translate(-50%, calc(-100% - 8px))" }}
-        >
-          <span className="opacity-50 uppercase text-[7px] tracking-wider font-extrabold">Importo esatto</span>
-          <span className="text-xs font-black">{full}</span>
-        </div>,
-        document.body,
-      )}
+      </button>
+      {mounted &&
+        visible &&
+        createPortal(
+          <div
+            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-2 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap flex flex-col gap-0.5"
+            style={{
+              left: pos.x,
+              top: pos.y,
+              transform: "translate(-50%, calc(-100% - 8px))",
+            }}
+          >
+            <span className="opacity-50 uppercase text-[7px] tracking-wider font-extrabold">
+              Importo esatto
+            </span>
+            <span className="text-xs font-black">{full}</span>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
@@ -1411,12 +1437,18 @@ export default function FriendsView() {
                                   {hasBalance ? (
                                     <>
                                       <AmountWithTooltip
-                                        amount={convertNokAmount(Math.abs(balValue))}
+                                        amount={convertNokAmount(
+                                          Math.abs(balValue),
+                                        )}
                                         currency={displayCurrency}
-                                        prefix={isOwed ? "Ti deve " : "Gli devi "}
+                                        prefix={
+                                          isOwed ? "Ti deve " : "Gli devi "
+                                        }
                                         className={cn(
                                           "text-xs font-black tracking-tight pointer-events-auto",
-                                          isOwed ? "text-emerald-500" : "text-rose-500",
+                                          isOwed
+                                            ? "text-emerald-500"
+                                            : "text-rose-500",
                                         )}
                                       />
                                       <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">

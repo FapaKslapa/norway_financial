@@ -39,7 +39,6 @@ export function CustomDatePicker({
     left?: number;
     right?: number;
   }>({});
-  const [align, setAlign] = useState<"left" | "right">("left");
   const [valign, setValign] = useState<"top" | "bottom">("bottom");
   const containerRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -64,19 +63,14 @@ export function CustomDatePicker({
       const newValign =
         spaceOnBottom < 280 && spaceOnTop > spaceOnBottom ? "top" : "bottom";
 
-      setAlign(newAlign);
       setValign(newValign);
       setCoords({
         top: newValign === "bottom" ? rect.bottom + 6 : undefined,
         bottom:
-          newValign === "top"
-            ? window.innerHeight - rect.top + 6
-            : undefined,
+          newValign === "top" ? window.innerHeight - rect.top + 6 : undefined,
         left: newAlign === "left" ? rect.left : undefined,
         right:
-          newAlign === "right"
-            ? window.innerWidth - rect.right
-            : undefined,
+          newAlign === "right" ? window.innerWidth - rect.right : undefined,
       });
     }
   }, [isOpen]);
@@ -204,10 +198,7 @@ export function CustomDatePicker({
   );
 
   return (
-    <div
-      ref={containerRef}
-      className={cn("relative w-full", className)}
-    >
+    <div ref={containerRef} className={cn("relative w-full", className)}>
       {/* biome-ignore lint/a11y/useSemanticElements: nesting buttons is invalid HTML, so we use a div with role=button */}
       <div
         className={cn(
