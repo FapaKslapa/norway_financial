@@ -170,6 +170,12 @@ export function SharedExpenseDialog({
 
   const [groupId, setGroupId] = useState("");
   const [checkedMemberIds, setCheckedMemberIds] = useState<string[]>([]);
+  const [groupSplitMode, setGroupSplitMode] = useState<"equal" | "custom">(
+    "equal",
+  );
+  const [customSplitsVal, setCustomSplitsVal] = useState<
+    Record<string, string>
+  >({});
 
   useEffect(() => {
     if (isOpen) {
@@ -228,6 +234,13 @@ export function SharedExpenseDialog({
   const checkedCount = checkedMemberIds.length;
   const groupShareNok = checkedCount > 0 ? amountNok / checkedCount : 0;
 
+  const customSum = Object.entries(customSplitsVal)
+    .filter(([id]) => checkedMemberIds.includes(id))
+    .reduce((sum, [_, val]) => sum + (parseFloat(val) || 0), 0);
+
+  const customIsExact = Math.abs(customSum - parsedAmount) < 0.01;
+  const customDifference = parsedAmount - customSum;
+
   const getSplitValue = (): number | undefined => {
     if (splitMode === "percentage") return parseFloat(percentage) || 50;
     if (splitMode === "exact") return parseFloat(exactNok) || undefined;
@@ -235,8 +248,15 @@ export function SharedExpenseDialog({
     return undefined;
   };
 
+  const isGroupCustomValid =
+    shareType === "group" && groupSplitMode === "custom" ? customIsExact : true;
+
   const canSave =
-    hasAmount && !!desc && (shareType === "friend" ? !!friendId : !!groupId);
+    hasAmount &&
+    !!desc &&
+    (shareType === "friend"
+      ? !!friendId
+      : !!groupId && checkedCount > 0 && isGroupCustomValid);
 
   const resetForm = () => {
     setDesc("");
@@ -244,7 +264,6 @@ export function SharedExpenseDialog({
     setCurrency("EUR");
     setDate("");
     setFriendId("");
-    setGroupId("");
     setSplitMode("half");
     setPercentage("50");
     setExactNok("");
@@ -252,6 +271,9 @@ export function SharedExpenseDialog({
     setStep("form");
     setShareType("friend");
     setCheckedMemberIds([]);
+    setGroupId("");
+    setGroupSplitMode("equal");
+    setCustomSplitsVal({});
   };
 
   const handleClose = () => {
@@ -259,10 +281,44 @@ export function SharedExpenseDialog({
     onClose();
   };
 
+  const handleToggleGroupSplitMode = (mode: "equal" | "custom") => {
+    setGroupSplitMode(mode);
+    if (mode === "custom") {
+      const initial: Record<string, string> = {};
+      if (hasAmount && checkedCount > 0) {
+        const equalShare = (parsedAmount / checkedCount).toFixed(2);
+        for (const mId of checkedMemberIds) {
+          initial[mId] = equalShare;
+        }
+      }
+      setCustomSplitsVal(initial);
+    }
+  };
+
   const handleToggleMember = (mId: string) => {
-    setCheckedMemberIds((prev) =>
-      prev.includes(mId) ? prev.filter((id) => id !== mId) : [...prev, mId],
-    );
+    setCheckedMemberIds((prev) => {
+      const isChecking = !prev.includes(mId);
+      const nextChecked = isChecking
+        ? [...prev, mId]
+        : prev.filter((id) => id !== mId);
+      if (groupSplitMode === "custom") {
+        setCustomSplitsVal((prevVals) => {
+          const nextVals = { ...prevVals };
+          if (isChecking) {
+            const currentSum = Object.entries(nextVals).reduce(
+              (sum, [_, val]) => sum + (parseFloat(val) || 0),
+              0,
+            );
+            const remaining = Math.max(0, parsedAmount - currentSum);
+            nextVals[mId] = remaining > 0 ? remaining.toFixed(2) : "0";
+          } else {
+            delete nextVals[mId];
+          }
+          return nextVals;
+        });
+      }
+      return nextChecked;
+    });
   };
 
   const handleSave = async () => {
@@ -278,10 +334,20 @@ export function SharedExpenseDialog({
 
         const groupSplits = activeMembers
           .filter((m) => m.id !== currentUserId)
-          .map((m) => ({
-            userId: m.id,
-            amountNok: groupShareNok,
-          }));
+          .map((m) => {
+            const splitAmountNok =
+              groupSplitMode === "custom"
+                ? convertCurrency(
+                    parseFloat(customSplitsVal[m.id]) || 0,
+                    currency,
+                    "NOK",
+                  )
+                : groupShareNok;
+            return {
+              userId: m.id,
+              amountNok: splitAmountNok,
+            };
+          });
 
         await onSaveGroupExpense({
           description: desc,
@@ -852,8 +918,39 @@ export function SharedExpenseDialog({
                           </FieldLabel>
                           <p className="text-[10px] text-[var(--text-muted)] -mt-1.5 mb-2.5">
                             Seleziona chi partecipa a questa spesa.
-                            L&apos;importo verrà diviso equamente.
                           </p>
+
+                          <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] mb-3 select-none">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleGroupSplitMode("equal")
+                              }
+                              className={cn(
+                                "flex-1 text-[10px] py-1.5 font-bold rounded-lg transition-all border-0 cursor-pointer",
+                                groupSplitMode === "equal"
+                                  ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                                  : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10",
+                              )}
+                            >
+                              Uguale
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleToggleGroupSplitMode("custom")
+                              }
+                              className={cn(
+                                "flex-1 text-[10px] py-1.5 font-bold rounded-lg transition-all border-0 cursor-pointer",
+                                groupSplitMode === "custom"
+                                  ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                                  : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10",
+                              )}
+                            >
+                              Personalizzato
+                            </button>
+                          </div>
+
                           <div className="flex flex-col gap-2 max-h-[170px] overflow-y-auto pr-1">
                             {selectedGroup?.members.map((member) => {
                               const checked = checkedMemberIds.includes(
@@ -889,17 +986,48 @@ export function SharedExpenseDialog({
                                       </span>
                                     </div>
                                   </div>
-                                  {checked && groupShareNok > 0 && (
-                                    <span className="text-[10px] font-black text-blue-500 shrink-0">
-                                      {formatCurrency(
-                                        convertCurrency(
-                                          groupShareNok,
-                                          "NOK",
-                                          displayCurrency,
-                                        ),
-                                        displayCurrency,
+                                  {checked && (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="flex items-center gap-1.5 cursor-default bg-transparent border-0 p-0"
+                                    >
+                                      {groupSplitMode === "custom" ? (
+                                        <div className="flex items-center gap-1 bg-neutral-500/5 px-2 py-1 rounded-lg border border-[var(--card-border)]">
+                                          <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={
+                                              customSplitsVal[member.id] || ""
+                                            }
+                                            onChange={(e) => {
+                                              const val = e.target.value;
+                                              setCustomSplitsVal((prev) => ({
+                                                ...prev,
+                                                [member.id]: val,
+                                              }));
+                                            }}
+                                            className="w-16 text-right text-[11px] font-black bg-transparent border-0 outline-none text-[var(--foreground)] p-0"
+                                            placeholder="0.00"
+                                          />
+                                          <span className="text-[9px] text-[var(--text-muted)] font-black">
+                                            {currency}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <span className="text-[10px] font-black text-blue-500 shrink-0">
+                                          {formatCurrency(
+                                            convertCurrency(
+                                              groupShareNok,
+                                              "NOK",
+                                              displayCurrency,
+                                            ),
+                                            displayCurrency,
+                                          )}
+                                        </span>
                                       )}
-                                    </span>
+                                    </button>
                                   )}
                                 </button>
                               );
@@ -907,43 +1035,55 @@ export function SharedExpenseDialog({
                           </div>
                         </div>
 
-                        {}
                         {amountNok > 0 && checkedCount > 0 && (
                           <div className="flex flex-col gap-2 p-3 bg-neutral-500/5 border border-[var(--card-border)] rounded-2xl">
-                            <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider">
-                              Riepilogo Split ({checkedCount} persone)
-                            </span>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+                                Riepilogo Split ({checkedCount} persone)
+                              </span>
+                              {groupSplitMode === "custom" && (
+                                <span
+                                  className={cn(
+                                    "text-[9px] font-black px-1.5 py-0.5 rounded",
+                                    customIsExact
+                                      ? "bg-emerald-500/10 text-emerald-500"
+                                      : "bg-red-500/10 text-red-500",
+                                  )}
+                                >
+                                  {customIsExact
+                                    ? "Assegnato correttamente"
+                                    : `Residuo: ${formatCurrency(customDifference, currency)}`}
+                                </span>
+                              )}
+                            </div>
                             <div className="flex flex-col gap-1.5 text-xs font-bold max-h-[100px] overflow-y-auto pr-1">
                               {selectedGroup?.members
                                 .filter((m) => checkedMemberIds.includes(m.id))
-                                .map((m) => (
-                                  <div
-                                    key={m.id}
-                                    className="flex justify-between items-center text-[11px]"
-                                  >
-                                    <span className="text-[var(--text-muted)]">
-                                      {m.id === currentUserId
-                                        ? "Tua quota (Tu paghi)"
-                                        : m.name}
-                                    </span>
-                                    <span
-                                      className={
-                                        m.id === currentUserId
-                                          ? "text-blue-500"
-                                          : "text-blue-500"
-                                      }
-                                    >
-                                      {formatCurrency(
-                                        convertCurrency(
+                                .map((m) => {
+                                  const displayVal =
+                                    groupSplitMode === "custom"
+                                      ? parseFloat(customSplitsVal[m.id]) || 0
+                                      : convertCurrency(
                                           groupShareNok,
                                           "NOK",
-                                          displayCurrency,
-                                        ),
-                                        displayCurrency,
-                                      )}
-                                    </span>
-                                  </div>
-                                ))}
+                                          currency,
+                                        );
+                                  return (
+                                    <div
+                                      key={m.id}
+                                      className="flex justify-between items-center text-[11px]"
+                                    >
+                                      <span className="text-[var(--text-muted)]">
+                                        {m.id === currentUserId
+                                          ? "Tua quota (Tu paghi)"
+                                          : m.name}
+                                      </span>
+                                      <span className="text-blue-500">
+                                        {formatCurrency(displayVal, currency)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
                             </div>
                           </div>
                         )}
