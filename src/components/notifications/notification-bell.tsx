@@ -2,7 +2,7 @@
 
 import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, BellOff } from "lucide-react";
+import { Bell, BellOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc/client";
@@ -21,41 +21,25 @@ export function NotificationBell({ className }: NotificationBellProps) {
     refetchInterval: 15 * 1000,
   });
 
-  const markReadMutation = trpc.notification.markRead.useMutation({
-    onSuccess: () => {
-      notificationsQuery.refetch();
-    },
-  });
+  const refetch = () => notificationsQuery.refetch();
 
-  const markAllReadMutation = trpc.notification.markAllRead.useMutation({
-    onSuccess: () => {
-      notificationsQuery.refetch();
-    },
-  });
+  const markReadMutation = trpc.notification.markRead.useMutation({ onSuccess: refetch });
+  const markAllReadMutation = trpc.notification.markAllRead.useMutation({ onSuccess: refetch });
+  const deleteMutation = trpc.notification.delete.useMutation({ onSuccess: refetch });
+  const deleteAllMutation = trpc.notification.deleteAll.useMutation({ onSuccess: refetch });
 
   const notifications = notificationsQuery.data || [];
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const handleMarkRead = async (id: string) => {
-    await markReadMutation.mutateAsync({ id });
-  };
-
-  const handleMarkAllRead = async () => {
-    await markAllReadMutation.mutateAsync();
-  };
 
   return (
     <div className={cn("relative", className)} ref={dropdownRef}>
@@ -83,66 +67,74 @@ export function NotificationBell({ className }: NotificationBellProps) {
             className="absolute right-0 mt-2 w-80 bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl rounded-2xl overflow-hidden z-[100] flex flex-col text-[var(--foreground)]"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--card-border)] bg-neutral-500/5">
-              <span className="text-xs font-black uppercase tracking-wider">
-                Notifiche
-              </span>
-              {unreadCount > 0 && (
-                <button
-                  type="button"
-                  onClick={handleMarkAllRead}
-                  className="text-[9px] font-bold text-blue-500 hover:underline cursor-pointer border-0 bg-transparent"
-                >
-                  Segna come lette
-                </button>
-              )}
+              <span className="text-xs font-black uppercase tracking-wider">Notifiche</span>
+              <div className="flex items-center gap-3">
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => markAllReadMutation.mutate()}
+                    className="text-[9px] font-bold text-blue-500 hover:underline cursor-pointer border-0 bg-transparent"
+                  >
+                    Segna lette
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => deleteAllMutation.mutate()}
+                    className="text-[9px] font-bold text-rose-500 hover:underline cursor-pointer border-0 bg-transparent"
+                  >
+                    Elimina tutte
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto max-h-[300px] divide-y divide-[var(--card-border)]/50">
+            <div className="flex-1 overflow-y-auto max-h-[300px]">
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-center text-[var(--text-muted)]">
                   <BellOff size={20} className="mb-2 opacity-40" />
-                  <span className="text-[10px] font-medium">
-                    Nessuna notifica
-                  </span>
+                  <span className="text-[10px] font-medium">Nessuna notifica</span>
                 </div>
               ) : (
                 notifications.map((n) => (
-                  <button
-                    type="button"
+                  <div
                     key={n.id}
-                    onClick={() => {
-                      if (!n.read) handleMarkRead(n.id);
-                      if (n.link) {
-                        setIsOpen(false);
-                        router.push(n.link);
-                      }
-                    }}
-                    className={`p-3 flex flex-col gap-1 transition-all outline-none text-left w-full border-0 bg-transparent cursor-pointer ${
+                    className={`group flex items-start gap-2 p-3 border-b border-[var(--card-border)]/50 transition-all last:border-b-0 ${
                       n.read
                         ? "opacity-60 hover:opacity-100"
                         : "bg-blue-500/5 hover:bg-blue-500/10"
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2 w-full">
-                      <span className="text-[10px] font-extrabold leading-tight">
-                        {n.title}
-                      </span>
-                      {!n.read && (
-                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0 mt-1" />
-                      )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!n.read) markReadMutation.mutate({ id: n.id });
+                        if (n.link) {
+                          setIsOpen(false);
+                          router.push(n.link);
+                        }
+                      }}
+                      className="flex-1 flex flex-col gap-1 text-left outline-none bg-transparent border-0 cursor-pointer min-w-0"
+                    >
+                      <span className="text-[10px] font-extrabold leading-tight">{n.title}</span>
+                      <p className="text-[9px] text-[var(--text-muted)] leading-relaxed">{n.message}</p>
+                      <div className="flex items-center justify-between mt-1 text-[8px] text-[var(--text-muted)] font-medium w-full">
+                        <span>{dayjs(n.createdAt).format("DD MMM, HH:mm")}</span>
+                        {n.link && <span className="text-blue-500">Visualizza</span>}
+                      </div>
+                    </button>
+                    <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
+                      {!n.read && <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
+                      <button
+                        type="button"
+                        onClick={() => deleteMutation.mutate({ id: n.id })}
+                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-rose-500/10 text-[var(--text-muted)] hover:text-rose-400 transition-all bg-transparent border-0 cursor-pointer"
+                      >
+                        <X size={9} />
+                      </button>
                     </div>
-                    <p className="text-[9px] text-[var(--text-muted)] leading-relaxed">
-                      {n.message}
-                    </p>
-                    <div className="flex items-center justify-between mt-1 text-[8px] text-[var(--text-muted)] font-medium w-full">
-                      <span>{dayjs(n.createdAt).format("DD MMM, HH:mm")}</span>
-                      {n.link && (
-                        <span className="text-blue-500 hover:underline">
-                          Visualizza
-                        </span>
-                      )}
-                    </div>
-                  </button>
+                  </div>
                 ))
               )}
             </div>
