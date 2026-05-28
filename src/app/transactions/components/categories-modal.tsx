@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Trash2, X } from "lucide-react";
+import { Check, Edit2, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { CategoryIcon, CURATED_ICONS } from "@/components/icon-helper";
@@ -25,6 +25,12 @@ type CategoriesModalProps = {
     icon: string;
     color: string;
   }) => Promise<void>;
+  onUpdateCategory: (cat: {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+  }) => Promise<void>;
 };
 
 export function CategoriesModal({
@@ -33,7 +39,9 @@ export function CategoriesModal({
   categories,
   onDeleteCategory,
   onCreateCategory,
+  onUpdateCategory,
 }: CategoriesModalProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newCatName, setNewCatName] = useState("");
   const [newCatIcon, setNewCatIcon] = useState("Home");
   const [newCatColor, setNewCatColor] = useState("#007AFF");
@@ -45,12 +53,24 @@ export function CategoriesModal({
 
     setIsSubmitting(true);
     try {
-      await onCreateCategory({
-        name: newCatName.trim(),
-        icon: newCatIcon,
-        color: newCatColor,
-      });
+      if (editingId) {
+        await onUpdateCategory({
+          id: editingId,
+          name: newCatName.trim(),
+          icon: newCatIcon,
+          color: newCatColor,
+        });
+        setEditingId(null);
+      } else {
+        await onCreateCategory({
+          name: newCatName.trim(),
+          icon: newCatIcon,
+          color: newCatColor,
+        });
+      }
       setNewCatName("");
+      setNewCatIcon("Home");
+      setNewCatColor("#007AFF");
     } catch (err) {
       console.error(err);
     } finally {
@@ -61,130 +81,187 @@ export function CategoriesModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            initial={{ opacity: 0, scale: 0.97, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[400px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] flex flex-col max-h-[75vh]"
+            exit={{ opacity: 0, scale: 0.97, y: 16 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[760px] rounded-[2.5rem] p-8 shadow-2xl text-[var(--foreground)] flex flex-col max-h-[90vh] md:max-h-[620px] overflow-hidden"
           >
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 flex-shrink-0">
-              <h3 className="font-extrabold text-base">Le mie Categorie</h3>
+            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] flex-shrink-0">
+              <div>
+                <h3 className="font-black text-base tracking-tight">
+                  Gestione Categorie
+                </h3>
+                <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+                  Crea, modifica ed elimina le categorie delle tue transazioni
+                </p>
+              </div>
               <button
                 type="button"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                className="text-[var(--text-muted)] rounded-full hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
-                <X size={15} />
+                <X size={16} />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)] select-none"
-                >
-                  <div className="flex items-center gap-3">
+            <div className="flex-1 flex flex-col md:flex-row gap-6 mt-6 overflow-y-auto pr-1">
+              <div className="flex-1 flex flex-col gap-3 min-w-[280px]">
+                <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                  Categorie Esistenti ({categories.length})
+                </h4>
+                <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 max-h-[300px] md:max-h-[400px]">
+                  {categories.map((cat) => (
                     <div
-                      className="p-2 rounded-xl text-white"
-                      style={{ backgroundColor: cat.color }}
+                      key={cat.id}
+                      className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)]/50 select-none hover:bg-neutral-500/10 transition-colors"
                     >
-                      <CategoryIcon name={cat.icon} size={14} />
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="p-2 rounded-xl text-white shadow-sm flex-shrink-0 w-8 h-8 flex items-center justify-center"
+                          style={{ backgroundColor: cat.color }}
+                        >
+                          <CategoryIcon name={cat.icon} size={13} />
+                        </div>
+                        <span className="text-xs font-bold text-[var(--foreground)]">
+                          {cat.name}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          className="text-blue-500 hover:bg-blue-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                          onClick={() => {
+                            setEditingId(cat.id);
+                            setNewCatName(cat.name);
+                            setNewCatIcon(cat.icon);
+                            setNewCatColor(cat.color);
+                          }}
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          className="text-rose-500 hover:bg-rose-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                          onClick={() => onDeleteCategory(cat.id)}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
-                    <span className="text-xs font-bold">{cat.name}</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
-                    onClick={() => onDeleteCategory(cat.id)}
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="border-t border-[var(--card-border)] pt-4 mt-4 flex-shrink-0">
-              <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-2">
-                Crea Nuova Categoria
-              </h4>
-              <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                <div className="flex gap-2">
-                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 h-9 px-2.5 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
+              <div className="w-[1px] bg-[var(--card-border)]/50 hidden md:block shrink-0" />
+
+              <div className="flex-1 flex flex-col gap-4 min-w-[280px]">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    {editingId ? "Modifica Categoria" : "Crea Nuova Categoria"}
+                  </h4>
+                  {editingId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(null);
+                        setNewCatName("");
+                        setNewCatIcon("Home");
+                        setNewCatColor("#007AFF");
+                      }}
+                      className="text-[10px] font-black text-blue-500 hover:underline border-0 cursor-pointer bg-transparent"
+                    >
+                      Annulla modifica
+                    </button>
+                  )}
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      Nome Categoria
+                    </span>
                     <input
                       type="text"
-                      placeholder="Nome categoria..."
+                      placeholder="Es. Spesa, Svago, Bollette..."
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
                       required
-                      className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full placeholder:text-[var(--text-muted)]"
+                      className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
                     />
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                    Icona
-                  </span>
-                  <div className="grid grid-cols-6 gap-1 max-h-20 overflow-y-auto pr-1">
-                    {CURATED_ICONS.map((ico) => {
-                      const isSelected = newCatIcon === ico;
-                      return (
-                        <button
-                          key={ico}
-                          type="button"
-                          onClick={() => setNewCatIcon(ico)}
-                          className={cn(
-                            "h-7 w-7 rounded-lg flex items-center justify-center border transition-all cursor-pointer",
-                            isSelected
-                              ? "bg-[var(--foreground)] text-[var(--background)] border-transparent"
-                              : "bg-neutral-500/5 text-[var(--foreground)] border-[var(--card-border)] hover:bg-neutral-500/10",
-                          )}
-                        >
-                          <CategoryIcon name={ico} size={12} />
-                        </button>
-                      );
-                    })}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      Icona Categoria
+                    </span>
+                    <div className="grid grid-cols-5 gap-2 max-h-[120px] overflow-y-auto pr-1 p-2 bg-neutral-500/5 rounded-xl border border-[var(--card-border)]/40">
+                      {CURATED_ICONS.map((ico) => {
+                        const isSelected = newCatIcon === ico;
+                        return (
+                          <button
+                            key={ico}
+                            type="button"
+                            onClick={() => setNewCatIcon(ico)}
+                            className={cn(
+                              "h-8 w-8 rounded-xl flex items-center justify-center border transition-all cursor-pointer hover:scale-105 active:scale-95",
+                              isSelected
+                                ? "bg-[var(--foreground)] text-[var(--background)] border-transparent shadow-sm"
+                                : "bg-transparent text-[var(--foreground)] border-transparent hover:bg-neutral-500/10",
+                            )}
+                          >
+                            <CategoryIcon name={ico} size={13} />
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1">
-                  <span className="text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                    Colore
-                  </span>
-                  <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto w-full">
-                    {APPLE_COLORS.map((col) => {
-                      const isSelected = newCatColor === col;
-                      return (
-                        <button
-                          key={col}
-                          type="button"
-                          onClick={() => setNewCatColor(col)}
-                          className="h-5 w-5 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 flex-shrink-0"
-                          style={{ backgroundColor: col }}
-                        >
-                          {isSelected && (
-                            <Check
-                              size={10}
-                              className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] font-bold"
-                            />
-                          )}
-                        </button>
-                      );
-                    })}
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      Colore Categoria
+                    </span>
+                    <div className="flex flex-wrap gap-2 p-2 bg-neutral-500/5 rounded-xl border border-[var(--card-border)]/40 max-h-[90px] overflow-y-auto">
+                      {APPLE_COLORS.map((col) => {
+                        const isSelected = newCatColor === col;
+                        return (
+                          <button
+                            key={col}
+                            type="button"
+                            onClick={() => setNewCatColor(col)}
+                            className="h-6 w-6 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 flex-shrink-0"
+                            style={{ backgroundColor: col }}
+                          >
+                            {isSelected && (
+                              <Check
+                                size={12}
+                                className="text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] font-black"
+                              />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-9 rounded-xl cursor-pointer hover:opacity-90 mt-1 shadow-sm border-0 disabled:opacity-50 flex items-center justify-center transition-all w-full"
-                >
-                  {isSubmitting ? "Aggiunta..." : "Aggiungi Categoria"}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="bg-[var(--foreground)] text-[var(--background)] font-black text-xs h-11 rounded-xl cursor-pointer hover:opacity-90 mt-1 shadow-sm border-0 disabled:opacity-50 flex items-center justify-center transition-all w-full"
+                  >
+                    {isSubmitting
+                      ? editingId
+                        ? "Salvataggio..."
+                        : "Aggiunta..."
+                      : editingId
+                        ? "Salva Modifiche"
+                        : "Aggiungi Categoria"}
+                  </button>
+                </form>
+              </div>
             </div>
           </motion.div>
         </div>
