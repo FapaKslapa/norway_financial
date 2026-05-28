@@ -23,10 +23,16 @@ export function SavingsTrendCard({
   trendData,
   displayCurrency,
 }: SavingsTrendCardProps) {
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; d: MonthTrend } | null>(null);
+  const [tooltip, setTooltip] = useState<{
+    x: number;
+    y: number;
+    d: MonthTrend;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const maxSavingsTrendVal = Math.max(
     ...trendData.map((d) => Math.max(d.income, d.expense, 1)),
@@ -52,20 +58,35 @@ export function SavingsTrendCard({
             const isNetPositive = d.savings >= 0;
 
             return (
-              <div
+              <button
+                type="button"
                 key={d.label}
-                className="flex-1 flex flex-col items-center h-full justify-end gap-2 cursor-pointer"
-                onMouseEnter={(e) => setTooltip({ x: e.clientX, y: e.clientY, d })}
-                onMouseMove={(e) => setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)}
+                className="flex-1 flex flex-col items-center h-full justify-end gap-2 cursor-pointer bg-transparent border-0 p-0"
+                onMouseEnter={(e) =>
+                  setTooltip({ x: e.clientX, y: e.clientY, d })
+                }
+                onMouseMove={(e) =>
+                  setTooltip((prev) =>
+                    prev ? { ...prev, x: e.clientX, y: e.clientY } : null,
+                  )
+                }
                 onMouseLeave={() => setTooltip(null)}
-                onClick={(e) => setTooltip((prev) => prev ? null : { x: e.clientX, y: e.clientY, d })}
+                onClick={(e) =>
+                  setTooltip((prev) =>
+                    prev ? null : { x: e.clientX, y: e.clientY, d },
+                  )
+                }
               >
                 <div className="flex items-end justify-center gap-1.5 w-full h-full relative">
                   <div className="w-2.5 bg-neutral-500/10 rounded-full h-full flex items-end">
                     <motion.div
                       initial={{ height: 0 }}
                       animate={{ height: `${incHeight}%` }}
-                      transition={{ duration: 0.8, delay: index * 0.05, ease: "easeOut" }}
+                      transition={{
+                        duration: 0.8,
+                        delay: index * 0.05,
+                        ease: "easeOut",
+                      }}
                       className="w-full bg-[#34c759] rounded-full"
                     />
                   </div>
@@ -74,7 +95,11 @@ export function SavingsTrendCard({
                     <motion.div
                       initial={{ height: 0 }}
                       animate={{ height: `${expHeight}%` }}
-                      transition={{ duration: 0.8, delay: index * 0.05 + 0.1, ease: "easeOut" }}
+                      transition={{
+                        duration: 0.8,
+                        delay: index * 0.05 + 0.1,
+                        ease: "easeOut",
+                      }}
                       className="w-full bg-[#ff3b30] rounded-full"
                     />
                   </div>
@@ -84,33 +109,58 @@ export function SavingsTrendCard({
                   <span className="text-[10px] font-extrabold text-[var(--foreground)]">
                     {d.label}
                   </span>
-                  <span className={cn("text-[9px] font-bold mt-0.5 font-mono", isNetPositive ? "text-emerald-500" : "text-rose-500")}>
+                  <span
+                    className={cn(
+                      "text-[9px] font-bold mt-0.5 font-mono",
+                      isNetPositive ? "text-emerald-500" : "text-rose-500",
+                    )}
+                  >
                     {d.savings >= 0 ? "+" : ""}
-                    {d.savings === 0 ? "0" : Math.abs(d.savings) > 1000
-                      ? `${d.savings > 0 ? "" : "-"}${(Math.abs(d.savings) / 1000).toFixed(0)}k`
-                      : d.savings.toFixed(0)}
+                    {d.savings === 0
+                      ? "0"
+                      : Math.abs(d.savings) > 1000
+                        ? `${d.savings > 0 ? "" : "-"}${(Math.abs(d.savings) / 1000).toFixed(0)}k`
+                        : d.savings.toFixed(0)}
                   </span>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </CardContent>
 
-      {mounted && tooltip && createPortal(
-        <div
-          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg flex flex-col gap-0.5"
-          style={{ left: tooltip.x, top: tooltip.y, transform: "translate(-50%, calc(-100% - 10px))" }}
-        >
-          <span className="opacity-60 uppercase text-[7px] tracking-wider font-extrabold">{tooltip.d.label}</span>
-          <span className="text-emerald-400">↑ {formatCurrency(tooltip.d.income, displayCurrency)}</span>
-          <span className="text-rose-400">↓ {formatCurrency(tooltip.d.expense, displayCurrency)}</span>
-          <span className={cn("font-sans font-black", tooltip.d.savings >= 0 ? "text-emerald-300" : "text-rose-300")}>
-            {tooltip.d.savings >= 0 ? "+" : ""}{formatCurrency(tooltip.d.savings, displayCurrency)}
-          </span>
-        </div>,
-        document.body,
-      )}
+      {mounted &&
+        tooltip &&
+        createPortal(
+          <div
+            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg flex flex-col gap-0.5"
+            style={{
+              left: tooltip.x,
+              top: tooltip.y,
+              transform: "translate(-50%, calc(-100% - 10px))",
+            }}
+          >
+            <span className="opacity-60 uppercase text-[7px] tracking-wider font-extrabold">
+              {tooltip.d.label}
+            </span>
+            <span className="text-emerald-400">
+              ↑ {formatCurrency(tooltip.d.income, displayCurrency)}
+            </span>
+            <span className="text-rose-400">
+              ↓ {formatCurrency(tooltip.d.expense, displayCurrency)}
+            </span>
+            <span
+              className={cn(
+                "font-sans font-black",
+                tooltip.d.savings >= 0 ? "text-emerald-300" : "text-rose-300",
+              )}
+            >
+              {tooltip.d.savings >= 0 ? "+" : ""}
+              {formatCurrency(tooltip.d.savings, displayCurrency)}
+            </span>
+          </div>,
+          document.body,
+        )}
     </Card>
   );
 }
