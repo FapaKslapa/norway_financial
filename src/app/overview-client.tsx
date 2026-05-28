@@ -10,6 +10,8 @@ import { trpc } from "@/lib/trpc/client";
 import { BudgetProgressCard } from "./overview/components/budget-progress-card";
 import { CategoryBudgetsCard } from "./overview/components/category-budgets-card";
 import { CurrencyConverterCard } from "./overview/components/currency-converter-card";
+import { OverviewAnalyticsCard } from "./overview/components/overview-analytics-card";
+import { OverviewFriendBalancesCard } from "./overview/components/overview-friend-balances-card";
 import { OverviewHeader } from "./overview/components/overview-header";
 import { QuickAddForm } from "./overview/components/quick-add-form";
 import { RecentTodoCard } from "./overview/components/recent-todo-card";
@@ -251,29 +253,6 @@ export default function OverviewClient() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <CurrencyConverterCard />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-          className="md:col-span-1 h-full flex flex-col"
-        >
-          <RecentTodoCard
-            todos={todosQuery.data || []}
-            displayCurrency={displayCurrency}
-          />
-        </motion.div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
           className="md:col-span-2 h-full flex flex-col"
         >
           <RecentTransactionsCard
@@ -283,11 +262,13 @@ export default function OverviewClient() {
             convertCurrency={convertCurrency}
           />
         </motion.div>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
           className="md:col-span-1 h-full flex flex-col"
         >
           <CategoryBudgetsCard
@@ -301,6 +282,50 @@ export default function OverviewClient() {
               setIsSettingsOpen(true);
             }}
           />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <RecentTodoCard
+            todos={todosQuery.data || []}
+            displayCurrency={displayCurrency}
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <CurrencyConverterCard />
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-2 h-full flex flex-col"
+        >
+          <OverviewAnalyticsCard
+            transactions={transactions}
+            displayCurrency={displayCurrency}
+            convertCurrency={convertCurrency}
+          />
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
+          className="md:col-span-1 h-full flex flex-col"
+        >
+          <OverviewFriendBalancesCard />
         </motion.div>
       </div>
 
