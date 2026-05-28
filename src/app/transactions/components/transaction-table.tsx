@@ -226,7 +226,7 @@ export function TransactionTable({
                   </td>
 
                   {}
-                  <td className="p-3">
+                  <td className="p-3 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <div
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
@@ -239,7 +239,7 @@ export function TransactionTable({
                   </td>
 
                   {}
-                  <td className="p-3">
+                  <td className="p-3 whitespace-nowrap">
                     <span
                       className={cn(
                         "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full",

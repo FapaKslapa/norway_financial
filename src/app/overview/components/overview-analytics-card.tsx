@@ -9,7 +9,8 @@ import {
   TrendingUp,
 } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency } from "@/lib/utils";
 
 type Transaction = {
@@ -31,6 +32,10 @@ export function OverviewAnalyticsCard({
   convertCurrency,
 }: OverviewAnalyticsCardProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const months = Array.from({ length: 12 })
     .map((_, i) => dayjs().subtract(11 - i, "month"))
@@ -105,26 +110,31 @@ export function OverviewAnalyticsCard({
     return `${linePath} L ${lastX} ${baseY} L ${firstX} ${baseY} Z`;
   };
 
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = ((e.clientX - rect.left) / rect.width) * width;
+  const findClosest = (clientX: number, rect: DOMRect): number | null => {
+    const mouseX = ((clientX - rect.left) / rect.width) * width;
     let closestIdx = 0;
     let minDiff = Infinity;
-
     for (let i = 0; i < incomePoints.length; i++) {
       const diff = Math.abs(incomePoints[i].x - mouseX);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = i;
-      }
+      if (diff < minDiff) { minDiff = diff; closestIdx = i; }
     }
-
-    if (minDiff < 30) {
-      setHoveredIndex(closestIdx);
-    } else {
-      setHoveredIndex(null);
-    }
+    return minDiff < 30 ? closestIdx : null;
   };
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const idx = findClosest(e.clientX, e.currentTarget.getBoundingClientRect());
+    setHoveredIndex(idx);
+    setTooltipPos(idx !== null ? { x: e.clientX, y: e.clientY } : null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+    const touch = e.touches[0];
+    const idx = findClosest(touch.clientX, e.currentTarget.getBoundingClientRect());
+    setHoveredIndex(idx);
+    setTooltipPos(idx !== null ? { x: touch.clientX, y: touch.clientY } : null);
+  };
+
+  const handleLeave = () => { setHoveredIndex(null); setTooltipPos(null); };
 
   return (
     <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
@@ -155,7 +165,9 @@ export function OverviewAnalyticsCard({
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-full overflow-visible"
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => setHoveredIndex(null)}
+          onMouseLeave={handleLeave}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleLeave}
         >
           <title>Trend Finanziario</title>
           <defs>
@@ -192,7 +204,11 @@ export function OverviewAnalyticsCard({
                   fontWeight="bold"
                   className="fill-neutral-400 dark:fill-zinc-500 font-mono"
                 >
-                  {val > 1000 ? `${(val / 1000).toFixed(0)}k` : val.toFixed(0)}
+                  {val >= 1000
+                    ? val >= 1000000
+                      ? `${(val / 1000000).toFixed(1)}M`
+                      : `${(val / 1000).toFixed(0)}k`
+                    : val.toFixed(0)}
                 </text>
               </g>
             );
@@ -283,28 +299,13 @@ export function OverviewAnalyticsCard({
           })}
         </svg>
 
-        {hoveredIndex !== null && months[hoveredIndex] && (
+        {mounted && hoveredIndex !== null && tooltipPos && months[hoveredIndex] && createPortal(
           <div
-            className="absolute bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-3 py-2 rounded-2xl text-[9px] font-bold shadow-xl pointer-events-none z-10 flex flex-col gap-1 min-w-[150px]"
-            style={{
-              left: `${(incomePoints[hoveredIndex].x / width) * 100}%`,
-              top: `${
-                (
-                  Math.min(
-                    incomePoints[hoveredIndex].y,
-                    expensePoints[hoveredIndex].y,
-                  ) / height
-                ) *
-                  100 -
-                15
-              }%`,
-              transform: "translate(-50%, -100%)",
-            }}
+            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-3 py-2 rounded-2xl text-[9px] font-bold shadow-xl flex flex-col gap-1 min-w-[150px]"
+            style={{ left: tooltipPos.x, top: tooltipPos.y, transform: "translate(-50%, calc(-100% - 10px))" }}
           >
             <span className="opacity-80 uppercase text-[8px] tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
-              {dayjs()
-                .subtract(11 - hoveredIndex, "month")
-                .format("MMMM YYYY")}
+              {dayjs().subtract(11 - hoveredIndex, "month").format("MMMM YYYY")}
             </span>
             <div className="flex flex-col gap-1 text-[10px] font-bold mt-1">
               <div className="flex justify-between items-center gap-4 text-emerald-500 dark:text-emerald-600">
@@ -312,42 +313,27 @@ export function OverviewAnalyticsCard({
                   <ArrowDownLeft size={10} />
                   <span>Entrate</span>
                 </div>
-                <span>
-                  {formatCurrency(months[hoveredIndex].income, displayCurrency)}
-                </span>
+                <span>{formatCurrency(months[hoveredIndex].income, displayCurrency)}</span>
               </div>
               <div className="flex justify-between items-center gap-4 text-rose-500 dark:text-rose-600">
                 <div className="flex items-center gap-1">
                   <ArrowUpRight size={10} />
                   <span>Spese</span>
                 </div>
-                <span>
-                  {formatCurrency(
-                    months[hoveredIndex].expense,
-                    displayCurrency,
-                  )}
-                </span>
+                <span>{formatCurrency(months[hoveredIndex].expense, displayCurrency)}</span>
               </div>
               <div className="border-t border-neutral-700 dark:border-neutral-200 pt-1 mt-1 flex justify-between items-center gap-4 text-white dark:text-neutral-900">
                 <div className="flex items-center gap-1">
                   <TrendingUp size={10} className="text-blue-500" />
                   <span>Risparmio</span>
                 </div>
-                <span
-                  className={
-                    months[hoveredIndex].savings >= 0
-                      ? "text-emerald-500 dark:text-emerald-600"
-                      : "text-rose-500 dark:text-rose-600"
-                  }
-                >
-                  {formatCurrency(
-                    months[hoveredIndex].savings,
-                    displayCurrency,
-                  )}
+                <span className={months[hoveredIndex].savings >= 0 ? "text-emerald-500 dark:text-emerald-600" : "text-rose-500 dark:text-rose-600"}>
+                  {formatCurrency(months[hoveredIndex].savings, displayCurrency)}
                 </span>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body,
         )}
       </CardContent>
     </Card>

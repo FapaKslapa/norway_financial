@@ -59,6 +59,7 @@ export function QuickAddForm({
   onSave,
 }: QuickAddFormProps) {
   const { convertCurrency, displayCurrency } = useDashboard();
+  const [isMobile, setIsMobile] = useState(false);
   const [desc, setDesc] = useState("");
   const [type, setType] = useState<"expense" | "income">("expense");
   const [amount, setAmount] = useState("");
@@ -66,6 +67,14 @@ export function QuickAddForm({
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -128,13 +137,29 @@ export function QuickAddForm({
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.97 }}
-            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[520px] rounded-[2rem] shadow-2xl text-[var(--foreground)] z-10 max-h-[92dvh] md:max-h-[85vh] flex flex-col mx-0 md:mx-4 overflow-hidden"
+            initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            transition={
+              isMobile
+                ? { duration: 0.35, ease: [0.32, 0.72, 0, 1] }
+                : { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
+            }
+            drag={isMobile ? "y" : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={(_, info) => {
+              if (isMobile && (info.offset.y > 120 || info.velocity.y > 500)) {
+                onClose();
+              }
+            }}
+            className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[520px] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl text-[var(--foreground)] z-10 max-h-[92dvh] md:max-h-[85vh] flex flex-col mx-0 md:mx-4 overflow-hidden"
           >
-            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-[var(--card-border)] flex-shrink-0">
+            <div className="flex md:hidden justify-center pt-3 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-[var(--card-border)]" />
+            </div>
+
+            <div className="flex items-center justify-between px-6 pt-3 md:pt-6 pb-4 border-b border-[var(--card-border)] flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div
                   className={cn(

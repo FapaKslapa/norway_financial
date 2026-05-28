@@ -22,6 +22,13 @@ type CategoryBreakdownProps = {
   displayCurrency: string;
 };
 
+function formatCompact(amount: number): string {
+  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 10_000) return `${(amount / 1_000).toFixed(0)}k`;
+  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}k`;
+  return amount.toFixed(0);
+}
+
 export function CategoryBreakdown({
   categoryExpenses,
   totalExpense,
@@ -36,8 +43,8 @@ export function CategoryBreakdown({
   let accumulatedPercentage = 0;
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget select-none w-full">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1">
+    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget select-none w-full h-full flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1 flex-shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <PieChart size={14} className="text-blue-500" />
           Spese per Categoria
@@ -47,7 +54,7 @@ export function CategoryBreakdown({
         </p>
       </CardHeader>
 
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 min-h-0">
         {categoryExpenses.length === 0 ? (
           <div className="h-56 flex flex-col items-center justify-center text-xs text-[var(--text-muted)] gap-1">
             <span>Nessuna spesa registrata in questo mese.</span>
@@ -56,7 +63,7 @@ export function CategoryBreakdown({
             </span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center h-auto min-h-[224px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center h-full">
             <div className="relative flex justify-center items-center h-44 w-full">
               <svg
                 width="140"
@@ -100,17 +107,20 @@ export function CategoryBreakdown({
                 })}
               </svg>
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-0.5">
+                <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider">
                   Speso
                 </span>
-                <span className="text-sm font-black tracking-tight">
-                  {formatCurrency(totalExpense, displayCurrency)}
+                <span className="text-base font-black tracking-tight leading-none">
+                  {formatCompact(totalExpense)}
+                </span>
+                <span className="text-[9px] text-[var(--text-muted)] font-bold leading-none">
+                  {displayCurrency}
                 </span>
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto pr-1 custom-scrollbar">
+            <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
               {categoryExpenses.map((cat) => {
                 return (
                   <div

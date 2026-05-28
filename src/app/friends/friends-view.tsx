@@ -25,7 +25,8 @@ import {
   X,
 } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type FriendItem = {
   friendshipId: string;
@@ -58,6 +59,71 @@ import { trpc } from "@/lib/trpc/client";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { SharedExpensePayload } from "./components/shared-expense-dialog";
 import { SharedExpenseDialog } from "./components/shared-expense-dialog";
+
+function formatCompact(amount: number): string {
+  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
+  if (amount >= 10_000) return `${(amount / 1_000).toFixed(0)}k`;
+  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}k`;
+  return amount.toFixed(2);
+}
+
+function AmountWithTooltip({
+  amount,
+  currency,
+  prefix,
+  className,
+}: {
+  amount: number;
+  currency: string;
+  prefix: string;
+  className?: string;
+}) {
+  const [visible, setVisible] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const close = () => setVisible(false);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [visible]);
+
+  const isRounded = amount >= 1000;
+  const full = formatCurrency(amount, currency);
+
+  if (!isRounded) {
+    return <span className={className}>{prefix}{full}</span>;
+  }
+
+  const compact = formatCompact(amount);
+
+  return (
+    <>
+      <span
+        className={cn(className, "underline decoration-dotted underline-offset-2 cursor-help")}
+        onMouseEnter={(e) => { setPos({ x: e.clientX, y: e.clientY }); setVisible(true); }}
+        onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
+        onMouseLeave={() => setVisible(false)}
+        onClick={(e) => { e.stopPropagation(); setPos({ x: e.clientX, y: e.clientY }); setVisible(true); }}
+      >
+        {prefix}≈{compact} {currency}
+      </span>
+      {mounted && visible && createPortal(
+        <div
+          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-2 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap flex flex-col gap-0.5"
+          style={{ left: pos.x, top: pos.y, transform: "translate(-50%, calc(-100% - 8px))" }}
+        >
+          <span className="opacity-50 uppercase text-[7px] tracking-wider font-extrabold">Importo esatto</span>
+          <span className="text-xs font-black">{full}</span>
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+}
 
 export default function FriendsView() {
   const {
@@ -789,7 +855,7 @@ export default function FriendsView() {
                         ? `${balVal > 0 ? "+" : "-"}${formatVal(convertNokAmount(Math.abs(balVal)), displayCurrency)}`
                         : "In pari";
                       const subtitle = hasBal
-                        ? `${Math.abs(balVal).toFixed(0)} NOK`
+                        ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(Math.abs(balVal))} NOK`
                         : "Nessun debito o credito";
                       const icon =
                         balVal > 0 ? (
@@ -1344,20 +1410,15 @@ export default function FriendsView() {
                                 <div className="flex flex-col items-end pointer-events-none">
                                   {hasBalance ? (
                                     <>
-                                      <span
+                                      <AmountWithTooltip
+                                        amount={convertNokAmount(Math.abs(balValue))}
+                                        currency={displayCurrency}
+                                        prefix={isOwed ? "Ti deve " : "Gli devi "}
                                         className={cn(
-                                          "text-xs font-black tracking-tight",
-                                          isOwed
-                                            ? "text-emerald-500"
-                                            : "text-rose-500",
+                                          "text-xs font-black tracking-tight pointer-events-auto",
+                                          isOwed ? "text-emerald-500" : "text-rose-500",
                                         )}
-                                      >
-                                        {isOwed ? "Ti deve " : "Gli devi "}
-                                        {formatVal(
-                                          convertNokAmount(Math.abs(balValue)),
-                                          displayCurrency,
-                                        )}
-                                      </span>
+                                      />
                                       <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">
                                         {Math.abs(balValue).toFixed(0)} NOK
                                       </span>

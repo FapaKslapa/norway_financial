@@ -214,7 +214,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 h-[420px] md:w-auto md:shrink md:h-full"
           >
             <SavingsTrendCard
               trendData={last6MonthsData}
@@ -225,7 +225,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 h-[420px] md:w-auto md:shrink md:h-full"
           >
             <CategoryBreakdown
               categoryExpenses={categoryExpenses}
@@ -242,7 +242,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 h-[310px] md:w-auto md:shrink md:h-full"
           >
             <ExpenseTrendCard
               trendData={last6MonthsData}
@@ -253,7 +253,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 h-[310px] md:w-auto md:shrink md:h-full"
           >
             <IncomeTrendCard
               trendData={last6MonthsData}
@@ -264,12 +264,12 @@ export default function AnalyticsView() {
       </div>
 
       <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
-        <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto items-start">
+        <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink md:h-full"
           >
             <SpendingCalendarCard
               currentMonth={currentMonth}
@@ -286,7 +286,7 @@ export default function AnalyticsView() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-[380px] md:w-auto md:shrink md:h-full"
+            className="w-[85vw] snap-start shrink-0 md:w-auto md:shrink md:h-full"
           >
             <RecentLogs
               sortedTimeline={sortedTimeline}
