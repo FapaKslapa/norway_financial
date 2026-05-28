@@ -20,17 +20,12 @@ import { StatsGrid } from "./overview/components/stats-grid";
 
 export default function OverviewClient() {
   const router = useRouter();
-  const {
-    convertCurrency,
-    displayCurrency,
-    rates,
-    settings,
-    user,
-  } = useDashboard();
+  const { convertCurrency, displayCurrency, rates, settings, user } =
+    useDashboard();
 
   const categoriesQuery = trpc.category.list.useQuery();
   const transactionsQuery = trpc.transaction.list.useQuery();
-  const friendsQuery = trpc.friend.listFriends.useQuery();
+  const _friendsQuery = trpc.friend.listFriends.useQuery();
   const listsQuery = trpc.todo.listLists.useQuery();
   const categoryBudgetsQuery = trpc.categoryBudget.list.useQuery();
 
@@ -52,9 +47,7 @@ export default function OverviewClient() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window !== "undefined") {
-      return (
-        localStorage.getItem("gravio_onboarding_dismissed") !== "true"
-      );
+      return localStorage.getItem("gravio_onboarding_dismissed") !== "true";
     }
     return true;
   });
@@ -149,10 +142,6 @@ export default function OverviewClient() {
             <button
               type="button"
               onClick={handleDismissOnboarding}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                handleDismissOnboarding();
-              }}
               className="absolute top-2 right-2 h-10 w-10 rounded-full flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 cursor-pointer bg-transparent border-0 transition-all z-30"
               aria-label="Chiudi onboarding"
             >

@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { TrendingDown } from "lucide-react";
-import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatCurrency } from "@/lib/utils";
 
 type MonthTrend = {
@@ -23,6 +23,10 @@ export function ExpenseTrendCard({
   displayCurrency,
 }: ExpenseTrendCardProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const maxVal = Math.max(...trendData.map((d) => d.expense), 1000);
 
@@ -52,30 +56,35 @@ export function ExpenseTrendCard({
       ? `${lineD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`
       : "";
 
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const mouseX = ((e.clientX - rect.left) / rect.width) * width;
+  const findClosest = (clientX: number, rect: DOMRect): number | null => {
+    const mouseX = ((clientX - rect.left) / rect.width) * width;
     let closestIdx = 0;
     let minDiff = Infinity;
-
     for (let i = 0; i < points.length; i++) {
       const diff = Math.abs(points[i].x - mouseX);
-      if (diff < minDiff) {
-        minDiff = diff;
-        closestIdx = i;
-      }
+      if (diff < minDiff) { minDiff = diff; closestIdx = i; }
     }
-
-    if (minDiff < 40) {
-      setHoveredIdx(closestIdx);
-    } else {
-      setHoveredIdx(null);
-    }
+    return minDiff < 50 ? closestIdx : null;
   };
 
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const idx = findClosest(e.clientX, e.currentTarget.getBoundingClientRect());
+    setHoveredIdx(idx);
+    setTooltipPos(idx !== null ? { x: e.clientX, y: e.clientY } : null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+    const touch = e.touches[0];
+    const idx = findClosest(touch.clientX, e.currentTarget.getBoundingClientRect());
+    setHoveredIdx(idx);
+    setTooltipPos(idx !== null ? { x: touch.clientX, y: touch.clientY } : null);
+  };
+
+  const handleLeave = () => { setHoveredIdx(null); setTooltipPos(null); };
+
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1">
+    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1 flex-shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <TrendingDown size={14} className="text-rose-500" />
           Andamento Spese
@@ -85,12 +94,14 @@ export function ExpenseTrendCard({
         </p>
       </CardHeader>
 
-      <CardContent className="p-0 relative">
+      <CardContent className="p-0 relative flex-1 min-h-0">
         <svg
           viewBox={`0 0 ${width} ${height}`}
           className="w-full h-auto overflow-visible"
           onMouseMove={handleMouseMove}
-          onMouseLeave={() => setHoveredIdx(null)}
+          onMouseLeave={handleLeave}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleLeave}
         >
           <title>Andamento Spese</title>
           <defs>
@@ -105,96 +116,52 @@ export function ExpenseTrendCard({
             const val = maxVal * (1 - ratio);
             return (
               <g key={ratio} className="opacity-40 dark:opacity-20">
-                <line
-                  x1={paddingLeft}
-                  y1={y}
-                  x2={width - paddingRight}
-                  y2={y}
-                  stroke="currentColor"
-                  strokeWidth={0.5}
-                  strokeDasharray="4 4"
-                  className="text-neutral-300 dark:text-zinc-700"
-                />
-                <text
-                  x={paddingLeft - 8}
-                  y={y + 3}
-                  textAnchor="end"
-                  fontSize={8}
-                  fontWeight="bold"
-                  className="fill-neutral-400 dark:fill-zinc-500 font-mono"
-                >
-                  {val > 1000 ? `${(val / 1000).toFixed(0)}k` : val.toFixed(0)}
+                <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y}
+                  stroke="currentColor" strokeWidth={0.5} strokeDasharray="4 4"
+                  className="text-neutral-300 dark:text-zinc-700" />
+                <text x={paddingLeft - 8} y={y + 3} textAnchor="end" fontSize={8}
+                  fontWeight="bold" className="fill-neutral-400 dark:fill-zinc-500 font-mono">
+                  {val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val.toFixed(0)}
                 </text>
               </g>
             );
           })}
 
-          {areaD && (
-            <path d={areaD} fill="url(#expenseGradient)" stroke="none" />
-          )}
-
-          {lineD && (
-            <path
-              d={lineD}
-              fill="none"
-              stroke="#ff3b30"
-              strokeWidth={2.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          )}
+          {areaD && <path d={areaD} fill="url(#expenseGradient)" stroke="none" />}
+          {lineD && <path d={lineD} fill="none" stroke="#ff3b30" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
 
           {points.map((p, idx) => (
-            <g key={p.label}>
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r={hoveredIdx === idx ? 5 : 3.5}
-                fill="#ff3b30"
-                stroke={
-                  hoveredIdx === idx
-                    ? "rgba(255, 59, 48, 0.3)"
-                    : "rgba(255, 255, 255, 1)"
-                }
-                strokeWidth={hoveredIdx === idx ? 6 : 1.5}
-                className="transition-all duration-150"
-              />
-            </g>
+            <circle key={p.label} cx={p.x} cy={p.y}
+              r={hoveredIdx === idx ? 5 : 3.5}
+              fill="#ff3b30"
+              stroke={hoveredIdx === idx ? "rgba(255, 59, 48, 0.3)" : "rgba(255,255,255,1)"}
+              strokeWidth={hoveredIdx === idx ? 6 : 1.5}
+              className="transition-all duration-150" />
           ))}
 
           {points.map((p) => (
-            <text
-              key={p.label}
-              x={p.x}
-              y={height - 8}
-              textAnchor="middle"
-              fontSize={9}
-              fontWeight="bold"
-              className="fill-neutral-500 dark:fill-zinc-400"
-            >
+            <text key={p.label} x={p.x} y={height - 8} textAnchor="middle"
+              fontSize={9} fontWeight="bold" className="fill-neutral-500 dark:fill-zinc-400">
               {p.label}
             </text>
           ))}
         </svg>
-
-        {hoveredIdx !== null && (
-          <div
-            className="absolute bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg pointer-events-none z-10 flex flex-col gap-0.5"
-            style={{
-              left: `${(points[hoveredIdx].x / width) * 100}%`,
-              top: `${(points[hoveredIdx].y / height) * 100 - 25}%`,
-              transform: "translate(-50%, -100%)",
-            }}
-          >
-            <span className="opacity-80 uppercase text-[7px] tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
-              {points[hoveredIdx].label}
-            </span>
-            <span className="font-sans text-xs font-black">
-              {formatCurrency(points[hoveredIdx].value, displayCurrency)}
-            </span>
-          </div>
-        )}
       </CardContent>
+
+      {mounted && hoveredIdx !== null && tooltipPos && createPortal(
+        <div
+          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg flex flex-col gap-0.5"
+          style={{ left: tooltipPos.x, top: tooltipPos.y, transform: "translate(-50%, calc(-100% - 10px))" }}
+        >
+          <span className="opacity-60 uppercase text-[7px] tracking-wider font-extrabold">
+            {points[hoveredIdx].label}
+          </span>
+          <span className="font-sans text-xs font-black">
+            {formatCurrency(points[hoveredIdx].value, displayCurrency)}
+          </span>
+        </div>,
+        document.body,
+      )}
     </Card>
   );
 }

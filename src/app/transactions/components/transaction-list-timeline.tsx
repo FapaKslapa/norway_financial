@@ -149,28 +149,19 @@ export function TransactionListTimeline({
                       </div>
 
                       <div className="flex flex-col min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-xs font-bold text-[var(--foreground)] truncate">
-                            {tx.description || "Transazione"}
-                          </span>
-                          {tx.sharedInfo && (
-                            <span
-                              className={cn(
-                                "text-[8px] font-black px-1.5 py-0.5 rounded-md",
-                                tx.sharedInfo.isBorrowed
-                                  ? "bg-rose-500/10 text-rose-500 border border-rose-500/15"
-                                  : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/15",
-                              )}
-                            >
-                              {tx.sharedInfo.isBorrowed
-                                ? `Split da ${tx.payerName || "Amico"}`
-                                : `Split con ${tx.sharedInfo.borrowerName}`}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wide">
+                        <span className="text-xs font-bold text-[var(--foreground)] truncate">
+                          {tx.description || "Transazione"}
+                        </span>
+                        <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wide mt-0.5">
                           {cat ? cat.name : "Generale"}
                         </span>
+                        {tx.sharedInfo && (
+                          <span className="text-[9px] text-[var(--text-muted)] font-medium mt-0.5">
+                            {tx.sharedInfo.isBorrowed
+                              ? `Split da ${tx.payerName || "Amico"}`
+                              : `Split con ${tx.sharedInfo.borrowerName}`}
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -178,7 +169,12 @@ export function TransactionListTimeline({
                     <div className="flex items-center gap-4 ml-4 shrink-0">
                       <div className="flex flex-col items-end">
                         <span
-                          className={cn("text-xs font-black whitespace-nowrap", isExpense ? "text-[var(--foreground)]" : "text-emerald-500")}
+                          className={cn(
+                            "text-xs font-black whitespace-nowrap",
+                            isExpense
+                              ? "text-[var(--foreground)]"
+                              : "text-emerald-500",
+                          )}
                         >
                           {isExpense ? "-" : "+"}
                           {formatCurrency(displayAmount, displayCurrency)}

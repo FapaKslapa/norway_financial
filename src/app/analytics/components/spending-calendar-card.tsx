@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const MONTH_NAMES = [
@@ -53,6 +55,11 @@ export function SpendingCalendarCard({
   setSelectedDay,
   displayCurrency,
 }: SpendingCalendarCardProps) {
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; day: number; amount: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayIndex =
     (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
@@ -61,8 +68,8 @@ export function SpendingCalendarCard({
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget w-full">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1">
+    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 md:p-6 apple-widget w-full md:h-full flex flex-col">
+      <CardHeader className="p-0 pb-3 border-b border-[var(--card-border)] mb-4 md:mb-6 flex flex-col items-start gap-1 flex-shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <CalendarIcon size={14} className="text-blue-500" />
           Calendario di Spesa
@@ -73,8 +80,8 @@ export function SpendingCalendarCard({
         </p>
       </CardHeader>
 
-      <CardContent className="p-0 flex flex-col gap-4">
-        <div className="grid grid-cols-7 gap-1.5 text-center select-none">
+      <CardContent className="p-0 flex-grow flex flex-col gap-4 overflow-y-auto pr-1 custom-scrollbar">
+        <div className="grid grid-cols-7 gap-1 md:gap-1.5 text-center select-none">
           {["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((day) => (
             <span
               key={day}
@@ -107,9 +114,12 @@ export function SpendingCalendarCard({
                 type="button"
                 key={`day-${day}`}
                 onClick={() => setSelectedDay(isSelected ? null : day)}
+                onMouseEnter={(e) => dailyExpense > 0 && setTooltip({ x: e.clientX, y: e.clientY, day, amount: dailyExpense })}
+                onMouseMove={(e) => dailyExpense > 0 && setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)}
+                onMouseLeave={() => setTooltip(null)}
                 style={dayStyle}
                 className={cn(
-                  "aspect-square rounded-xl flex flex-col items-center justify-between p-1.5 cursor-pointer relative group transition-all duration-200 border border-transparent bg-transparent",
+                  "aspect-square rounded-xl flex flex-col items-center justify-center p-1 cursor-pointer relative transition-all duration-200 border border-transparent bg-transparent",
                   dailyExpense === 0
                     ? "bg-neutral-500/5 hover:bg-neutral-500/10 text-[var(--foreground)]"
                     : "text-white font-extrabold",
@@ -120,48 +130,50 @@ export function SpendingCalendarCard({
               >
                 <span
                   className={cn(
-                    "text-[10px] leading-none self-start",
-                    dailyExpense > 0
-                      ? "text-white"
-                      : "text-[var(--text-muted)]",
+                    "text-[10px] leading-none",
+                    dailyExpense > 0 ? "text-white font-bold" : "text-[var(--text-muted)]",
                   )}
                 >
                   {day}
                 </span>
-
-                {dailyExpense > 0 && (
-                  <span className="text-[8px] leading-none font-black truncate max-w-full text-center">
-                    {dailyExpense > 999
-                      ? `${(dailyExpense / 1000).toFixed(0)}k`
-                      : dailyExpense.toFixed(0)}
-                  </span>
-                )}
-
-                <div className="absolute bottom-full mb-1 bg-[var(--foreground)] text-[var(--background)] px-2 py-1 rounded-lg text-[9px] font-bold opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-25 whitespace-nowrap shadow-md">
-                  {day} {MONTH_SHORT[currentMonth]}:{" "}
-                  {formatCurrency(dailyExpense, displayCurrency)}
-                </div>
               </button>
             );
           })}
         </div>
 
         {selectedDay && (
-          <div className="flex justify-between items-center bg-blue-500/5 border border-blue-500/10 rounded-2xl p-3.5 mt-2">
-            <span className="text-xs font-bold text-blue-500">
-              Stai visualizzando solo il giorno {selectedDay}{" "}
-              {MONTH_NAMES[currentMonth]}
-            </span>
-            <button
-              type="button"
-              onClick={() => setSelectedDay(null)}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--foreground)] font-bold cursor-pointer bg-transparent border-0"
-            >
-              Mostra tutto il mese
-            </button>
+          <div className="flex flex-col gap-1.5 bg-blue-500/5 border border-blue-500/10 rounded-2xl p-3 mt-1 select-none">
+            <div className="flex justify-between items-center w-full">
+              <span className="text-[10px] font-bold text-blue-500">
+                Spesa del {selectedDay} {MONTH_NAMES[currentMonth]}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedDay(null)}
+                className="text-[9px] text-[var(--text-muted)] hover:text-[var(--foreground)] font-bold cursor-pointer bg-transparent border-0"
+              >
+                Mostra tutto il mese
+              </button>
+            </div>
+            <div className="text-xs font-black text-[var(--foreground)]">
+              {formatCurrency(
+                dailyExpensesMap[selectedDay] || 0,
+                displayCurrency,
+              )}
+            </div>
           </div>
         )}
       </CardContent>
+
+      {mounted && tooltip && createPortal(
+        <div
+          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap"
+          style={{ left: tooltip.x, top: tooltip.y, transform: "translate(-50%, calc(-100% - 8px))" }}
+        >
+          {tooltip.day} {MONTH_SHORT[currentMonth]}: {formatCurrency(tooltip.amount, displayCurrency)}
+        </div>,
+        document.body,
+      )}
     </Card>
   );
 }
