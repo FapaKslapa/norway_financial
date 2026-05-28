@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
@@ -48,11 +48,14 @@ type DashboardContextType = {
     preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
+    notifyBudget80?: boolean;
+    notifyRecurrentApplied?: boolean;
+    notifyFriendActions?: boolean;
   }) => Promise<void>;
   isSettingsOpen: boolean;
   setIsSettingsOpen: (open: boolean) => void;
-  settingsTab: "general" | "budget" | "profile";
-  setSettingsTab: (tab: "general" | "budget" | "profile") => void;
+  settingsTab: "general" | "budget" | "profile" | "notifications";
+  setSettingsTab: (tab: "general" | "budget" | "profile" | "notifications") => void;
 };
 
 const DashboardContext = createContext<DashboardContextType | null>(null);
@@ -85,7 +88,7 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
   const [isRateFetched, setIsRateFetched] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<
-    "general" | "budget" | "profile"
+    "general" | "budget" | "profile" | "notifications"
   >("general");
   const { theme, setTheme, accent, setAccent } = useTheme();
 
@@ -203,6 +206,9 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     preferredCurrency: string;
     themeMode: "light" | "dark";
     themeAccent: string;
+    notifyBudget80?: boolean;
+    notifyRecurrentApplied?: boolean;
+    notifyFriendActions?: boolean;
   }) => {
     await updateSettingsMutation.mutateAsync(updates);
   };
@@ -282,7 +288,6 @@ function DashboardLayoutContent({
   user: { name: string; email: string; image?: string | null };
 }) {
   const pathname = usePathname();
-  const _router = useRouter();
   const {
     displayCurrency,
     exchangeRate,

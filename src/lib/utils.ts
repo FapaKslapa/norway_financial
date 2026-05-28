@@ -25,6 +25,17 @@ const ZERO_DECIMAL_CURRENCIES = new Set([
   "XPF",
 ]);
 
+export function convertAmounts(
+  amount: number,
+  currency: string,
+  exchangeRate: number,
+  exchangeRateNok = 11.85,
+): { amountEur: number; amountNok: number } {
+  const amountEur = currency === "EUR" ? amount : amount / exchangeRate;
+  const amountNok = amountEur * exchangeRateNok;
+  return { amountEur, amountNok };
+}
+
 export function formatCurrency(amount: number, currency: string): string {
   const code = currency.toUpperCase();
   const noDecimals = ZERO_DECIMAL_CURRENCIES.has(code);

@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
-import { userSettings } from "@/db/schema";
+import { z } from "zod";
+import { user, userSettings } from "@/db/schema";
 import { updateUserSettingsSchema } from "@/lib/schemas/user-settings";
 import { protectedProcedure, router } from "@/server/trpc";
 
@@ -30,6 +31,9 @@ export const userSettingsRouter = router({
       geminiApiKey: null,
       ollamaUrl: "http://localhost:11434",
       ollamaModel: "llama3.2:1b",
+      notifyBudget80: true,
+      notifyRecurrentApplied: true,
+      notifyFriendActions: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -53,7 +57,7 @@ export const userSettingsRouter = router({
           ? input.maxMonthlyBudget.toFixed(2)
           : parseFloat(input.maxMonthlyBudget as string).toFixed(2);
 
-      const updates: Record<string, string | Date> = {
+      const updates: Record<string, string | Date | boolean> = {
         targetMonthlyBudget: targetStr,
         maxMonthlyBudget: maxStr,
         preferredCurrency: input.preferredCurrency,
@@ -65,6 +69,15 @@ export const userSettingsRouter = router({
       }
       if (input.themeAccent) {
         updates.themeAccent = input.themeAccent;
+      }
+      if (input.notifyBudget80 !== undefined) {
+        updates.notifyBudget80 = input.notifyBudget80;
+      }
+      if (input.notifyRecurrentApplied !== undefined) {
+        updates.notifyRecurrentApplied = input.notifyRecurrentApplied;
+      }
+      if (input.notifyFriendActions !== undefined) {
+        updates.notifyFriendActions = input.notifyFriendActions;
       }
 
       await ctx.db
@@ -79,5 +92,27 @@ export const userSettingsRouter = router({
         .limit(1);
 
       return updated[0];
+    }),
+
+  updateProfile: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1).optional(),
+        image: z.string().nullable().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const updates: Record<string, string | Date | null> = {
+        updatedAt: new Date(),
+      };
+      if (input.name !== undefined) {
+        updates.name = input.name;
+      }
+      if (input.image !== undefined) {
+        updates.image = input.image;
+      }
+      await ctx.db.update(user).set(updates).where(eq(user.id, userId));
+      return { success: true };
     }),
 });

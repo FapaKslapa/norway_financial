@@ -6,6 +6,7 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ type CustomDatePickerProps = {
   className?: string;
   triggerClassName?: string;
   popoverClassName?: string;
+  placeholder?: string;
 };
 
 export function CustomDatePicker({
@@ -27,6 +29,7 @@ export function CustomDatePicker({
   className,
   triggerClassName,
   popoverClassName,
+  placeholder,
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,24 +78,49 @@ export function CustomDatePicker({
     setIsOpen(false);
   };
 
-  const formattedValue = selectedDate.format("D MMMM YYYY");
+  const formattedValue = value
+    ? selectedDate.format("D MMMM YYYY")
+    : placeholder || "Seleziona data...";
 
   return (
     <div
       ref={containerRef}
       className={cn("relative w-full", isOpen ? "z-[60]" : "z-10", className)}
     >
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
+      {/* biome-ignore lint/a11y/useSemanticElements: nesting buttons is invalid HTML, so we use a div with role=button */}
+      <div
         className={cn(
-          "w-full h-11 px-3 rounded-xl flex items-center gap-2.5 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-[var(--foreground)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none text-left cursor-pointer border-0 focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/20",
+          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-[var(--foreground)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-transparent focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 select-none",
           triggerClassName,
         )}
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            setIsOpen(!isOpen);
+          }
+        }}
+        role="button"
+        tabIndex={0}
       >
-        <CalendarIcon size={14} className="text-neutral-500 flex-shrink-0" />
-        <span className="truncate">{formattedValue}</span>
-      </button>
+        <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
+          <CalendarIcon size={14} className="text-neutral-500 flex-shrink-0" />
+          <span className="truncate">{formattedValue}</span>
+        </div>
+
+        {value && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange("");
+            }}
+            className="text-neutral-400 hover:text-[var(--foreground)] hover:bg-neutral-500/10 rounded-full h-6 w-6 flex items-center justify-center transition-colors cursor-pointer border-0 bg-transparent shrink-0"
+            aria-label="Resetta data"
+          >
+            <X size={12} />
+          </button>
+        )}
+      </div>
 
       <AnimatePresence>
         {isOpen && (

@@ -158,6 +158,9 @@ export default function TransactionsView() {
   const createCategoryMutation = trpc.category.create.useMutation({
     onSuccess: () => categoriesQuery.refetch(),
   });
+  const updateCategoryMutation = trpc.category.update.useMutation({
+    onSuccess: () => categoriesQuery.refetch(),
+  });
   const deleteCategoryMutation = trpc.category.delete.useMutation({
     onSuccess: () => categoriesQuery.refetch(),
   });
@@ -250,6 +253,15 @@ export default function TransactionsView() {
   }) => {
     const res = await createCategoryMutation.mutateAsync(cat);
     return { id: res.id };
+  };
+
+  const handleUpdateCategory = async (cat: {
+    id: string;
+    name: string;
+    icon: string;
+    color: string;
+  }) => {
+    await updateCategoryMutation.mutateAsync(cat);
   };
 
   const handleCsvImport = async (
@@ -528,6 +540,7 @@ export default function TransactionsView() {
         onCreateCategory={async (cat) => {
           await handleCreateCategory(cat);
         }}
+        onUpdateCategory={handleUpdateCategory}
       />
 
       <ConfirmationDialog
