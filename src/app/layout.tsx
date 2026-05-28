@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GlobeFinance",
+  title: "Gravio",
   description: "Gestione finanziaria globale e multivaluta per le tue spese ed entrate in tempo reale",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "GlobeFinance",
+    title: "Gravio",
   },
   icons: {
     icon: [

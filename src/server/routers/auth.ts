@@ -65,7 +65,7 @@ export const authRouter = router({
       await sendEmail({
         to: input.email,
         toName: input.name,
-        subject: "Attiva il tuo account — GlobeFinance",
+        subject: "Attiva il tuo account — Gravio",
         ...activationEmail(activationUrl, input.name),
       });
 
