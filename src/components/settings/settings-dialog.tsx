@@ -257,7 +257,7 @@ export function SettingsDialog({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center md:p-4 bg-black/70 backdrop-blur-sm">
           <button
             type="button"
             className="absolute inset-0 cursor-pointer bg-transparent border-0 w-full h-full"
@@ -270,12 +270,31 @@ export function SettingsDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full max-w-[780px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-[2.5rem] overflow-hidden min-h-[500px]"
+            className="relative w-full md:max-w-[780px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden h-[92dvh] md:h-auto md:min-h-[500px]"
           >
+            <div className="flex md:hidden justify-center pt-3 pb-0 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-[var(--card-border)]" />
+            </div>
+
+            <div className="flex md:hidden items-center justify-between px-6 pt-4 pb-3 border-b border-[var(--card-border)] shrink-0">
+              <div className="flex items-center gap-2">
+                <Settings size={15} className="text-blue-500 animate-spin-slow" />
+                <span className="font-black text-sm tracking-tight">Impostazioni</span>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all"
+                aria-label="Chiudi"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
+              className="hidden md:flex absolute top-4 right-4 h-8 w-8 rounded-full items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
               aria-label="Chiudi"
             >
               <X size={16} />
@@ -349,7 +368,7 @@ export function SettingsDialog({
               </button>
             </div>
 
-            <div className="flex-1 p-8 flex flex-col justify-between h-[75vh] md:h-[560px] overflow-hidden">
+            <div className="flex-1 p-5 md:p-8 flex flex-col justify-between md:h-[560px] overflow-hidden">
               <div className="flex-1 overflow-y-auto pr-1.5 flex flex-col gap-6">
                 {activeTab === "general" && (
                   <div className="flex flex-col gap-5">
