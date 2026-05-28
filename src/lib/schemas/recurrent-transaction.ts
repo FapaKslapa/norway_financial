@@ -8,6 +8,8 @@ export const recurrentTransactionSchema = z.object({
   description: z.string().min(1),
   frequency: z.enum(["daily", "weekly", "monthly", "yearly"]),
   startDate: z.string().or(z.date()),
+  status: z.enum(["active", "paused"]).optional().default("active"),
+  endDate: z.string().or(z.date()).nullable().optional(),
 });
 
 export const deleteRecurrentTransactionSchema = z.object({
