@@ -19,6 +19,7 @@ ENV BETTER_AUTH_URL="http://localhost:3000"
 RUN --mount=type=cache,target=/app/.next/cache \
     --mount=type=cache,target=/app/.turbo \
     pnpm turbo run build
+RUN pnpm exec esbuild scripts/migrate.js --bundle --platform=node --outfile=migrate-bundled.js
 
 FROM base AS runner
 WORKDIR /app
@@ -37,7 +38,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/src/db/migrations ./migrations
-COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrate.js ./migrate.js
+COPY --from=builder --chown=nextjs:nodejs /app/migrate-bundled.js ./migrate.js
 
 USER nextjs
 
