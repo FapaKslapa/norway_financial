@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { PwaRegister } from "@/components/pwa-register";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TRPCProvider } from "@/lib/trpc/Provider";
 
@@ -15,9 +16,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GlobeFinance Manager",
-  description:
-    "Gestione finanziaria globale e multivaluta per le tue spese ed entrate in tempo reale",
+  title: "GlobeFinance",
+  description: "Gestione finanziaria globale e multivaluta per le tue spese ed entrate in tempo reale",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GlobeFinance",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#007aff",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -34,6 +55,7 @@ export default function RootLayout({
         <ThemeProvider>
           <TRPCProvider>{children}</TRPCProvider>
         </ThemeProvider>
+        <PwaRegister />
       </body>
     </html>
   );

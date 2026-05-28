@@ -42,3 +42,5 @@ next-env.d.ts
 
 # turborepo
 .turbo/
+
+# PWA generated files (none with manual SW approach)
