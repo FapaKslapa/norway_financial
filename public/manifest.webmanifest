@@ -1,6 +1,6 @@
 {
-  "name": "GlobeFinance",
-  "short_name": "GlobeFinance",
+  "name": "Gravio",
+  "short_name": "Gravio",
   "description": "Gestione finanziaria multivaluta in tempo reale",
   "start_url": "/",
   "display": "standalone",
