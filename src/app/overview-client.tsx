@@ -3,6 +3,7 @@
 import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
 import { BarChart3, Globe, Settings, ShieldCheck, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
 import { trpc } from "@/lib/trpc/client";
@@ -18,13 +19,12 @@ import { RecentTransactionsCard } from "./overview/components/recent-transaction
 import { StatsGrid } from "./overview/components/stats-grid";
 
 export default function OverviewClient() {
+  const router = useRouter();
   const {
     convertCurrency,
     displayCurrency,
     rates,
     settings,
-    setIsSettingsOpen,
-    setSettingsTab,
     user,
   } = useDashboard();
 
@@ -198,10 +198,7 @@ export default function OverviewClient() {
                 type="button"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setSettingsTab("general");
-                  setIsSettingsOpen(true);
-                }}
+                onClick={() => router.push("/settings?tab=general")}
                 className="mt-5 flex items-center gap-2 bg-white text-blue-600 font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer border-0 shadow-lg shadow-black/10 transition-all"
               >
                 <Settings size={12} />
@@ -225,17 +222,14 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
           >
             <BudgetProgressCard
               totalExpense={totalExpense}
               targetBudgetVal={targetBudgetVal}
               maxBudgetVal={maxBudgetVal}
               displayCurrency={displayCurrency}
-              onOpenSettings={() => {
-                setSettingsTab("budget");
-                setIsSettingsOpen(true);
-              }}
+              onOpenSettings={() => router.push("/settings?tab=budget")}
             />
           </motion.div>
 
@@ -243,7 +237,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-2"
+            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-2"
           >
             <RecentTransactionsCard
               transactions={transactions}
@@ -261,7 +255,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
           >
             <CategoryBudgetsCard
               transactions={currentMonthTransactions}
@@ -269,10 +263,7 @@ export default function OverviewClient() {
               categoryBudgets={categoryBudgets}
               displayCurrency={displayCurrency}
               convertCurrency={convertCurrency}
-              onOpenSettings={() => {
-                setSettingsTab("budget");
-                setIsSettingsOpen(true);
-              }}
+              onOpenSettings={() => router.push("/settings?tab=budget")}
             />
           </motion.div>
 
@@ -280,7 +271,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
           >
             <RecentTodoCard
               todos={todosQuery.data || []}
@@ -292,7 +283,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
           >
             <CurrencyConverterCard />
           </motion.div>
@@ -305,7 +296,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[85vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-2"
+            className="w-[85vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-2"
           >
             <OverviewAnalyticsCard
               transactions={transactions}
@@ -317,7 +308,7 @@ export default function OverviewClient() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[82vw] snap-start shrink-0 h-full flex flex-col md:w-auto md:shrink md:col-span-1"
+            className="w-[82vw] snap-start shrink-0 h-[340px] overflow-hidden flex flex-col md:w-auto md:shrink md:h-full md:overflow-visible md:col-span-1"
           >
             <OverviewFriendBalancesCard />
           </motion.div>
