@@ -12,7 +12,7 @@ export const user = mysqlTable("user", {
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   emailVerified: boolean("email_verified").notNull(),
-  image: varchar("image", { length: 255 }),
+  image: text("image"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -86,6 +86,11 @@ export const userSettings = mysqlTable("user_settings", {
   ollamaModel: varchar("ollama_model", { length: 100 })
     .notNull()
     .default("llama3.2:1b"),
+  notifyBudget80: boolean("notify_budget_80").notNull().default(true),
+  notifyRecurrentApplied:
+    boolean("notify_recurrent_applied").notNull().default(true),
+  notifyFriendActions:
+    boolean("notify_friend_actions").notNull().default(true),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -267,6 +272,8 @@ export const recurrentTransaction = mysqlTable("recurrent_transaction", {
   startDate: timestamp("start_date").notNull(),
   nextOccurrence: timestamp("next_occurrence").notNull(),
   lastExecuted: timestamp("last_executed"),
+  status: varchar("status", { length: 20 }).notNull().default("active"),
+  endDate: timestamp("end_date"),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
