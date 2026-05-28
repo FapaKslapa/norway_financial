@@ -127,8 +127,8 @@ export function OverviewAnalyticsCard({
   };
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
         <div className="flex flex-col items-start gap-1">
           <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
             <BarChart3 size={14} className="text-blue-500" />
@@ -150,10 +150,10 @@ export function OverviewAnalyticsCard({
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 relative">
+      <CardContent className="p-0 relative flex-1 min-h-0">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto overflow-visible"
+          className="w-full h-full overflow-visible"
           onMouseMove={handleMouseMove}
           onMouseLeave={() => setHoveredIndex(null)}
         >

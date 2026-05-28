@@ -123,7 +123,7 @@ export function CategoryBudgetsCard({
       </div>
 
       {budgetItems.length === 0 ? (
-        <CardContent className="p-0 flex flex-col items-center justify-center text-center gap-4 py-8 flex-1">
+        <CardContent className="p-0 flex flex-col items-center justify-center text-center gap-4 py-4 flex-1">
           <div className="p-4 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-full">
             <AlertTriangle size={24} />
           </div>
@@ -138,7 +138,7 @@ export function CategoryBudgetsCard({
           </div>
           <Button
             onPress={onOpenSettings}
-            className="mt-2 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
+            className="bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Sliders size={11} />
             Imposta limiti
