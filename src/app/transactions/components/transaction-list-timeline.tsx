@@ -175,12 +175,12 @@ export function TransactionListTimeline({
                     </div>
 
                     {}
-                    <div className="flex items-center gap-4 ml-4">
+                    <div className="flex items-center gap-4 ml-4 shrink-0">
                       <div className="flex flex-col items-end">
                         <span
-                          className={`text-xs font-black ${isExpense ? "text-[var(--foreground)]" : "text-emerald-500"}`}
+                          className={cn("text-xs font-black whitespace-nowrap", isExpense ? "text-[var(--foreground)]" : "text-emerald-500")}
                         >
-                          {isExpense ? "-" : "+"}{" "}
+                          {isExpense ? "-" : "+"}
                           {formatCurrency(displayAmount, displayCurrency)}
                         </span>
 
