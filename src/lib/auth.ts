@@ -112,7 +112,7 @@ export const auth = betterAuth({
         try {
           await sendEmail({
             to: email,
-            subject: "Il tuo link di accesso — GlobeFinance",
+            subject: "Il tuo link di accesso — Gravio",
             ...magicLinkEmail(landingUrl),
           });
         } catch (err) {

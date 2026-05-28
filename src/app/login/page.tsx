@@ -6,13 +6,13 @@ import {
   AlertCircle,
   ArrowRight,
   CheckCircle2,
-  Landmark,
   Loader2,
   Mail,
   Moon,
   Sun,
   User,
 } from "lucide-react";
+import Image from "next/image";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
@@ -63,11 +63,9 @@ export default function LoginPage() {
       <div ref={cardRef} className="w-full max-w-[400px] z-10">
         <div className="w-full border border-[var(--card-border)] bg-[var(--card-solid)] shadow-[var(--card-shadow)] py-8 px-6 rounded-3xl text-[var(--foreground)] transition-all duration-300">
           <div className="flex flex-col gap-2 items-center justify-center pb-6">
-            <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-500 mb-2">
-              <Landmark size={26} />
-            </div>
+            <Image src="/logo.png" alt="Gravio" width={56} height={56} className="rounded-2xl mb-2" />
             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-              GlobeFinance
+              Gravio
             </h1>
             <p className="text-xs text-[var(--text-muted)] text-center font-normal max-w-[280px]">
               Gestisci le tue finanze personali in qualsiasi valuta.

@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, Landmark, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc/client";
@@ -45,10 +46,8 @@ function ActivateContent() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-[380px] bg-[var(--card-solid)] border border-[var(--card-border)] rounded-3xl p-8 shadow-[var(--card-shadow)] text-[var(--foreground)] flex flex-col items-center text-center gap-5"
       >
-        <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl text-blue-500">
-          <Landmark size={24} />
-        </div>
-        <h1 className="text-xl font-bold tracking-tight">GlobeFinance</h1>
+        <Image src="/logo.png" alt="Gravio" width={52} height={52} className="rounded-2xl" />
+        <h1 className="text-xl font-bold tracking-tight">Gravio</h1>
 
         {status === "loading" && (
           <motion.div

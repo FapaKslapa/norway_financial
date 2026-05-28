@@ -53,7 +53,7 @@ export default function OverviewClient() {
   const [showOnboarding, setShowOnboarding] = useState(() => {
     if (typeof window !== "undefined") {
       return (
-        localStorage.getItem("globe_finance_onboarding_dismissed") !== "true"
+        localStorage.getItem("gravio_onboarding_dismissed") !== "true"
       );
     }
     return true;
@@ -61,7 +61,7 @@ export default function OverviewClient() {
 
   const handleDismissOnboarding = () => {
     setShowOnboarding(false);
-    localStorage.setItem("globe_finance_onboarding_dismissed", "true");
+    localStorage.setItem("gravio_onboarding_dismissed", "true");
   };
 
   const transactions = transactionsQuery.data || [];
@@ -165,7 +165,7 @@ export default function OverviewClient() {
               </div>
 
               <h2 className="text-base font-black text-white mb-1 tracking-tight">
-                Benvenuto in GlobeFinance
+                Benvenuto in Gravio
               </h2>
               <p className="text-xs text-white/65 leading-relaxed max-w-md">
                 Tieni traccia delle tue spese in qualsiasi valuta con tassi di

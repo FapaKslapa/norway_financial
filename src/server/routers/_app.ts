@@ -20,7 +20,7 @@ export const appRouter = router({
     )
     .query(({ input }) => {
       return {
-        greeting: `Ciao ${input?.name ?? "ospite"}! Benvenuto nel tuo GlobeFinance Manager.`,
+        greeting: `Ciao ${input?.name ?? "ospite"}! Benvenuto nel tuo Gravio Manager.`,
       };
     }),
 
