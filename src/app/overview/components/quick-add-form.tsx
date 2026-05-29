@@ -197,7 +197,7 @@ export function QuickAddForm({
             </div>
 
             <div className="flex flex-col flex-1 overflow-y-auto">
-              <div className="px-6 pt-5 pb-36 flex flex-col gap-5">
+              <div className="px-6 pt-5 pb-5 flex flex-col gap-5">
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
                   <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
@@ -259,6 +259,33 @@ export function QuickAddForm({
                       className="h-11"
                       inputClassName="text-sm font-black"
                     />
+                    {/* Presets */}
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 mt-1.5 scrollbar-none select-none">
+                      {[1, 5, 10, 20, 50, 100].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => {
+                            if (navigator.vibrate) navigator.vibrate(10);
+                            const current = parseFloat(amount) || 0;
+                            setAmount((current + num).toFixed(2));
+                          }}
+                          className="text-[9px] font-black px-2.5 py-1.5 rounded-lg bg-neutral-500/5 dark:bg-zinc-800/20 hover:bg-neutral-500/10 dark:hover:bg-zinc-800/40 text-foreground border border-(--card-border)/40 cursor-pointer transition-colors shrink-0"
+                        >
+                          +{num}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (navigator.vibrate) navigator.vibrate(10);
+                          setAmount("");
+                        }}
+                        className="text-[9px] font-black px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 cursor-pointer transition-colors ml-auto shrink-0"
+                      >
+                        Clear
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <FieldLabel icon={ArrowLeftRight}>Valuta</FieldLabel>
@@ -303,6 +330,38 @@ export function QuickAddForm({
                       onChange={setCategoryId}
                       categories={categories}
                     />
+                    {/* Quick Categories */}
+                    {categories.length > 0 && (
+                      <div className="flex gap-1.5 overflow-x-auto pb-1 mt-1.5 scrollbar-none select-none">
+                        {categories.slice(0, 4).map((cat) => {
+                          const isSelected = categoryId === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => {
+                                if (navigator.vibrate) navigator.vibrate(10);
+                                setCategoryId(isSelected ? "" : cat.id);
+                              }}
+                              style={{
+                                backgroundColor: isSelected
+                                  ? cat.color
+                                  : undefined,
+                                color: isSelected ? "#ffffff" : undefined,
+                              }}
+                              className={cn(
+                                "text-[9px] font-black px-2.5 py-1.5 rounded-lg border cursor-pointer transition-all flex items-center gap-1 shrink-0",
+                                isSelected
+                                  ? "border-transparent"
+                                  : "bg-neutral-500/5 dark:bg-zinc-800/20 hover:bg-neutral-500/10 dark:hover:bg-zinc-800/40 text-foreground border-(--card-border)/40",
+                              )}
+                            >
+                              <span>{cat.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <FieldLabel icon={CalendarDays}>Data</FieldLabel>
@@ -310,33 +369,33 @@ export function QuickAddForm({
                   </div>
                 </div>
               </div>
+            </div>
 
-              <div className="px-6 pb-6 pt-3 border-t border-(--card-border) flex gap-3 shrink-0 bg-(--card-solid)">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 h-12 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-colors"
-                >
-                  Annulla
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={isSaving || !desc.trim() || !hasAmount}
-                  className={cn(
-                    "flex-[2] h-12 text-sm font-bold rounded-xl cursor-pointer shadow-sm border-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
-                    type === "expense"
-                      ? "bg-rose-500 hover:bg-rose-600 text-white"
-                      : "bg-emerald-500 hover:bg-emerald-600 text-white",
-                  )}
-                >
-                  {isSaving
-                    ? "Salvataggio..."
-                    : type === "expense"
-                      ? "Aggiungi Spesa"
-                      : "Aggiungi Guadagno"}
-                </button>
-              </div>
+            <div className="px-6 pb-6 pt-3 border-t border-(--card-border) flex gap-3 shrink-0 bg-(--card-solid)">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 h-12 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving || !desc.trim() || !hasAmount}
+                className={cn(
+                  "flex-[2] h-12 text-sm font-bold rounded-xl cursor-pointer shadow-sm border-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                  type === "expense"
+                    ? "bg-rose-500 hover:bg-rose-600 text-white"
+                    : "bg-emerald-500 hover:bg-emerald-600 text-white",
+                )}
+              >
+                {isSaving
+                  ? "Salvataggio..."
+                  : type === "expense"
+                    ? "Aggiungi Spesa"
+                    : "Aggiungi Guadagno"}
+              </button>
             </div>
           </motion.div>
         </div>
