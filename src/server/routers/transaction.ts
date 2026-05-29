@@ -495,10 +495,26 @@ export const transactionRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
+      // If the user owns the transaction, delete it entirely (cascades to sharedExpense)
+      const [owned] = await ctx.db
+        .select({ id: transaction.id })
+        .from(transaction)
+        .where(and(eq(transaction.id, input.id), eq(transaction.userId, userId)))
+        .limit(1);
+
+      if (owned) {
+        await ctx.db.delete(transaction).where(eq(transaction.id, input.id));
+        return { success: true };
+      }
+
+      // Otherwise, if the user is a borrower on this transaction, remove only the split
       await ctx.db
-        .delete(transaction)
+        .delete(sharedExpense)
         .where(
-          and(eq(transaction.id, input.id), eq(transaction.userId, userId)),
+          and(
+            eq(sharedExpense.transactionId, input.id),
+            eq(sharedExpense.borrowerId, userId),
+          ),
         );
 
       return { success: true };
