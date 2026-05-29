@@ -184,8 +184,8 @@ function LoginForm() {
           </h3>
           <p className="text-xs text-(--text-muted) leading-relaxed mb-6 max-w-[260px]">
             Abbiamo inviato un link di accesso a{" "}
-            <strong className="text-foreground">{email}</strong>.
-            Controlla anche la cartella spam.
+            <strong className="text-foreground">{email}</strong>. Controlla
+            anche la cartella spam.
           </p>
           <button
             type="button"
@@ -215,10 +215,7 @@ function LoginForm() {
               Email
             </label>
             <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-(--card-border) focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-              <Mail
-                size={15}
-                className="text-(--text-muted) shrink-0"
-              />
+              <Mail size={15} className="text-(--text-muted) shrink-0" />
               <input
                 id="login-email"
                 type="email"

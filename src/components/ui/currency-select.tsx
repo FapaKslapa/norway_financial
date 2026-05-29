@@ -144,10 +144,7 @@ export function CurrencySelect({
               style={{ maxHeight: "60vh" }}
             >
               <div className="flex items-center gap-2.5 px-4 py-3 border-b border-(--card-border)">
-                <Search
-                  size={14}
-                  className="text-(--text-muted) shrink-0"
-                />
+                <Search size={14} className="text-(--text-muted) shrink-0" />
                 <input
                   ref={searchRef}
                   type="text"
@@ -202,9 +199,7 @@ export function CurrencySelect({
                         <span
                           className={cn(
                             "text-xs font-black",
-                            isSelected
-                              ? "text-blue-500"
-                              : "text-foreground",
+                            isSelected ? "text-blue-500" : "text-foreground",
                           )}
                         >
                           {cur.code}

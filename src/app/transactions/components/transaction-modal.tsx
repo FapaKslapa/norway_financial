@@ -211,9 +211,9 @@ export function TransactionModal({
 
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col flex-1 overflow-y-auto"
+              className="flex flex-col flex-1 overflow-hidden"
             >
-              <div className="px-6 pt-5 pb-36 flex flex-col gap-4">
+              <div className="flex-1 overflow-y-auto px-6 pt-5 pb-5 flex flex-col gap-4">
                 {}
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
@@ -405,8 +405,7 @@ export function TransactionModal({
                 </div>
               </div>
 
-              {}
-              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0">
+              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0 bg-(--card-solid)">
                 <button
                   type="submit"
                   disabled={isSubmitting}

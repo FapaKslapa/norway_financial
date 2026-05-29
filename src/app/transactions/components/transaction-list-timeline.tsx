@@ -171,9 +171,7 @@ export function TransactionListTimeline({
                         <span
                           className={cn(
                             "text-xs font-black whitespace-nowrap",
-                            isExpense
-                              ? "text-foreground"
-                              : "text-emerald-500",
+                            isExpense ? "text-foreground" : "text-emerald-500",
                           )}
                         >
                           {isExpense ? "-" : "+"}

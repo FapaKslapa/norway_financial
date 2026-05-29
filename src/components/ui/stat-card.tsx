@@ -74,9 +74,7 @@ export function StatCard({
           value
         )}
         {subtitle && (
-          <div className="text-[10px] text-(--text-muted) mt-1">
-            {subtitle}
-          </div>
+          <div className="text-[10px] text-(--text-muted) mt-1">{subtitle}</div>
         )}
       </div>
     </motion.div>

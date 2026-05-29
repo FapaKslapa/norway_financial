@@ -278,7 +278,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative min-h-screen bg-transparent text-foreground flex flex-col transition-colors duration-500">
-      <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-(--card-solid) border border-(--card-border) rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
+      <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-(--card) backdrop-blur-md border border-(--card-border) rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
         <div className="w-full px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-2 shrink-0">
             <Image
@@ -322,8 +322,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
               href="/settings"
               className={cn(
                 "text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-full h-9 w-9 flex items-center justify-center transition-all",
-                pathname === "/settings" &&
-                  "bg-foreground text-background",
+                pathname === "/settings" && "bg-foreground text-background",
               )}
             >
               <Settings size={15} />
@@ -332,7 +331,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-(--card-border) bg-(--card-solid) flex items-center justify-between px-4 z-40 transition-colors duration-300">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-(--card-border) bg-(--card) backdrop-blur-md flex items-center justify-between px-4 z-40 transition-colors duration-300">
         <div className="flex items-center gap-2">
           <Image
             src="/logo.png"
@@ -353,8 +352,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             href="/settings"
             className={cn(
               "text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-full h-8 w-8 flex items-center justify-center transition-all",
-              pathname === "/settings" &&
-                "bg-foreground text-background",
+              pathname === "/settings" && "bg-foreground text-background",
             )}
           >
             <Settings size={14} />

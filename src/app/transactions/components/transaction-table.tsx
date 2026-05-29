@@ -116,9 +116,7 @@ function AmountCell({
 
   return (
     <div className="flex flex-col">
-      <span
-        className={isExpense ? "text-foreground" : "text-emerald-500"}
-      >
+      <span className={isExpense ? "text-foreground" : "text-emerald-500"}>
         {isExpense ? "-" : "+"} {formatCurrency(displayAmount, displayCurrency)}
       </span>
       {showHint && (
