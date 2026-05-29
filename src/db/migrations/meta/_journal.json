@@ -78,6 +78,13 @@
       "when": 1779951088559,
       "tag": "0010_rich_zaran",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1779970243750,
+      "tag": "0011_wet_beast",
+      "breakpoints": true
     }
   ]
 }

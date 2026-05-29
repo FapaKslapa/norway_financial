@@ -64,11 +64,11 @@ export const userSettings = mysqlTable("user_settings", {
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
   targetMonthlyBudget: decimal("target_monthly_budget", {
-    precision: 10,
+    precision: 15,
     scale: 2,
   }).notNull(),
   maxMonthlyBudget: decimal("max_monthly_budget", {
-    precision: 10,
+    precision: 15,
     scale: 2,
   }).notNull(),
   preferredCurrency: varchar("preferred_currency", { length: 3 })
@@ -87,10 +87,10 @@ export const userSettings = mysqlTable("user_settings", {
     .notNull()
     .default("llama3.2:1b"),
   notifyBudget80: boolean("notify_budget_80").notNull().default(true),
-  notifyRecurrentApplied:
-    boolean("notify_recurrent_applied").notNull().default(true),
-  notifyFriendActions:
-    boolean("notify_friend_actions").notNull().default(true),
+  notifyRecurrentApplied: boolean("notify_recurrent_applied")
+    .notNull()
+    .default(true),
+  notifyFriendActions: boolean("notify_friend_actions").notNull().default(true),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -138,10 +138,10 @@ export const transaction = mysqlTable("transaction", {
     { onDelete: "set null" },
   ),
   type: varchar("type", { length: 20 }).notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull(),
-  amountEur: decimal("amount_eur", { precision: 10, scale: 2 }).notNull(),
-  amountNok: decimal("amount_nok", { precision: 10, scale: 2 }).notNull(),
+  amountEur: decimal("amount_eur", { precision: 15, scale: 2 }).notNull(),
+  amountNok: decimal("amount_nok", { precision: 15, scale: 2 }).notNull(),
   exchangeRate: decimal("exchange_rate", { precision: 10, scale: 4 }).notNull(),
   description: text("description"),
   date: timestamp("date").notNull(),
@@ -179,7 +179,7 @@ export const todo = mysqlTable("todo", {
   title: varchar("title", { length: 255 }).notNull(),
   notes: text("notes"),
   completed: boolean("completed").notNull().default(false),
-  estimatedAmount: decimal("estimated_amount", { precision: 10, scale: 2 }),
+  estimatedAmount: decimal("estimated_amount", { precision: 15, scale: 2 }),
   estimatedCurrency: varchar("estimated_currency", { length: 3 }),
   convertedToTransactionId: varchar("converted_to_transaction_id", {
     length: 36,
@@ -215,9 +215,9 @@ export const sharedExpense = mysqlTable("shared_expense", {
   borrowerId: varchar("borrower_id", { length: 36 })
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  amountNok: decimal("amount_nok", { precision: 10, scale: 2 }).notNull(),
+  amountNok: decimal("amount_nok", { precision: 15, scale: 2 }).notNull(),
   splitAmountNok: decimal("split_amount_nok", {
-    precision: 10,
+    precision: 15,
     scale: 2,
   }).notNull(),
   settled: boolean("settled").notNull().default(false),
@@ -237,7 +237,7 @@ export const categoryBudget = mysqlTable("category_budget", {
   categoryId: varchar("category_id", { length: 36 })
     .notNull()
     .references(() => category.id, { onDelete: "cascade" }),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").notNull(),
 });
@@ -265,7 +265,7 @@ export const recurrentTransaction = mysqlTable("recurrent_transaction", {
     { onDelete: "set null" },
   ),
   type: varchar("type", { length: 10 }).notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
   currency: varchar("currency", { length: 3 }).notNull().default("EUR"),
   description: varchar("description", { length: 255 }).notNull(),
   frequency: varchar("frequency", { length: 20 }).notNull(),

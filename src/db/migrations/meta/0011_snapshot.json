@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "9e3efb82-8afd-478c-b8b8-6ac16ed4cad6",
-  "prevId": "2be3b476-2423-48a2-935b-5b59d1a41b6d",
+  "id": "71ef6f80-faee-46d0-8d96-2292984f26f8",
+  "prevId": "76befa92-9877-4369-82ef-127ea461e79a",
   "tables": {
     "account": {
       "name": "account",
@@ -220,7 +220,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -599,7 +599,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -826,14 +826,14 @@
         },
         "amount_nok": {
           "name": "amount_nok",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "split_amount_nok": {
           "name": "split_amount_nok",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -971,7 +971,7 @@
         },
         "estimated_amount": {
           "name": "estimated_amount",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1146,7 +1146,7 @@
         },
         "amount": {
           "name": "amount",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1160,14 +1160,14 @@
         },
         "amount_eur": {
           "name": "amount_eur",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "amount_nok": {
           "name": "amount_nok",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1342,14 +1342,14 @@
         },
         "target_monthly_budget": {
           "name": "target_monthly_budget",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
         "max_monthly_budget": {
           "name": "max_monthly_budget",
-          "type": "decimal(10,2)",
+          "type": "decimal(15,2)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1408,6 +1408,30 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'llama3.2:1b'"
+        },
+        "notify_budget_80": {
+          "name": "notify_budget_80",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "notify_recurrent_applied": {
+          "name": "notify_recurrent_applied",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
+        },
+        "notify_friend_actions": {
+          "name": "notify_friend_actions",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
