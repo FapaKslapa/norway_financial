@@ -26,7 +26,7 @@ export function AnalyticsSummaryCards({
 }: AnalyticsSummaryCardsProps) {
   return (
     <div className="flex md:grid md:grid-cols-4 gap-4 overflow-x-auto pb-1 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
+      <div className="snap-start shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Entrate totali"
           value={formatCurrency(totalIncome, displayCurrency)}
@@ -37,7 +37,7 @@ export function AnalyticsSummaryCards({
         />
       </div>
 
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
+      <div className="snap-start shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Uscite totali"
           value={formatCurrency(totalExpense, displayCurrency)}
@@ -48,7 +48,7 @@ export function AnalyticsSummaryCards({
         />
       </div>
 
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
+      <div className="snap-start shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Risparmio Netto"
           value={formatCurrency(netSavings, displayCurrency)}
@@ -68,7 +68,7 @@ export function AnalyticsSummaryCards({
         />
       </div>
 
-      <div className="snap-start flex-shrink-0 w-[72vw] md:w-auto scroll-ml-4">
+      <div className="snap-start shrink-0 w-[72vw] md:w-auto scroll-ml-4">
         <StatCard
           title="Tasso Risparmio"
           value={savingsRate > 0 ? `${savingsRate.toFixed(0)}%` : "0%"}

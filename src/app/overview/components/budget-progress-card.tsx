@@ -67,15 +67,15 @@ export function BudgetProgressCard({
   const remainingBudget = maxBudgetVal - totalExpense;
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget h-full flex flex-col justify-between transition-all select-none relative overflow-hidden">
-      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 apple-widget h-full flex flex-col justify-between transition-all select-none relative overflow-hidden">
+      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
         <div className="flex gap-2.5 items-center">
           <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl">
             <CreditCard size={15} />
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-xs">Budget Mensile</span>
-            <span className="text-[9px] text-[var(--text-muted)]">
+            <span className="text-[9px] text-(--text-muted)">
               {daysRemaining} giorni rimanenti
             </span>
           </div>
@@ -83,7 +83,7 @@ export function BudgetProgressCard({
         <Button
           isIconOnly
           variant="ghost"
-          className="text-[var(--text-muted)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-7 w-7 min-w-7 cursor-pointer flex items-center justify-center"
+          className="text-(--text-muted) border border-(--card-border) hover:bg-neutral-500/10 rounded-xl h-7 w-7 min-w-7 cursor-pointer flex items-center justify-center"
           onPress={onOpenSettings}
         >
           <Sliders size={12} />
@@ -96,17 +96,17 @@ export function BudgetProgressCard({
             <AlertTriangle size={24} />
           </div>
           <div className="flex flex-col gap-1 px-2">
-            <span className="font-extrabold text-sm text-[var(--foreground)]">
+            <span className="font-extrabold text-sm text-foreground">
               Limiti Budget non impostati
             </span>
-            <span className="text-[10px] text-[var(--text-muted)] max-w-[200px] leading-normal mx-auto font-medium">
+            <span className="text-[10px] text-(--text-muted) max-w-[200px] leading-normal mx-auto font-medium">
               Imposta un budget target e massimo per monitorare le tue spese
               mensili e visualizzare i grafici di progresso.
             </span>
           </div>
           <Button
             onPress={onOpenSettings}
-            className="mt-2 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
+            className="mt-2 bg-foreground text-background hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Sliders size={11} />
             Configura Budget
@@ -169,7 +169,7 @@ export function BudgetProgressCard({
               >
                 {budgetProgressPercent.toFixed(0)}%
               </span>
-              <span className="text-[8px] text-[var(--text-muted)] uppercase tracking-wider font-extrabold mt-1">
+              <span className="text-[8px] text-(--text-muted) uppercase tracking-wider font-extrabold mt-1">
                 del max
               </span>
             </div>
@@ -177,7 +177,7 @@ export function BudgetProgressCard({
 
           <div className="w-full flex flex-col gap-1.5">
             <div className="flex justify-between items-center text-xs font-bold px-1">
-              <span className="text-[var(--text-muted)] text-[10px]">
+              <span className="text-(--text-muted) text-[10px]">
                 Spesa attuale:
               </span>
               <span className={budgetTextColor}>
@@ -185,9 +185,9 @@ export function BudgetProgressCard({
               </span>
             </div>
 
-            <div className="flex flex-col gap-1 px-1 pt-2 border-t border-[var(--card-border)]">
+            <div className="flex flex-col gap-1 px-1 pt-2 border-t border-(--card-border)">
               <div className="flex justify-between items-center text-[10px]">
-                <span className="text-[var(--text-muted)] flex items-center gap-1">
+                <span className="text-(--text-muted) flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                   Target:
                 </span>
@@ -211,7 +211,7 @@ export function BudgetProgressCard({
             </div>
 
             <div className="flex justify-between items-center text-[10px] px-1">
-              <span className="text-[var(--text-muted)] flex items-center gap-1">
+              <span className="text-(--text-muted) flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                 Limite max:
               </span>
@@ -222,7 +222,7 @@ export function BudgetProgressCard({
 
             {!isOverMax && (
               <div className="flex justify-between items-center text-[10px] px-1 py-1.5 bg-neutral-500/5 rounded-xl mt-1">
-                <span className="text-[var(--text-muted)]">Rimasto:</span>
+                <span className="text-(--text-muted)">Rimasto:</span>
                 <span className="font-black text-emerald-500">
                   {formatCurrency(
                     Math.max(remainingBudget, 0),
@@ -240,8 +240,8 @@ export function BudgetProgressCard({
               </div>
             )}
 
-            <div className="flex justify-between items-center text-[10px] px-1 border-t border-[var(--card-border)] pt-2 mt-1">
-              <span className="text-[var(--text-muted)] flex items-center gap-1">
+            <div className="flex justify-between items-center text-[10px] px-1 border-t border-(--card-border) pt-2 mt-1">
+              <span className="text-(--text-muted) flex items-center gap-1">
                 <TrendingUp size={10} className={projectedColor} />
                 Proiezione fine mese:
               </span>
@@ -250,7 +250,7 @@ export function BudgetProgressCard({
               </span>
             </div>
 
-            <div className="flex justify-between items-center text-[10px] px-1 text-[var(--text-muted)]">
+            <div className="flex justify-between items-center text-[10px] px-1 text-(--text-muted)">
               <span>Media giornaliera:</span>
               <span className="font-semibold">
                 {formatCurrency(dailyAvg, displayCurrency)}/giorno

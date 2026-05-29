@@ -114,20 +114,20 @@ export function TodoBulkConvertModal({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[420px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] max-h-[90vh] overflow-y-auto"
+            className="bg-(--card-solid) border border-(--card-border) w-full max-w-[420px] rounded-3xl p-6 shadow-2xl text-foreground max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
+            <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4">
               <div className="flex flex-col">
                 <h3 className="font-extrabold text-base">
                   Importazione di Massa
                 </h3>
-                <span className="text-[10px] text-[var(--text-muted)] font-semibold mt-0.5">
+                <span className="text-[10px] text-(--text-muted) font-semibold mt-0.5">
                   Importa {selectedTodos.length} articoli come un'unica spesa
                 </span>
               </div>
               <button
                 type="button"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                className="text-(--text-muted) rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
                 <X size={15} />
@@ -135,15 +135,15 @@ export function TodoBulkConvertModal({
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col bg-neutral-500/5 p-3 rounded-2xl border border-[var(--card-border)] text-xs gap-1.5 max-h-[100px] overflow-y-auto scrollbar-none">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+              <div className="flex flex-col bg-neutral-500/5 p-3 rounded-2xl border border-(--card-border) text-xs gap-1.5 max-h-[100px] overflow-y-auto scrollbar-none">
+                <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider">
                   Articoli selezionati ({selectedTodos.length})
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedTodos.map((todo) => (
                     <span
                       key={todo.id}
-                      className="px-2 py-0.5 bg-neutral-500/10 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-[var(--card-border)]"
+                      className="px-2 py-0.5 bg-neutral-500/10 rounded-lg text-[10px] font-bold flex items-center gap-1 border border-(--card-border)"
                     >
                       <Check size={8} className="text-emerald-500 stroke-[3]" />
                       {todo.title}
@@ -153,7 +153,7 @@ export function TodoBulkConvertModal({
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                   Descrizione Transazione
                 </span>
                 <input
@@ -162,13 +162,13 @@ export function TodoBulkConvertModal({
                   onChange={(e) => setTxDescription(e.target.value)}
                   placeholder="Es. Spesa settimanale al supermercato"
                   required
-                  className="text-xs text-[var(--foreground)] bg-neutral-500/5 dark:bg-zinc-800/30 border border-[var(--card-border)] focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold transition-all"
+                  className="text-xs text-foreground bg-neutral-500/5 dark:bg-zinc-800/30 border border-(--card-border) focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold transition-all"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-2 flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Prezzo Totale
                   </span>
                   <MoneyInput
@@ -180,7 +180,7 @@ export function TodoBulkConvertModal({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Valuta
                   </span>
                   <CurrencySelect value={txCurrency} onChange={setTxCurrency} />
@@ -205,7 +205,7 @@ export function TodoBulkConvertModal({
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Categoria Spesa
                   </span>
                   <CategorySelect
@@ -217,7 +217,7 @@ export function TodoBulkConvertModal({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Data Spesa
                   </span>
                   <CustomDatePicker

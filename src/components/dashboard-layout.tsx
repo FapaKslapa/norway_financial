@@ -277,10 +277,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="relative min-h-screen bg-transparent text-[var(--foreground)] flex flex-col transition-colors duration-500">
-      <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-[var(--card-solid)] border border-[var(--card-border)] rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
+    <div className="relative min-h-screen bg-transparent text-foreground flex flex-col transition-colors duration-500">
+      <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-(--card-solid) border border-(--card-border) rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
         <div className="w-full px-6 h-full flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <Image
               src="/logo.png"
               alt="Gravio"
@@ -302,8 +302,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                   className={cn(
                     "flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all hover:bg-neutral-500/10",
                     isActive
-                      ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm hover:bg-[var(--foreground)] hover:opacity-90"
-                      : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                      ? "bg-foreground text-background shadow-sm hover:bg-foreground hover:opacity-90"
+                      : "text-(--text-muted) hover:text-foreground",
                   )}
                 >
                   <Icon size={13} />
@@ -313,7 +313,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             })}
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <div className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 select-none">
               Valuta: {displayCurrency}
             </div>
@@ -321,9 +321,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             <Link
               href="/settings"
               className={cn(
-                "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 flex items-center justify-center transition-all",
+                "text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-full h-9 w-9 flex items-center justify-center transition-all",
                 pathname === "/settings" &&
-                  "bg-[var(--foreground)] text-[var(--background)]",
+                  "bg-foreground text-background",
               )}
             >
               <Settings size={15} />
@@ -332,7 +332,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-[var(--card-border)] bg-[var(--card-solid)] flex items-center justify-between px-4 z-40 transition-colors duration-300">
+      <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-(--card-border) bg-(--card-solid) flex items-center justify-between px-4 z-40 transition-colors duration-300">
         <div className="flex items-center gap-2">
           <Image
             src="/logo.png"
@@ -352,9 +352,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           <Link
             href="/settings"
             className={cn(
-              "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 flex items-center justify-center transition-all",
+              "text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-full h-8 w-8 flex items-center justify-center transition-all",
               pathname === "/settings" &&
-                "bg-[var(--foreground)] text-[var(--background)]",
+                "bg-foreground text-background",
             )}
           >
             <Settings size={14} />
@@ -368,7 +368,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 rounded-full border border-[var(--card-border)] bg-[var(--card-solid)]/90 backdrop-blur-md shadow-2xl transition-all duration-300">
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 rounded-full border border-(--card-border) bg-(--card-solid)/90 backdrop-blur-md shadow-2xl transition-all duration-300">
         <div className="flex justify-around items-center h-14 px-1.5">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
@@ -381,7 +381,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                   "flex flex-col items-center justify-center flex-1 h-11 rounded-full gap-0.5 text-[9px] font-bold transition-all",
                   isActive
                     ? "text-blue-500"
-                    : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                    : "text-(--text-muted) hover:text-foreground",
                 )}
               >
                 <Icon

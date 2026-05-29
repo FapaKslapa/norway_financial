@@ -75,13 +75,13 @@ export function SpendingCalendarCard({
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 md:p-6 apple-widget w-full md:h-full flex flex-col">
-      <CardHeader className="p-0 pb-3 border-b border-[var(--card-border)] mb-4 md:mb-6 flex flex-col items-start gap-1 flex-shrink-0">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-4 md:p-6 apple-widget w-full md:h-full flex flex-col">
+      <CardHeader className="p-0 pb-3 border-b border-(--card-border) mb-4 md:mb-6 flex flex-col items-start gap-1 shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <CalendarIcon size={14} className="text-blue-500" />
           Calendario di Spesa
         </h4>
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-[10px] text-(--text-muted)">
           L'intensità del colore mostra i giorni con maggiore spesa. Clicca su
           un giorno per filtrare.
         </p>
@@ -92,7 +92,7 @@ export function SpendingCalendarCard({
           {["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"].map((day) => (
             <span
               key={day}
-              className="text-[9px] font-black uppercase tracking-wider text-[var(--text-muted)] py-1"
+              className="text-[9px] font-black uppercase tracking-wider text-(--text-muted) py-1"
             >
               {day}
             </span>
@@ -141,10 +141,10 @@ export function SpendingCalendarCard({
                 className={cn(
                   "aspect-square rounded-xl flex flex-col items-center justify-center p-1 cursor-pointer relative transition-all duration-200 border border-transparent bg-transparent",
                   dailyExpense === 0
-                    ? "bg-neutral-500/5 hover:bg-neutral-500/10 text-[var(--foreground)]"
+                    ? "bg-neutral-500/5 hover:bg-neutral-500/10 text-foreground"
                     : "text-white font-extrabold",
                   isSelected
-                    ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-[var(--card)]"
+                    ? "ring-2 ring-blue-500 ring-offset-2 ring-offset-(--card)"
                     : "",
                 )}
               >
@@ -153,7 +153,7 @@ export function SpendingCalendarCard({
                     "text-[10px] leading-none",
                     dailyExpense > 0
                       ? "text-white font-bold"
-                      : "text-[var(--text-muted)]",
+                      : "text-(--text-muted)",
                   )}
                 >
                   {day}
@@ -172,12 +172,12 @@ export function SpendingCalendarCard({
               <button
                 type="button"
                 onClick={() => setSelectedDay(null)}
-                className="text-[9px] text-[var(--text-muted)] hover:text-[var(--foreground)] font-bold cursor-pointer bg-transparent border-0"
+                className="text-[9px] text-(--text-muted) hover:text-foreground font-bold cursor-pointer bg-transparent border-0"
               >
                 Mostra tutto il mese
               </button>
             </div>
-            <div className="text-xs font-black text-[var(--foreground)]">
+            <div className="text-xs font-black text-foreground">
               {formatCurrency(
                 dailyExpensesMap[selectedDay] || 0,
                 displayCurrency,

@@ -56,26 +56,26 @@ export function TransactionFilters({
   };
 
   return (
-    <div className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 apple-widget transition-all select-none overflow-visible relative z-20 flex flex-col gap-4">
+    <div className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 apple-widget transition-all select-none overflow-visible relative z-20 flex flex-col gap-4">
       <div className="flex flex-wrap gap-3 w-full">
         <div className="flex-1 min-w-[200px]">
-          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
             Cerca
           </span>
           <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-9 px-2.5 rounded-xl flex items-center gap-1.5 border-0 w-full mt-1 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
-            <Search size={13} className="text-neutral-500 flex-shrink-0" />
+            <Search size={13} className="text-neutral-500 shrink-0" />
             <input
               type="text"
               placeholder="Cerca descrizione o importo..."
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
-              className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full min-w-0 placeholder:text-[var(--text-muted)]"
+              className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full min-w-0 placeholder:text-(--text-muted)"
             />
             {filterText && (
               <button
                 type="button"
                 onClick={() => setFilterText("")}
-                className="flex items-center bg-transparent border-0 cursor-pointer p-0.5 text-neutral-500 hover:text-[var(--foreground)] transition-colors flex-shrink-0"
+                className="flex items-center bg-transparent border-0 cursor-pointer p-0.5 text-neutral-500 hover:text-foreground transition-colors shrink-0"
               >
                 <X size={12} />
               </button>
@@ -84,7 +84,7 @@ export function TransactionFilters({
         </div>
 
         <div className="min-w-[150px]">
-          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
             Categoria
           </span>
           <div className="mt-1">
@@ -99,7 +99,7 @@ export function TransactionFilters({
         </div>
 
         <div className="min-w-[120px]">
-          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
             Tipo
           </span>
           <div className="mt-1">
@@ -120,9 +120,9 @@ export function TransactionFilters({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3 w-full border-t border-[var(--card-border)] pt-3">
+      <div className="flex flex-wrap items-end gap-3 w-full border-t border-(--card-border) pt-3">
         <div className="flex-1 min-w-[140px]">
-          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
             Da data (Dal)
           </span>
           <div className="mt-1">
@@ -135,7 +135,7 @@ export function TransactionFilters({
         </div>
 
         <div className="flex-1 min-w-[140px]">
-          <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
             A data (Al)
           </span>
           <div className="mt-1">

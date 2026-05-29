@@ -81,13 +81,13 @@ export function TodoConvertModal({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[360px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)]"
+            className="bg-(--card-solid) border border-(--card-border) w-full max-w-[360px] rounded-3xl p-6 shadow-2xl text-foreground"
           >
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
+            <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4">
               <h3 className="font-extrabold text-base">Importa Spesa</h3>
               <button
                 type="button"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                className="text-(--text-muted) rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
                 <X size={15} />
@@ -95,18 +95,18 @@ export function TodoConvertModal({
             </div>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col bg-neutral-500/5 p-3 rounded-xl border border-[var(--card-border)] text-xs gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+              <div className="flex flex-col bg-neutral-500/5 p-3 rounded-xl border border-(--card-border) text-xs gap-1.5">
+                <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider">
                   Articolo da completare
                 </span>
-                <span className="font-bold text-[var(--foreground)]">
+                <span className="font-bold text-foreground">
                   {todoItem.title}
                 </span>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-2 flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Importo Reale
                   </span>
                   <MoneyInput
@@ -118,7 +118,7 @@ export function TodoConvertModal({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                  <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                     Valuta
                   </span>
                   <CurrencySelect value={txCurrency} onChange={setTxCurrency} />
@@ -142,7 +142,7 @@ export function TodoConvertModal({
                 )}
 
               <div className="flex flex-col gap-1.5">
-                <span className="text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                <span className="text-[10px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                   Data Spesa
                 </span>
                 <CustomDatePicker
@@ -154,7 +154,7 @@ export function TodoConvertModal({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 rounded-xl cursor-pointer hover:opacity-90 mt-2 shadow-sm border-0 w-full disabled:opacity-50"
+                className="bg-foreground text-background font-semibold text-xs h-11 rounded-xl cursor-pointer hover:opacity-90 mt-2 shadow-sm border-0 w-full disabled:opacity-50"
               >
                 {isSubmitting ? "Importazione..." : "Conferma Spesa & Archivia"}
               </button>

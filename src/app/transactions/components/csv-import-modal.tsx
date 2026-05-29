@@ -234,14 +234,14 @@ export function CsvImportModal({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[620px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] flex flex-col max-h-[85vh]"
+            className="bg-(--card-solid) border border-(--card-border) w-full max-w-[620px] rounded-3xl p-6 shadow-2xl text-foreground flex flex-col max-h-[85vh]"
           >
             {}
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4">
+            <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4">
               <h3 className="font-extrabold text-base">Importazione da CSV</h3>
               <button
                 type="button"
-                className="text-[var(--text-muted)] rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                className="text-(--text-muted) rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
                 <X size={15} />
@@ -250,7 +250,7 @@ export function CsvImportModal({
 
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
               {}
-              <div className="border-2 border-dashed border-[var(--card-border)] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 bg-neutral-500/5 text-center relative">
+              <div className="border-2 border-dashed border-(--card-border) rounded-2xl p-6 flex flex-col items-center justify-center gap-2 bg-neutral-500/5 text-center relative">
                 <FileSpreadsheet size={32} className="text-emerald-500 mb-1" />
                 {csvFile ? (
                   <span className="text-xs font-bold truncate max-w-full text-emerald-500">
@@ -261,7 +261,7 @@ export function CsvImportModal({
                     <span className="text-xs font-bold">
                       Trascina qui il file CSV o clicca per caricarlo
                     </span>
-                    <span className="text-[10px] text-[var(--text-muted)]">
+                    <span className="text-[10px] text-(--text-muted)">
                       Usa separatore virgola (,) o punto e virgola (;)
                     </span>
                   </>
@@ -280,13 +280,13 @@ export function CsvImportModal({
                   <h4 className="text-xs font-bold uppercase tracking-wide">
                     Mappa Colonne CSV
                   </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-neutral-500/5 p-3 rounded-xl border border-[var(--card-border)] overflow-visible">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-neutral-500/5 p-3 rounded-xl border border-(--card-border) overflow-visible">
                     {Object.keys(csvMapping).map((field) => (
                       <div
                         key={field}
                         className="flex flex-col gap-1 overflow-visible relative z-30"
                       >
-                        <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                        <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider">
                           {CSV_FIELD_LABELS[field] ?? field}
                         </span>
                         <CustomSelect
@@ -315,10 +315,10 @@ export function CsvImportModal({
                     </span>
                   </div>
 
-                  <div className="border border-[var(--card-border)] rounded-xl overflow-hidden max-h-40 overflow-y-auto">
+                  <div className="border border-(--card-border) rounded-xl overflow-hidden max-h-40 overflow-y-auto">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-neutral-500/5 border-b border-[var(--card-border)] text-[9px] text-[var(--text-muted)] font-bold uppercase">
+                        <tr className="bg-neutral-500/5 border-b border-(--card-border) text-[9px] text-(--text-muted) font-bold uppercase">
                           <th className="p-2">Data</th>
                           <th className="p-2">Descrizione</th>
                           <th className="p-2">Importo</th>
@@ -333,7 +333,7 @@ export function CsvImportModal({
                           return (
                             <tr
                               key={`${row.date}-${row.amount}-${row.description}`}
-                              className="border-b border-[var(--card-border)] last:border-0"
+                              className="border-b border-(--card-border) last:border-0"
                             >
                               <td className="p-2">
                                 {new Date(row.date).toLocaleDateString("it-IT")}
@@ -356,7 +356,7 @@ export function CsvImportModal({
                                     {matchedCat.name}
                                   </span>
                                 ) : (
-                                  <span className="text-[var(--text-muted)] font-medium">
+                                  <span className="text-(--text-muted) font-medium">
                                     Generale
                                   </span>
                                 )}
@@ -372,10 +372,10 @@ export function CsvImportModal({
             </div>
 
             {}
-            <div className="pt-4 border-t border-[var(--card-border)] mt-4 flex gap-3">
+            <div className="pt-4 border-t border-(--card-border) mt-4 flex gap-3">
               <button
                 type="button"
-                className="flex-1 border border-[var(--card-border)] hover:bg-neutral-500/10 text-xs rounded-xl h-11 text-[var(--foreground)] bg-transparent cursor-pointer flex items-center justify-center transition-all"
+                className="flex-1 border border-(--card-border) hover:bg-neutral-500/10 text-xs rounded-xl h-11 text-foreground bg-transparent cursor-pointer flex items-center justify-center transition-all"
                 onClick={onClose}
               >
                 Annulla

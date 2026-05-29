@@ -70,7 +70,7 @@ function FieldLabel({
   children: React.ReactNode;
 }) {
   return (
-    <span className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-1.5">
+    <span className="flex items-center gap-1.5 text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-1.5">
       <Icon size={11} className="opacity-60" />
       {children}
     </span>
@@ -393,28 +393,28 @@ export function SharedExpenseDialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.97 }}
             transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-            className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[520px] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl text-[var(--foreground)] z-10 flex flex-col max-h-[92dvh] md:max-h-[88vh] mx-0 md:mx-4"
+            className="relative bg-(--card-solid) border border-(--card-border) w-full md:max-w-[520px] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl text-foreground z-10 flex flex-col max-h-[92dvh] md:max-h-[88vh] mx-0 md:mx-4"
           >
             {}
-            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-[var(--card-border)] flex-shrink-0">
+            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-(--card-border) shrink-0">
               <div className="flex items-center gap-3">
                 {step === "split" && (
                   <button
                     type="button"
                     onClick={() => setStep("form")}
-                    className="h-7 w-7 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:bg-neutral-500/10 cursor-pointer border-0 bg-transparent transition-all"
+                    className="h-7 w-7 rounded-xl flex items-center justify-center text-(--text-muted) hover:bg-neutral-500/10 cursor-pointer border-0 bg-transparent transition-all"
                   >
                     <ChevronRight size={14} className="rotate-180" />
                   </button>
                 )}
-                <div className="h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center flex-shrink-0">
+                <div className="h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center shrink-0">
                   <SplitSquareHorizontal size={15} />
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm leading-tight">
                     {step === "form" ? "Spesa Condivisa" : "Divisione spesa"}
                   </h3>
-                  <p className="text-[10px] text-[var(--text-muted)]">
+                  <p className="text-[10px] text-(--text-muted)">
                     {step === "form"
                       ? "Aggiungi una spesa condivisa"
                       : shareType === "group"
@@ -427,7 +427,7 @@ export function SharedExpenseDialog({
               </div>
               <button
                 type="button"
-                className="h-7 w-7 text-[var(--text-muted)] rounded-xl hover:bg-neutral-500/10 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all"
+                className="h-7 w-7 text-(--text-muted) rounded-xl hover:bg-neutral-500/10 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all"
                 onClick={handleClose}
               >
                 <X size={15} />
@@ -435,12 +435,12 @@ export function SharedExpenseDialog({
             </div>
 
             {}
-            <div className="flex items-center gap-2 px-6 pt-3 flex-shrink-0">
+            <div className="flex items-center gap-2 px-6 pt-3 shrink-0">
               <div className="h-1 flex-1 rounded-full bg-blue-500" />
               <div
                 className={cn(
                   "h-1 flex-1 rounded-full transition-all duration-300",
-                  step === "split" ? "bg-blue-500" : "bg-[var(--card-border)]",
+                  step === "split" ? "bg-blue-500" : "bg-(--card-border)",
                 )}
               />
             </div>
@@ -468,8 +468,8 @@ export function SharedExpenseDialog({
                         className={cn(
                           "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer bg-transparent",
                           shareType === "friend"
-                            ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                            : "text-[var(--text-muted)]",
+                            ? "bg-foreground text-background shadow-sm"
+                            : "text-(--text-muted)",
                         )}
                       >
                         Singolo Amico
@@ -483,8 +483,8 @@ export function SharedExpenseDialog({
                         className={cn(
                           "flex-1 py-1.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer bg-transparent",
                           shareType === "group"
-                            ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                            : "text-[var(--text-muted)]",
+                            ? "bg-foreground text-background shadow-sm"
+                            : "text-(--text-muted)",
                         )}
                       >
                         Gruppo / Cartella
@@ -527,7 +527,7 @@ export function SharedExpenseDialog({
                     {}
                     <div>
                       <FieldLabel icon={Type}>Descrizione</FieldLabel>
-                      <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                      <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                         <input
                           type="text"
                           placeholder={
@@ -537,7 +537,7 @@ export function SharedExpenseDialog({
                           }
                           value={desc}
                           onChange={(e) => setDesc(e.target.value)}
-                          className="text-sm text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-[var(--text-muted)]"
+                          className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted)"
                         />
                       </div>
                     </div>
@@ -567,12 +567,12 @@ export function SharedExpenseDialog({
                     {}
                     {convertedAmount !== null && (
                       <div className="flex items-center justify-between px-3 py-2.5 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-                        <div className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-muted)]">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold text-(--text-muted)">
                           <ArrowLeftRight size={11} className="text-blue-500" />
                           Conversione stimata
                         </div>
                         <div className="flex items-center gap-1.5 text-xs font-black">
-                          <span className="text-[var(--text-muted)]">
+                          <span className="text-(--text-muted)">
                             {parsedAmount.toFixed(2)} {currency}
                           </span>
                           <span className="text-neutral-400">→</span>
@@ -597,11 +597,11 @@ export function SharedExpenseDialog({
                         className="w-full flex items-center justify-between px-4 py-3.5 bg-blue-500/5 border border-blue-500/20 rounded-2xl hover:bg-blue-500/10 transition-all cursor-pointer group text-left"
                       >
                         <div className="flex items-center gap-2.5">
-                          <div className="h-7 w-7 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center flex-shrink-0">
+                          <div className="h-7 w-7 rounded-xl bg-blue-500/15 text-blue-500 flex items-center justify-center shrink-0">
                             <SplitSquareHorizontal size={13} />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className="text-xs font-bold text-[var(--foreground)]">
+                            <span className="text-xs font-bold text-foreground">
                               Modalità divisione
                             </span>
                             <span className="text-[10px] text-blue-400 font-semibold">
@@ -638,7 +638,7 @@ export function SharedExpenseDialog({
                                 <span className="text-blue-500">
                                   {myNok.toFixed(0)} NOK
                                 </span>
-                                <span className="text-[var(--text-muted)]">
+                                <span className="text-(--text-muted)">
                                   /
                                 </span>
                                 <span className="text-blue-500">
@@ -649,7 +649,7 @@ export function SharedExpenseDialog({
                           </div>
                           <ChevronRight
                             size={14}
-                            className="text-[var(--text-muted)] group-hover:text-blue-400 transition-colors"
+                            className="text-(--text-muted) group-hover:text-blue-400 transition-colors"
                           />
                         </div>
                       </button>
@@ -660,7 +660,7 @@ export function SharedExpenseDialog({
                       <button
                         type="button"
                         onClick={handleClose}
-                        className="flex-1 h-12 text-xs font-bold text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-all"
+                        className="flex-1 h-12 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-all"
                       >
                         Annulla
                       </button>
@@ -706,15 +706,15 @@ export function SharedExpenseDialog({
                                     "flex items-center gap-3 px-3.5 py-3 rounded-2xl border transition-all cursor-pointer text-left w-full",
                                     active
                                       ? "bg-blue-500/10 border-blue-500/30"
-                                      : "bg-neutral-500/5 border-[var(--card-border)] hover:border-blue-500/20 hover:bg-blue-500/5",
+                                      : "bg-neutral-500/5 border-(--card-border) hover:border-blue-500/20 hover:bg-blue-500/5",
                                   )}
                                 >
                                   <div
                                     className={cn(
-                                      "h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-all",
+                                      "h-8 w-8 rounded-xl flex items-center justify-center shrink-0 transition-all",
                                       active
                                         ? "bg-blue-500 text-white"
-                                        : "bg-neutral-500/10 text-[var(--text-muted)]",
+                                        : "bg-neutral-500/10 text-(--text-muted)",
                                     )}
                                   >
                                     <Icon size={14} />
@@ -724,20 +724,20 @@ export function SharedExpenseDialog({
                                       className={cn(
                                         "text-xs font-bold",
                                         active
-                                          ? "text-[var(--foreground)]"
-                                          : "text-[var(--text-muted)]",
+                                          ? "text-foreground"
+                                          : "text-(--text-muted)",
                                       )}
                                     >
                                       {opt.label}
                                     </span>
-                                    <span className="text-[10px] text-[var(--text-muted)]">
+                                    <span className="text-[10px] text-(--text-muted)">
                                       {opt.description}
                                     </span>
                                   </div>
                                   {active && (
                                     <ChevronRight
                                       size={14}
-                                      className="text-blue-500 flex-shrink-0"
+                                      className="text-blue-500 shrink-0"
                                     />
                                   )}
                                 </button>
@@ -759,7 +759,7 @@ export function SharedExpenseDialog({
                               <FieldLabel icon={Percent}>
                                 Quota di {selectedFriend?.user.name} (%)
                               </FieldLabel>
-                              <div className="flex items-center gap-3 px-4 py-3 bg-neutral-500/5 rounded-2xl border border-[var(--card-border)]">
+                              <div className="flex items-center gap-3 px-4 py-3 bg-neutral-500/5 rounded-2xl border border-(--card-border)">
                                 <input
                                   type="range"
                                   min="1"
@@ -801,7 +801,7 @@ export function SharedExpenseDialog({
                               <FieldLabel icon={Ruler}>
                                 Importo a carico di {selectedFriend?.user.name}
                               </FieldLabel>
-                              <div className="bg-neutral-500/5 h-11 px-3 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                              <div className="bg-neutral-500/5 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                                 <input
                                   type="number"
                                   min="0"
@@ -809,9 +809,9 @@ export function SharedExpenseDialog({
                                   placeholder="0.00"
                                   value={exactNok}
                                   onChange={(e) => setExactNok(e.target.value)}
-                                  className="text-sm font-black text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none min-w-0 placeholder:text-[var(--text-muted)]"
+                                  className="text-sm font-black text-foreground flex-1 bg-transparent border-0 outline-none min-w-0 placeholder:text-(--text-muted)"
                                 />
-                                <span className="text-[10px] text-[var(--text-muted)] font-bold ml-1 flex-shrink-0">
+                                <span className="text-[10px] text-(--text-muted) font-bold ml-1 shrink-0">
                                   NOK
                                 </span>
                               </div>
@@ -839,7 +839,7 @@ export function SharedExpenseDialog({
                                       "flex-1 h-11 rounded-xl text-sm font-black border transition-all cursor-pointer",
                                       n === String(num)
                                         ? "bg-blue-500 text-white border-blue-500 shadow-sm"
-                                        : "bg-neutral-500/5 text-[var(--foreground)] border-[var(--card-border)] hover:border-blue-500/30",
+                                        : "bg-neutral-500/5 text-foreground border-(--card-border) hover:border-blue-500/30",
                                     )}
                                   >
                                     {num}
@@ -916,11 +916,11 @@ export function SharedExpenseDialog({
                           <FieldLabel icon={Users}>
                             Partecipanti nel Gruppo
                           </FieldLabel>
-                          <p className="text-[10px] text-[var(--text-muted)] -mt-1.5 mb-2.5">
+                          <p className="text-[10px] text-(--text-muted) -mt-1.5 mb-2.5">
                             Seleziona chi partecipa a questa spesa.
                           </p>
 
-                          <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] mb-3 select-none">
+                          <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) mb-3 select-none">
                             <button
                               type="button"
                               onClick={() =>
@@ -929,8 +929,8 @@ export function SharedExpenseDialog({
                               className={cn(
                                 "flex-1 text-[10px] py-1.5 font-bold rounded-lg transition-all border-0 cursor-pointer",
                                 groupSplitMode === "equal"
-                                  ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                                  : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10",
+                                  ? "bg-foreground text-background shadow-sm"
+                                  : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10",
                               )}
                             >
                               Uguale
@@ -943,8 +943,8 @@ export function SharedExpenseDialog({
                               className={cn(
                                 "flex-1 text-[10px] py-1.5 font-bold rounded-lg transition-all border-0 cursor-pointer",
                                 groupSplitMode === "custom"
-                                  ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                                  : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10",
+                                  ? "bg-foreground text-background shadow-sm"
+                                  : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10",
                               )}
                             >
                               Personalizzato
@@ -966,7 +966,7 @@ export function SharedExpenseDialog({
                                     "flex items-center justify-between px-3 py-2.5 rounded-xl border transition-all cursor-pointer text-left bg-transparent",
                                     checked
                                       ? "border-blue-500/30 bg-blue-500/5"
-                                      : "border-[var(--card-border)] hover:bg-neutral-500/5",
+                                      : "border-(--card-border) hover:bg-neutral-500/5",
                                   )}
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
@@ -975,13 +975,13 @@ export function SharedExpenseDialog({
                                         "h-5 w-5 rounded-md flex items-center justify-center border transition-all",
                                         checked
                                           ? "bg-blue-500 border-transparent text-white"
-                                          : "border-[var(--card-border)] text-transparent",
+                                          : "border-(--card-border) text-transparent",
                                       )}
                                     >
                                       <Check size={12} className="stroke-[3]" />
                                     </div>
                                     <div className="flex flex-col min-w-0">
-                                      <span className="text-xs font-bold text-[var(--foreground)] truncate">
+                                      <span className="text-xs font-bold text-foreground truncate">
                                         {member.name} {isMe && "(Tu)"}
                                       </span>
                                     </div>
@@ -993,7 +993,7 @@ export function SharedExpenseDialog({
                                       className="flex items-center gap-1.5 cursor-default bg-transparent border-0 p-0"
                                     >
                                       {groupSplitMode === "custom" ? (
-                                        <div className="flex items-center gap-1 bg-neutral-500/5 px-2 py-1 rounded-lg border border-[var(--card-border)]">
+                                        <div className="flex items-center gap-1 bg-neutral-500/5 px-2 py-1 rounded-lg border border-(--card-border)">
                                           <input
                                             type="number"
                                             min="0"
@@ -1008,10 +1008,10 @@ export function SharedExpenseDialog({
                                                 [member.id]: val,
                                               }));
                                             }}
-                                            className="w-16 text-right text-[11px] font-black bg-transparent border-0 outline-none text-[var(--foreground)] p-0"
+                                            className="w-16 text-right text-[11px] font-black bg-transparent border-0 outline-none text-foreground p-0"
                                             placeholder="0.00"
                                           />
-                                          <span className="text-[9px] text-[var(--text-muted)] font-black">
+                                          <span className="text-[9px] text-(--text-muted) font-black">
                                             {currency}
                                           </span>
                                         </div>
@@ -1036,9 +1036,9 @@ export function SharedExpenseDialog({
                         </div>
 
                         {amountNok > 0 && checkedCount > 0 && (
-                          <div className="flex flex-col gap-2 p-3 bg-neutral-500/5 border border-[var(--card-border)] rounded-2xl">
+                          <div className="flex flex-col gap-2 p-3 bg-neutral-500/5 border border-(--card-border) rounded-2xl">
                             <div className="flex justify-between items-center">
-                              <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+                              <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider">
                                 Riepilogo Split ({checkedCount} persone)
                               </span>
                               {groupSplitMode === "custom" && (
@@ -1073,7 +1073,7 @@ export function SharedExpenseDialog({
                                       key={m.id}
                                       className="flex justify-between items-center text-[11px]"
                                     >
-                                      <span className="text-[var(--text-muted)]">
+                                      <span className="text-(--text-muted)">
                                         {m.id === currentUserId
                                           ? "Tua quota (Tu paghi)"
                                           : m.name}
@@ -1095,7 +1095,7 @@ export function SharedExpenseDialog({
                       <button
                         type="button"
                         onClick={() => setStep("form")}
-                        className="flex-1 h-11 text-xs font-bold text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-all"
+                        className="flex-1 h-11 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-all"
                       >
                         Indietro
                       </button>

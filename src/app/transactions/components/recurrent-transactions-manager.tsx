@@ -21,6 +21,7 @@ import {
   Play,
   Plus,
   Trash2,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 import { CategoryIcon } from "@/components/icon-helper";
@@ -185,10 +186,10 @@ export function RecurrentTransactionsManager({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-black text-[var(--foreground)]">
+          <h3 className="text-sm font-black text-foreground">
             Pianificatore Ricorrenti
           </h3>
-          <p className="text-[10px] text-[var(--text-muted)]">
+          <p className="text-[10px] text-(--text-muted)">
             Gestisci le tue entrate e spese ripetute nel tempo
           </p>
         </div>
@@ -212,18 +213,23 @@ export function RecurrentTransactionsManager({
         <DrawerBackdrop variant="blur">
           <DrawerContent
             placement="right"
-            className="bg-[var(--card-solid)] border-l border-[var(--card-border)] text-[var(--foreground)] w-full max-w-md h-full"
+            className="bg-(--card-solid) border-l border-(--card-border) text-foreground w-full max-w-md h-full"
           >
             <DrawerDialog>
               <form onSubmit={handleSubmit} className="flex flex-col h-full">
-                <DrawerCloseTrigger className="absolute right-4 top-4 hover:bg-neutral-500/10 text-[var(--text-muted)]" />
-                <DrawerHeader className="flex flex-col gap-1 border-b border-[var(--card-border)] p-5 flex-shrink-0">
+                <DrawerCloseTrigger
+                  className="absolute right-4 top-4 p-1.5 rounded-lg hover:bg-neutral-500/10 text-(--text-muted)"
+                  aria-label="Close"
+                >
+                  <X size={16} />
+                </DrawerCloseTrigger>
+                <DrawerHeader className="flex flex-col gap-1 border-b border-(--card-border) p-5 shrink-0">
                   <h3 className="text-sm font-black">
                     {editingId
                       ? "Modifica Regola Ricorrente"
                       : "Nuova Regola Ricorrente"}
                   </h3>
-                  <p className="text-[10px] text-[var(--text-muted)] font-medium">
+                  <p className="text-[10px] text-(--text-muted) font-medium">
                     {editingId
                       ? "Aggiorna i dettagli della transazione ricorrente"
                       : "Crea una nuova regola per entrate o spese ripetitive"}
@@ -233,7 +239,7 @@ export function RecurrentTransactionsManager({
                 <DrawerBody className="p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar flex-1 min-h-0">
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Descrizione
                       </span>
                       <input
@@ -242,12 +248,12 @@ export function RecurrentTransactionsManager({
                         placeholder="Es. Stipendio, Affitto, Netflix..."
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
+                        className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-foreground placeholder:text-(--text-muted) focus-within:ring-2 focus-within:ring-blue-500/20"
                       />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Frequenza
                       </span>
                       <CustomSelect
@@ -265,17 +271,17 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Tipo transazione
                       </span>
-                      <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">
+                      <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
                         <button
                           type="button"
                           onClick={() => setType("expense")}
                           className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
                             type === "expense"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
+                              ? "bg-foreground text-background shadow-sm"
+                              : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10"
                           }`}
                         >
                           Spesa
@@ -285,8 +291,8 @@ export function RecurrentTransactionsManager({
                           onClick={() => setType("income")}
                           className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
                             type === "income"
-                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                              : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
+                              ? "bg-foreground text-background shadow-sm"
+                              : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10"
                           }`}
                         >
                           Entrata
@@ -295,7 +301,7 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Categoria
                       </span>
                       <CategorySelect
@@ -306,7 +312,7 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Data inizio
                       </span>
                       <CustomDatePicker
@@ -316,7 +322,7 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Data fine (Opzionale)
                       </span>
                       <CustomDatePicker
@@ -327,7 +333,7 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Importo
                       </span>
                       <MoneyInput
@@ -338,7 +344,7 @@ export function RecurrentTransactionsManager({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                      <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
                         Valuta
                       </span>
                       <CurrencySelect value={currency} onChange={setCurrency} />
@@ -346,7 +352,7 @@ export function RecurrentTransactionsManager({
                   </div>
                 </DrawerBody>
 
-                <DrawerFooter className="border-t border-[var(--card-border)] p-5 flex flex-col gap-2 flex-shrink-0">
+                <DrawerFooter className="border-t border-(--card-border) p-5 flex flex-col gap-2 shrink-0">
                   {validationError && (
                     <span className="text-[10px] text-red-500 font-bold self-start mb-1">
                       {validationError}
@@ -355,14 +361,14 @@ export function RecurrentTransactionsManager({
                   <div className="flex gap-3 w-full">
                     <Button
                       variant="ghost"
-                      className="flex-1 bg-neutral-500/10 text-[var(--foreground)] h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
+                      className="flex-1 bg-neutral-500/10 text-foreground h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
                       onPress={resetForm}
                     >
                       Annulla
                     </Button>
                     <Button
                       type="submit"
-                      className="flex-1 bg-[var(--foreground)] text-[var(--background)] h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
+                      className="flex-1 bg-foreground text-background h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
                       isDisabled={
                         createMutation.isPending || updateMutation.isPending
                       }
@@ -381,9 +387,9 @@ export function RecurrentTransactionsManager({
         </DrawerBackdrop>
       </Drawer>
 
-      <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 shadow-sm">
+      <div className="bg-(--card) border border-(--card-border) rounded-[2rem] p-5 shadow-sm">
         {listQuery.isLoading ? (
-          <div className="text-center py-8 text-[var(--text-muted)] text-xs font-bold">
+          <div className="text-center py-8 text-(--text-muted) text-xs font-bold">
             Caricamento pianificatore...
           </div>
         ) : listQuery.data && listQuery.data.length > 0 ? (
@@ -391,7 +397,7 @@ export function RecurrentTransactionsManager({
             <div className="hidden md:block overflow-x-auto scrollbar-none">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[var(--card-border)] text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
+                  <tr className="border-b border-(--card-border) text-[9px] text-(--text-muted) font-bold uppercase tracking-wider">
                     <th className="pb-3 pl-2">Descrizione</th>
                     <th className="pb-3">Tipo</th>
                     <th className="pb-3">Stato</th>
@@ -402,7 +408,7 @@ export function RecurrentTransactionsManager({
                     <th className="pb-3 text-right pr-2">Azioni</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--card-border)]/50 text-xs">
+                <tbody className="divide-y divide-(--card-border)/50 text-xs">
                   {listQuery.data.map((rt) => {
                     const category = categories.find(
                       (c) => c.id === rt.categoryId,
@@ -458,21 +464,21 @@ export function RecurrentTransactionsManager({
                             {isPaused ? "Sospeso" : "Attivo"}
                           </span>
                         </td>
-                        <td className="py-3 font-black text-[var(--foreground)]">
+                        <td className="py-3 font-black text-foreground">
                           {formatCurrency(parseFloat(rt.amount), rt.currency)}
                         </td>
-                        <td className="py-3 font-bold text-[var(--text-muted)] capitalize">
+                        <td className="py-3 font-bold text-(--text-muted) capitalize">
                           {rt.frequency === "daily" && "Giornaliero"}
                           {rt.frequency === "weekly" && "Settimanale"}
                           {rt.frequency === "monthly" && "Mensile"}
                           {rt.frequency === "yearly" && "Annuale"}
                         </td>
-                        <td className="py-3 text-[var(--text-muted)] font-medium">
+                        <td className="py-3 text-(--text-muted) font-medium">
                           {rt.endDate
                             ? dayjs(rt.endDate).format("DD/MM/YYYY")
                             : "-"}
                         </td>
-                        <td className="py-3 text-[var(--text-muted)] font-medium">
+                        <td className="py-3 text-(--text-muted) font-medium">
                           <div className="flex items-center gap-1">
                             <Clock size={11} className="opacity-60" />
                             {isPaused ? (
@@ -541,7 +547,7 @@ export function RecurrentTransactionsManager({
                   <div
                     key={rt.id}
                     className={cn(
-                      "p-4 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)]/60 flex flex-col gap-3.5 transition-all select-none",
+                      "p-4 rounded-2xl bg-neutral-500/5 border border-(--card-border)/60 flex flex-col gap-3.5 transition-all select-none",
                       isPaused && "opacity-60",
                     )}
                   >
@@ -549,7 +555,7 @@ export function RecurrentTransactionsManager({
                       <div className="flex items-center gap-2.5">
                         {category ? (
                           <div
-                            className="w-7 h-7 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+                            className="w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0"
                             style={{ backgroundColor: category.color }}
                           >
                             <CategoryIcon
@@ -559,15 +565,15 @@ export function RecurrentTransactionsManager({
                             />
                           </div>
                         ) : (
-                          <div className="w-7 h-7 rounded-xl bg-neutral-500/10 text-neutral-500 flex items-center justify-center flex-shrink-0">
+                          <div className="w-7 h-7 rounded-xl bg-neutral-500/10 text-neutral-500 flex items-center justify-center shrink-0">
                             <span className="text-xs">⏰</span>
                           </div>
                         )}
                         <div>
-                          <h4 className="text-xs font-black text-[var(--foreground)]">
+                          <h4 className="text-xs font-black text-foreground">
                             {rt.description}
                           </h4>
-                          <span className="text-[9px] text-[var(--text-muted)] uppercase font-mono tracking-wider block">
+                          <span className="text-[9px] text-(--text-muted) uppercase font-mono tracking-wider block">
                             {rt.frequency === "daily" && "Giornaliero"}
                             {rt.frequency === "weekly" && "Settimanale"}
                             {rt.frequency === "monthly" && "Mensile"}
@@ -577,7 +583,7 @@ export function RecurrentTransactionsManager({
                       </div>
 
                       <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="text-xs font-black text-[var(--foreground)]">
+                        <span className="text-xs font-black text-foreground">
                           {formatCurrency(parseFloat(rt.amount), rt.currency)}
                         </span>
                         <div className="flex gap-1">
@@ -604,9 +610,9 @@ export function RecurrentTransactionsManager({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-[10px] bg-neutral-500/5 dark:bg-zinc-800/20 p-2.5 rounded-xl border border-[var(--card-border)]/40 font-medium">
+                    <div className="flex items-center justify-between text-[10px] bg-neutral-500/5 dark:bg-zinc-800/20 p-2.5 rounded-xl border border-(--card-border)/40 font-medium">
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+                        <span className="text-[8px] text-(--text-muted) font-black uppercase tracking-wider">
                           Fine Regola
                         </span>
                         <span>
@@ -616,7 +622,7 @@ export function RecurrentTransactionsManager({
                         </span>
                       </div>
                       <div className="flex flex-col gap-0.5 items-end">
-                        <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+                        <span className="text-[8px] text-(--text-muted) font-black uppercase tracking-wider">
                           Prossimo Addebito
                         </span>
                         <div className="flex items-center gap-1">
@@ -630,7 +636,7 @@ export function RecurrentTransactionsManager({
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-[var(--card-border)]/40 pt-2.5">
+                    <div className="flex justify-end gap-2 border-t border-(--card-border)/40 pt-2.5">
                       <Button
                         variant="ghost"
                         className={cn(
@@ -673,7 +679,7 @@ export function RecurrentTransactionsManager({
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center text-[var(--text-muted)]">
+          <div className="flex flex-col items-center justify-center py-8 text-center text-(--text-muted)">
             <CalendarDays size={24} className="mb-2 opacity-40" />
             <span className="text-[11px] font-bold">
               Nessuna regola ricorrente attiva

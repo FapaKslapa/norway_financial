@@ -76,7 +76,7 @@ function SortHeader({
     <button
       type="button"
       onClick={() => onSortChange(field)}
-      className="flex items-center gap-1 hover:text-[var(--foreground)] transition-colors font-bold uppercase tracking-wider text-[10px] cursor-pointer border-0 bg-transparent"
+      className="flex items-center gap-1 hover:text-foreground transition-colors font-bold uppercase tracking-wider text-[10px] cursor-pointer border-0 bg-transparent"
     >
       {label}
       {isCurrent ? (
@@ -117,12 +117,12 @@ function AmountCell({
   return (
     <div className="flex flex-col">
       <span
-        className={isExpense ? "text-[var(--foreground)]" : "text-emerald-500"}
+        className={isExpense ? "text-foreground" : "text-emerald-500"}
       >
         {isExpense ? "-" : "+"} {formatCurrency(displayAmount, displayCurrency)}
       </span>
       {showHint && (
-        <span className="text-[8px] text-[var(--text-muted)] font-medium mt-0.5">
+        <span className="text-[8px] text-(--text-muted) font-medium mt-0.5">
           {tx.amount} {tx.currency}
         </span>
       )}
@@ -151,11 +151,11 @@ export function TransactionTable({
   const sortProps = { sortField, sortDirection, onSortChange };
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 apple-widget transition-all">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-4 apple-widget transition-all">
       <div className="overflow-x-auto w-full">
         <table className="w-full text-left border-collapse text-xs select-none">
           <thead>
-            <tr className="border-b border-[var(--card-border)] bg-neutral-500/5 text-[var(--text-muted)]">
+            <tr className="border-b border-(--card-border) bg-neutral-500/5 text-(--text-muted)">
               <th className="p-3">
                 <SortHeader field="date" label="Data" {...sortProps} />
               </th>
@@ -188,15 +188,15 @@ export function TransactionTable({
               return (
                 <tr
                   key={tx.id}
-                  className="border-b border-[var(--card-border)] last:border-0"
+                  className="border-b border-(--card-border) last:border-0"
                 >
                   {}
-                  <td className="p-3 whitespace-nowrap text-[var(--text-muted)] font-medium">
+                  <td className="p-3 whitespace-nowrap text-(--text-muted) font-medium">
                     {dayjs(tx.date).format("DD/MM/YYYY")}
                   </td>
 
                   {}
-                  <td className="p-3 font-bold text-[var(--foreground)] max-w-[150px]">
+                  <td className="p-3 font-bold text-foreground max-w-[150px]">
                     <div className="flex flex-col min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="truncate">
@@ -205,7 +205,7 @@ export function TransactionTable({
                         {tx.sharedInfo && (
                           <span
                             className={cn(
-                              "text-[8px] font-black px-1.5 py-0.5 rounded-md flex-shrink-0",
+                              "text-[8px] font-black px-1.5 py-0.5 rounded-md shrink-0",
                               tx.sharedInfo.isBorrowed
                                 ? "bg-rose-500/10 text-rose-500 border border-rose-500/15"
                                 : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/15",
@@ -216,7 +216,7 @@ export function TransactionTable({
                         )}
                       </div>
                       {tx.sharedInfo && (
-                        <span className="text-[8px] text-[var(--text-muted)] font-normal mt-0.5">
+                        <span className="text-[8px] text-(--text-muted) font-normal mt-0.5">
                           {tx.sharedInfo.isBorrowed
                             ? `Da ${tx.payerName || "Amico"}`
                             : `Con ${tx.sharedInfo.borrowerName}`}
@@ -229,10 +229,10 @@ export function TransactionTable({
                   <td className="p-3 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: cat ? cat.color : "#8E8E93" }}
                       />
-                      <span className="text-[var(--foreground)] font-semibold text-xs">
+                      <span className="text-foreground font-semibold text-xs">
                         {cat ? cat.name : "Generale"}
                       </span>
                     </div>
@@ -280,7 +280,7 @@ export function TransactionTable({
               <tr>
                 <td
                   colSpan={6}
-                  className="text-center py-12 text-xs text-[var(--text-muted)] font-medium"
+                  className="text-center py-12 text-xs text-(--text-muted) font-medium"
                 >
                   Nessuna transazione corrisponde ai criteri impostati.
                 </td>
@@ -292,8 +292,8 @@ export function TransactionTable({
 
       {}
       {totalItems > 0 && (
-        <div className="flex items-center justify-between pt-4 border-t border-[var(--card-border)] mt-4">
-          <span className="text-[10px] text-[var(--text-muted)] font-semibold uppercase tracking-wider pl-1">
+        <div className="flex items-center justify-between pt-4 border-t border-(--card-border) mt-4">
+          <span className="text-[10px] text-(--text-muted) font-semibold uppercase tracking-wider pl-1">
             {startItem}–{endItem} di {totalItems}
           </span>
           <div className="flex gap-2 items-center">
@@ -301,18 +301,18 @@ export function TransactionTable({
               type="button"
               disabled={currentPage === 1}
               onClick={() => onChangePage(currentPage - 1)}
-              className="px-3 py-1.5 rounded-xl border border-[var(--card-border)] bg-[var(--card)] hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-xl border border-(--card-border) bg-(--card) hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
             >
               ←
             </button>
-            <span className="text-[10px] font-black px-2 text-[var(--foreground)]">
+            <span className="text-[10px] font-black px-2 text-foreground">
               {currentPage} / {totalPages}
             </span>
             <button
               type="button"
               disabled={currentPage === totalPages}
               onClick={() => onChangePage(currentPage + 1)}
-              className="px-3 py-1.5 rounded-xl border border-[var(--card-border)] bg-[var(--card)] hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+              className="px-3 py-1.5 rounded-xl border border-(--card-border) bg-(--card) hover:bg-neutral-500/10 text-[10px] font-black uppercase tracking-wider text-foreground disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
             >
               →
             </button>

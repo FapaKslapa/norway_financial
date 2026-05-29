@@ -23,8 +23,8 @@ export function RecentTodoCard({
   displayCurrency,
 }: RecentTodoCardProps) {
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget h-full flex flex-col justify-between transition-all">
-      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 apple-widget h-full flex flex-col justify-between transition-all">
+      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
         <div className="flex gap-2.5 items-center">
           <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 rounded-xl">
             <CheckSquare size={15} />
@@ -47,16 +47,16 @@ export function RecentTodoCard({
           return (
             <div
               key={todoItem.id}
-              className={`flex justify-between items-center p-2.5 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 ${
+              className={`flex justify-between items-center p-2.5 rounded-xl border border-(--card-border) bg-neutral-500/5 ${
                 todoItem.completed ? "opacity-60" : ""
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
-                <span className="text-xs font-bold truncate text-[var(--foreground)]">
+                <span className="text-xs font-bold truncate text-foreground">
                   {todoItem.title}
                 </span>
                 {estAmountNum && (
-                  <span className="text-[9px] text-[var(--text-muted)] font-medium">
+                  <span className="text-[9px] text-(--text-muted) font-medium">
                     Stima:{" "}
                     {formatCurrency(
                       estAmountNum,
@@ -83,7 +83,7 @@ export function RecentTodoCard({
         })}
 
         {todos.length === 0 && (
-          <div className="text-center py-8 text-xs text-[var(--text-muted)] font-medium">
+          <div className="text-center py-8 text-xs text-(--text-muted) font-medium">
             Nessun articolo attivo.
           </div>
         )}

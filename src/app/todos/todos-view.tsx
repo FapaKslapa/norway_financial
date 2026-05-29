@@ -201,7 +201,7 @@ export default function TodosView() {
           <h2 className="text-lg md:text-2xl font-black tracking-tight">
             Shopping & Liste
           </h2>
-          <p className="text-[var(--text-muted)] text-xs hidden md:block">
+          <p className="text-(--text-muted) text-xs hidden md:block">
             Gestisci più liste di cose da comprare ed importale come spese
           </p>
         </div>
@@ -209,7 +209,7 @@ export default function TodosView() {
         <button
           type="button"
           onClick={() => setIsNewListOpen(true)}
-          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all flex-shrink-0"
+          className="font-bold text-xs bg-blue-500 hover:bg-blue-600 text-white border-0 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-all shrink-0"
         >
           <FolderPlus size={14} />
           <span>Nuova Lista</span>
@@ -265,7 +265,7 @@ export default function TodosView() {
               />
             </>
           ) : (
-            <div className="text-center py-12 text-xs text-[var(--text-muted)] font-medium bg-[var(--card-solid)] border border-[var(--card-border)] rounded-2xl shadow-sm">
+            <div className="text-center py-12 text-xs text-(--text-muted) font-medium bg-(--card-solid) border border-(--card-border) rounded-2xl shadow-sm">
               Nessuna lista selezionata. Selezionane o creane una.
             </div>
           )}

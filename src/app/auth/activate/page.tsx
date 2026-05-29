@@ -39,12 +39,12 @@ function ActivateContent() {
   }, [token, email, activateMutation.mutate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-[380px] bg-[var(--card-solid)] border border-[var(--card-border)] rounded-3xl p-8 shadow-[var(--card-shadow)] text-[var(--foreground)] flex flex-col items-center text-center gap-5"
+        className="w-full max-w-[380px] bg-(--card-solid) border border-(--card-border) rounded-3xl p-8 shadow-(--card-shadow) text-foreground flex flex-col items-center text-center gap-5"
       >
         <Image
           src="/logo.png"
@@ -62,7 +62,7 @@ function ActivateContent() {
             className="flex flex-col items-center gap-3"
           >
             <Loader2 size={28} className="animate-spin text-blue-500" />
-            <p className="text-xs text-[var(--text-muted)]">
+            <p className="text-xs text-(--text-muted)">
               Attivazione in corso...
             </p>
           </motion.div>
@@ -80,7 +80,7 @@ function ActivateContent() {
             </div>
             <div>
               <h2 className="text-base font-bold mb-1">Account attivato!</h2>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed max-w-[260px]">
+              <p className="text-xs text-(--text-muted) leading-relaxed max-w-[260px]">
                 Il tuo account è ora attivo. Accedi inserendo la tua email — ti
                 invieremo un Magic Link.
               </p>
@@ -90,7 +90,7 @@ function ActivateContent() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => router.push("/login")}
-              className="w-full h-11 bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs rounded-xl border-0 cursor-pointer hover:opacity-90 transition-all shadow-sm"
+              className="w-full h-11 bg-foreground text-background font-semibold text-xs rounded-xl border-0 cursor-pointer hover:opacity-90 transition-all shadow-sm"
             >
               Vai al login
             </motion.button>
@@ -109,7 +109,7 @@ function ActivateContent() {
             </div>
             <div>
               <h2 className="text-base font-bold mb-1">Attivazione fallita</h2>
-              <p className="text-xs text-[var(--text-muted)] leading-relaxed max-w-[260px]">
+              <p className="text-xs text-(--text-muted) leading-relaxed max-w-[260px]">
                 {errorMessage}
               </p>
             </div>
@@ -118,7 +118,7 @@ function ActivateContent() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => router.push("/login")}
-              className="w-full h-11 border border-[var(--card-border)] text-[var(--foreground)] font-semibold text-xs rounded-xl cursor-pointer hover:bg-neutral-500/10 transition-all bg-transparent"
+              className="w-full h-11 border border-(--card-border) text-foreground font-semibold text-xs rounded-xl cursor-pointer hover:bg-neutral-500/10 transition-all bg-transparent"
             >
               Torna alla registrazione
             </motion.button>

@@ -18,7 +18,7 @@ export function LoadingState() {
           className="absolute h-4 w-4 bg-blue-500 rounded-full"
         />
       </div>
-      <p className="text-xs font-bold text-[var(--text-muted)] tracking-wide">
+      <p className="text-xs font-bold text-(--text-muted) tracking-wide">
         Caricamento in corso...
       </p>
     </div>

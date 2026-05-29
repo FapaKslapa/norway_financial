@@ -91,21 +91,21 @@ export function CurrencyConverterCard() {
       : "—";
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget h-full flex flex-col justify-between transition-all">
-      <div className="flex flex-row gap-2.5 items-start pb-4 border-b border-[var(--card-border)] mb-4 select-none">
-        <div className="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-xl flex-shrink-0 mt-0.5">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 apple-widget h-full flex flex-col justify-between transition-all">
+      <div className="flex flex-row gap-2.5 items-start pb-4 border-b border-(--card-border) mb-4 select-none">
+        <div className="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-xl shrink-0 mt-0.5">
           <ArrowRightLeft size={15} />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="font-bold text-xs">Convertitore Valute</span>
-          <span className="text-[8px] text-[var(--text-muted)] font-extrabold uppercase tracking-wide mt-0.5">
+          <span className="text-[8px] text-(--text-muted) font-extrabold uppercase tracking-wide mt-0.5">
             1 {fromCurrency} = {rate} {toCurrency}
           </span>
         </div>
         <button
           type="button"
           onClick={handleSwap}
-          className="ml-auto text-[10px] font-black uppercase tracking-wider text-blue-500 hover:text-blue-400 bg-transparent border-0 cursor-pointer flex-shrink-0"
+          className="ml-auto text-[10px] font-black uppercase tracking-wider text-blue-500 hover:text-blue-400 bg-transparent border-0 cursor-pointer shrink-0"
         >
           Inverti
         </button>
@@ -113,7 +113,7 @@ export function CurrencyConverterCard() {
 
       <CardContent className="p-0 flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
-          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
             Da
           </span>
           <div className="flex gap-2">
@@ -122,7 +122,7 @@ export function CurrencyConverterCard() {
                 type="number"
                 value={fromAmount}
                 onChange={(e) => handleFromChange(e.target.value)}
-                className="text-xs text-[var(--foreground)] font-semibold flex-1 bg-transparent border-0 outline-none w-full"
+                className="text-xs text-foreground font-semibold flex-1 bg-transparent border-0 outline-none w-full"
               />
             </div>
             <div className="w-[90px]">
@@ -140,7 +140,7 @@ export function CurrencyConverterCard() {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
             A
           </span>
           <div className="flex gap-2">
@@ -149,7 +149,7 @@ export function CurrencyConverterCard() {
                 type="number"
                 value={toAmount}
                 onChange={(e) => handleToChange(e.target.value)}
-                className="text-xs text-[var(--foreground)] font-semibold flex-1 bg-transparent border-0 outline-none w-full"
+                className="text-xs text-foreground font-semibold flex-1 bg-transparent border-0 outline-none w-full"
               />
             </div>
             <div className="w-[90px]">
@@ -167,7 +167,7 @@ export function CurrencyConverterCard() {
         </div>
 
         {fromAmount && toAmount && (
-          <div className="text-center text-[9px] text-[var(--text-muted)] font-semibold mt-1 select-none">
+          <div className="text-center text-[9px] text-(--text-muted) font-semibold mt-1 select-none">
             {formatCurrency(parseFloat(fromAmount) || 0, fromCurrency)} ={" "}
             {formatCurrency(parseFloat(toAmount) || 0, toCurrency)}
           </div>

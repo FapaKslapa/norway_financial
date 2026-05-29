@@ -74,7 +74,7 @@ export function CustomSelect({
         type="button"
         onClick={handleOpen}
         className={cn(
-          "w-full h-11 px-3 rounded-xl flex items-center justify-between text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-[var(--foreground)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none text-left cursor-pointer border-0 focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/20",
+          "w-full h-11 px-3 rounded-xl flex items-center justify-between text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none text-left cursor-pointer border-0 focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/20",
           triggerClassName,
         )}
       >
@@ -83,7 +83,7 @@ export function CustomSelect({
             <>
               {selectedOption.color && (
                 <span
-                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: selectedOption.color }}
                 />
               )}
@@ -111,7 +111,7 @@ export function CustomSelect({
             exit={{ opacity: 0, y: openUpward ? 4 : -4, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
             className={cn(
-              "absolute left-0 right-0 z-[100] rounded-2xl border border-[var(--card-border)] shadow-xl max-h-60 overflow-hidden flex flex-col",
+              "absolute left-0 right-0 z-[100] rounded-2xl border border-(--card-border) shadow-xl max-h-60 overflow-hidden flex flex-col",
               openUpward ? "bottom-full mb-1" : "top-full mt-1",
               dropdownClassName,
             )}
@@ -129,14 +129,14 @@ export function CustomSelect({
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "w-full px-3 py-2 flex items-center justify-between text-xs hover:bg-neutral-500/10 text-left transition-colors text-[var(--foreground)] cursor-pointer",
+                      "w-full px-3 py-2 flex items-center justify-between text-xs hover:bg-neutral-500/10 text-left transition-colors text-foreground cursor-pointer",
                       isSelected && "font-bold bg-neutral-500/5",
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
                       {opt.color && (
                         <span
-                          className="w-2 h-2 rounded-full flex-shrink-0"
+                          className="w-2 h-2 rounded-full shrink-0"
                           style={{ backgroundColor: opt.color }}
                         />
                       )}
@@ -146,7 +146,7 @@ export function CustomSelect({
                     {isSelected && (
                       <Check
                         size={14}
-                        className="text-blue-500 flex-shrink-0 ml-2"
+                        className="text-blue-500 shrink-0 ml-2"
                       />
                     )}
                   </button>
@@ -167,7 +167,7 @@ export function CustomSelect({
                   footerAction.onPress();
                   setIsOpen(false);
                 }}
-                className="w-full px-3 py-2.5 text-center text-[10px] font-extrabold text-blue-500 border-t border-[var(--card-border)] hover:bg-blue-500/5 transition-colors uppercase tracking-wider block cursor-pointer"
+                className="w-full px-3 py-2.5 text-center text-[10px] font-extrabold text-blue-500 border-t border-(--card-border) hover:bg-blue-500/5 transition-colors uppercase tracking-wider block cursor-pointer"
               >
                 {footerAction.label}
               </button>

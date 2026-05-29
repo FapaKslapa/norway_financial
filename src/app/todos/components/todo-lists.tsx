@@ -24,7 +24,7 @@ export function TodoLists({
 }: TodoListsProps) {
   return (
     <div className="flex flex-col gap-3">
-      <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider pl-1">
+      <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider pl-1">
         Le mie Liste
       </h4>
 
@@ -36,10 +36,10 @@ export function TodoLists({
             <div
               key={list.id}
               className={cn(
-                "group relative flex justify-between items-center px-4 py-2.5 md:py-3.5 rounded-2xl border transition-all select-none flex-shrink-0 snap-start w-[200px] md:w-auto",
+                "group relative flex justify-between items-center px-4 py-2.5 md:py-3.5 rounded-2xl border transition-all select-none shrink-0 snap-start w-[200px] md:w-auto",
                 isActive
                   ? "bg-blue-500 text-white border-transparent shadow-md shadow-blue-500/15"
-                  : "bg-[var(--card)] text-[var(--foreground)] border-[var(--card-border)] hover:bg-neutral-500/10",
+                  : "bg-(--card) text-foreground border-(--card-border) hover:bg-neutral-500/10",
               )}
             >
               <button
@@ -57,7 +57,7 @@ export function TodoLists({
                 <span className="text-xs font-bold truncate">{list.name}</span>
               </div>
 
-              <div className="relative z-10 flex items-center gap-2 flex-shrink-0">
+              <div className="relative z-10 flex items-center gap-2 shrink-0">
                 {count > 0 && (
                   <span
                     className={cn(

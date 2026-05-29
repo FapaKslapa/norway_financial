@@ -131,7 +131,7 @@ export function CustomDatePicker({
             ...coords,
           }}
           className={cn(
-            "p-4 rounded-2xl border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl flex flex-col",
+            "p-4 rounded-2xl border border-(--card-border) bg-(--card-solid) shadow-xl flex flex-col",
             popoverClassName,
           )}
         >
@@ -139,7 +139,7 @@ export function CustomDatePicker({
             <button
               type="button"
               onClick={handlePrevMonth}
-              className="p-1 rounded-lg hover:bg-neutral-500/10 text-[var(--foreground)] cursor-pointer"
+              className="p-1 rounded-lg hover:bg-neutral-500/10 text-foreground cursor-pointer"
             >
               <ChevronLeft size={14} />
             </button>
@@ -149,13 +149,13 @@ export function CustomDatePicker({
             <button
               type="button"
               onClick={handleNextMonth}
-              className="p-1 rounded-lg hover:bg-neutral-500/10 text-[var(--foreground)] cursor-pointer"
+              className="p-1 rounded-lg hover:bg-neutral-500/10 text-foreground cursor-pointer"
             >
               <ChevronRight size={14} />
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-[9px] text-[var(--text-muted)] font-extrabold uppercase mb-2">
+          <div className="grid grid-cols-7 gap-1 text-center text-[9px] text-(--text-muted) font-extrabold uppercase mb-2">
             <span>L</span>
             <span>M</span>
             <span>M</span>
@@ -184,7 +184,7 @@ export function CustomDatePicker({
                       ? "bg-blue-500 text-white font-bold"
                       : isToday
                         ? "border-blue-500 text-blue-500 font-bold"
-                        : "hover:bg-neutral-500/10 text-[var(--foreground)]",
+                        : "hover:bg-neutral-500/10 text-foreground",
                   )}
                 >
                   {day.date()}
@@ -202,7 +202,7 @@ export function CustomDatePicker({
       {/* biome-ignore lint/a11y/useSemanticElements: nesting buttons is invalid HTML, so we use a div with role=button */}
       <div
         className={cn(
-          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-[var(--foreground)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-transparent focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 select-none",
+          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-transparent focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 select-none",
           triggerClassName,
         )}
         onClick={() => setIsOpen(!isOpen)}
@@ -215,7 +215,7 @@ export function CustomDatePicker({
         tabIndex={0}
       >
         <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
-          <CalendarIcon size={14} className="text-neutral-500 flex-shrink-0" />
+          <CalendarIcon size={14} className="text-neutral-500 shrink-0" />
           <span className="truncate">{formattedValue}</span>
         </div>
 
@@ -226,7 +226,7 @@ export function CustomDatePicker({
               e.stopPropagation();
               onChange("");
             }}
-            className="text-neutral-400 hover:text-[var(--foreground)] hover:bg-neutral-500/10 rounded-full h-6 w-6 flex items-center justify-center transition-colors cursor-pointer border-0 bg-transparent shrink-0"
+            className="text-neutral-400 hover:text-foreground hover:bg-neutral-500/10 rounded-full h-6 w-6 flex items-center justify-center transition-colors cursor-pointer border-0 bg-transparent shrink-0"
             aria-label="Resetta data"
           >
             <X size={12} />

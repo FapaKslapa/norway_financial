@@ -383,7 +383,7 @@ export default function FriendsView() {
   };
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 py-3 pb-24 md:pb-12 text-[var(--foreground)] select-none">
+    <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 py-3 pb-24 md:pb-12 text-foreground select-none">
       {}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -399,13 +399,13 @@ export default function FriendsView() {
             />
             <span>Amici & Spese</span>
           </h2>
-          <p className="text-[var(--text-muted)] text-xs font-semibold hidden md:block">
+          <p className="text-(--text-muted) text-xs font-semibold hidden md:block">
             Gestisci la tua rubrica e dividi le spese con singoli amici o gruppi
           </p>
         </div>
         <Button
           variant="outline"
-          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-md flex-shrink-0"
+          className="font-bold text-xs bg-blue-500 text-white border-0 hover:bg-blue-600 rounded-xl h-9 md:h-10 px-3 md:px-4 flex items-center justify-center gap-1.5 cursor-pointer shadow-md shrink-0"
           onPress={() => setIsSharedExpenseOpen(true)}
           isDisabled={!friendsQuery.data || friendsQuery.data.length === 0}
         >
@@ -463,13 +463,13 @@ export default function FriendsView() {
             iconBgColor={stat.iconBg}
             iconColor={stat.iconColor}
             delayIndex={stat.delayIndex}
-            className="w-[72vw] md:w-full flex-shrink-0 snap-start scroll-ml-4 bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 shadow-[var(--card-shadow)]"
+            className="w-[72vw] md:w-full shrink-0 snap-start scroll-ml-4 bg-(--card) border border-(--card-border) rounded-[2rem] p-5 shadow-(--card-shadow)"
           />
         ))}
       </div>
       <div
         className={cn(
-          "flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none",
+          "flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-(--card-border) p-1 w-full shrink-0 select-none",
           (selectedFriend || selectedGroup) && "hidden",
         )}
       >
@@ -479,8 +479,8 @@ export default function FriendsView() {
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeMobileTab === "friends"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Amici
@@ -491,8 +491,8 @@ export default function FriendsView() {
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeMobileTab === "groups"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Gruppi
@@ -503,8 +503,8 @@ export default function FriendsView() {
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent flex items-center justify-center gap-1",
             activeMobileTab === "manage"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Gestisci
@@ -530,8 +530,8 @@ export default function FriendsView() {
             transition={{ duration: 0.4, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
-            <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
+              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
                 <div className="flex gap-2.5 items-center">
                   <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
                     <UserPlus size={15} />
@@ -546,14 +546,14 @@ export default function FriendsView() {
                   className="flex flex-col gap-3"
                 >
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                       Email dell&apos;Amico
                     </span>
                     <div className="flex gap-2 items-center">
                       <div className="bg-neutral-100 dark:bg-zinc-800/40 border border-neutral-200 dark:border-zinc-800/50 focus-within:border-blue-500/50 h-11 px-3 rounded-2xl flex items-center gap-2 flex-1 transition-all duration-300">
                         <Mail
                           size={13}
-                          className="text-[var(--text-muted)] flex-shrink-0"
+                          className="text-(--text-muted) shrink-0"
                         />
                         <input
                           type="email"
@@ -561,7 +561,7 @@ export default function FriendsView() {
                           value={emailInput}
                           onChange={(e) => setEmailInput(e.target.value)}
                           required
-                          className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-[var(--text-muted)] min-w-0"
+                          className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted) min-w-0"
                         />
                       </div>
                       <Button
@@ -597,8 +597,8 @@ export default function FriendsView() {
             transition={{ duration: 0.4, delay: 0.33, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
-            <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
+              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
                 <div className="flex gap-2.5 items-center">
                   <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 rounded-xl">
                     <Handshake size={15} />
@@ -617,30 +617,30 @@ export default function FriendsView() {
 
               <CardContent className="p-0 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider pl-1">
+                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider pl-1">
                     Ricevute
                   </span>
                   <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1">
                     {!pendingQuery.data?.incoming ||
                     pendingQuery.data.incoming.length === 0 ? (
-                      <span className="text-[10px] text-[var(--text-muted)] font-semibold pl-1 py-1">
+                      <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
                         Nessuna richiesta ricevuta
                       </span>
                     ) : (
                       pendingQuery.data.incoming.map((req) => (
                         <div
                           key={req.id}
-                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)] flex-shrink-0"
+                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-(--card-border) shrink-0"
                         >
                           <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold truncate text-[var(--foreground)]">
+                            <span className="text-xs font-bold truncate text-foreground">
                               {req.user.name}
                             </span>
-                            <span className="text-[9px] text-[var(--text-muted)] truncate">
+                            <span className="text-[9px] text-(--text-muted) truncate">
                               {req.user.email}
                             </span>
                           </div>
-                          <div className="flex gap-1 flex-shrink-0">
+                          <div className="flex gap-1 shrink-0">
                             <Button
                               isIconOnly
                               variant="ghost"
@@ -664,31 +664,31 @@ export default function FriendsView() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 border-t border-[var(--card-border)] pt-3">
-                  <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider pl-1">
+                <div className="flex flex-col gap-2 border-t border-(--card-border) pt-3">
+                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider pl-1">
                     Inviate
                   </span>
                   <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1">
                     {!pendingQuery.data?.outgoing ||
                     pendingQuery.data.outgoing.length === 0 ? (
-                      <span className="text-[10px] text-[var(--text-muted)] font-semibold pl-1 py-1">
+                      <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
                         Nessuna richiesta inviata
                       </span>
                     ) : (
                       pendingQuery.data.outgoing.map((req) => (
                         <div
                           key={req.id}
-                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)] opacity-85 flex-shrink-0"
+                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-(--card-border) opacity-85 shrink-0"
                         >
                           <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold truncate text-[var(--foreground)]">
+                            <span className="text-xs font-bold truncate text-foreground">
                               {req.user.name}
                             </span>
-                            <span className="text-[9px] text-[var(--text-muted)] truncate">
+                            <span className="text-[9px] text-(--text-muted) truncate">
                               {req.user.email}
                             </span>
                           </div>
-                          <span className="text-[8px] font-black text-amber-500 bg-amber-500/5 border border-amber-500/10 px-1.5 py-0.5 rounded-lg flex-shrink-0">
+                          <span className="text-[8px] font-black text-amber-500 bg-amber-500/5 border border-amber-500/10 px-1.5 py-0.5 rounded-lg shrink-0">
                             Pendente
                           </span>
                         </div>
@@ -707,8 +707,8 @@ export default function FriendsView() {
             transition={{ duration: 0.4, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "groups" && "hidden md:block")}
           >
-            <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
+              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
                 <div className="flex gap-2.5 items-center">
                   <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
                     <Folder size={15} />
@@ -727,7 +727,7 @@ export default function FriendsView() {
 
               <CardContent className="p-0 flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
                 {!groupsQuery.data || groupsQuery.data.length === 0 ? (
-                  <span className="text-[10px] text-[var(--text-muted)] font-semibold pl-1 py-1">
+                  <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
                     Nessuna cartella creata. Dividi le spese con più amici
                     creando un gruppo.
                   </span>
@@ -746,7 +746,7 @@ export default function FriendsView() {
                           "flex justify-between items-center px-3.5 py-3 rounded-2xl border transition-all cursor-pointer text-left w-full bg-transparent outline-none",
                           isSelected
                             ? "bg-blue-500 text-white border-transparent shadow-md shadow-blue-500/15"
-                            : "bg-neutral-500/5 border-[var(--card-border)] hover:bg-neutral-500/10 text-[var(--foreground)]",
+                            : "bg-neutral-500/5 border-(--card-border) hover:bg-neutral-500/10 text-foreground",
                         )}
                       >
                         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -765,7 +765,7 @@ export default function FriendsView() {
                                 "text-[8px] font-semibold",
                                 isSelected
                                   ? "text-white/85"
-                                  : "text-[var(--text-muted)]",
+                                  : "text-(--text-muted)",
                               )}
                             >
                               {group.members.length} membri
@@ -793,14 +793,14 @@ export default function FriendsView() {
                 exit={{ opacity: 0, x: -15 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 rounded-[2rem] flex flex-col">
+                <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] flex flex-col">
                   {}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-[var(--card-border)] mb-5 gap-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-(--card-border) mb-5 gap-3">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <Button
                         isIconOnly
                         variant="ghost"
-                        className="h-8 w-8 text-[var(--text-muted)] hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
+                        className="h-8 w-8 text-(--text-muted) hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
                         onPress={() => setSelectedFriend(null)}
                       >
                         <ChevronLeft size={16} />
@@ -809,10 +809,10 @@ export default function FriendsView() {
                         {selectedFriend.user.name.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-black text-[var(--foreground)] truncate leading-tight">
+                        <span className="text-sm font-black text-foreground truncate leading-tight">
                           {selectedFriend.user.name}
                         </span>
-                        <span className="text-[10px] text-[var(--text-muted)] truncate mt-0.5">
+                        <span className="text-[10px] text-(--text-muted) truncate mt-0.5">
                           {selectedFriend.user.email}
                         </span>
                       </div>
@@ -854,7 +854,7 @@ export default function FriendsView() {
                       <Button
                         isIconOnly
                         variant="ghost"
-                        className="h-8 w-8 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
+                        className="h-8 w-8 text-(--text-muted) hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
                         onPress={() => setFriendToDelete(selectedFriend)}
                       >
                         <Trash2 size={13} />
@@ -902,13 +902,13 @@ export default function FriendsView() {
                           ? "text-emerald-500"
                           : balVal < 0
                             ? "text-rose-500"
-                            : "text-[var(--text-muted)]";
+                            : "text-(--text-muted)";
                       const valColor =
                         balVal > 0
                           ? "text-emerald-500"
                           : balVal < 0
                             ? "text-rose-500"
-                            : "text-[var(--text-muted)]";
+                            : "text-(--text-muted)";
 
                       return (
                         <StatCard
@@ -939,7 +939,7 @@ export default function FriendsView() {
 
                   {}
                   <div className="flex flex-col flex-1">
-                    <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Activity size={12} className="opacity-60" />
                       Cronologia Spese in Comune
                     </h4>
@@ -947,7 +947,7 @@ export default function FriendsView() {
                     <div className="flex-1 overflow-y-auto max-h-[250px] pr-1 flex flex-col gap-2.5">
                       {getFriendTransactions(selectedFriend.user.id).length ===
                       0 ? (
-                        <div className="text-center py-8 text-xs text-[var(--text-muted)] font-semibold">
+                        <div className="text-center py-8 text-xs text-(--text-muted) font-semibold">
                           Nessuna spesa condivisa registrata con questo amico.
                         </div>
                       ) : (
@@ -979,13 +979,13 @@ export default function FriendsView() {
                             return (
                               <div
                                 key={tx.id}
-                                className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)]"
+                                className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border)"
                               >
                                 <div className="flex flex-col min-w-0">
-                                  <span className="text-xs font-bold text-[var(--foreground)] truncate leading-tight">
+                                  <span className="text-xs font-bold text-foreground truncate leading-tight">
                                     {tx.description || "Spesa condivisa"}
                                   </span>
-                                  <span className="text-[8px] text-[var(--text-muted)] font-semibold flex items-center gap-2 mt-1">
+                                  <span className="text-[8px] text-(--text-muted) font-semibold flex items-center gap-2 mt-1">
                                     <span className="flex items-center gap-1">
                                       <Calendar size={9} />
                                       {new Date(tx.date).toLocaleDateString()}
@@ -1011,7 +1011,7 @@ export default function FriendsView() {
                                     className={cn(
                                       "text-xs font-black",
                                       tx.sharedInfo?.settled
-                                        ? "text-[var(--text-muted)] line-through"
+                                        ? "text-(--text-muted) line-through"
                                         : isPayer
                                           ? "text-emerald-500"
                                           : "text-rose-500",
@@ -1020,7 +1020,7 @@ export default function FriendsView() {
                                     {isPayer ? "+" : "-"}{" "}
                                     {formatVal(activeAmount, displayCurrency)}
                                   </span>
-                                  <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">
+                                  <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
                                     Totale:{" "}
                                     {formatVal(originalAmount, displayCurrency)}
                                   </span>
@@ -1045,14 +1045,14 @@ export default function FriendsView() {
                 exit={{ opacity: 0, x: -15 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 rounded-[2rem] flex flex-col">
+                <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] flex flex-col">
                   {}
-                  <div className="flex justify-between items-center pb-5 border-b border-[var(--card-border)] mb-5">
+                  <div className="flex justify-between items-center pb-5 border-b border-(--card-border) mb-5">
                     <div className="flex items-center gap-3.5 min-w-0">
                       <Button
                         isIconOnly
                         variant="ghost"
-                        className="h-8 w-8 text-[var(--text-muted)] hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
+                        className="h-8 w-8 text-(--text-muted) hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
                         onPress={() => setSelectedGroup(null)}
                       >
                         <ChevronLeft size={16} />
@@ -1061,10 +1061,10 @@ export default function FriendsView() {
                         <Folder size={20} />
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-black text-[var(--foreground)] truncate leading-tight">
+                        <span className="text-sm font-black text-foreground truncate leading-tight">
                           {selectedGroup.name}
                         </span>
-                        <span className="text-[10px] text-[var(--text-muted)] truncate mt-0.5">
+                        <span className="text-[10px] text-(--text-muted) truncate mt-0.5">
                           {selectedGroup.members.length} partecipanti
                         </span>
                       </div>
@@ -1084,7 +1084,7 @@ export default function FriendsView() {
                         <Button
                           isIconOnly
                           variant="ghost"
-                          className="h-8 w-8 text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
+                          className="h-8 w-8 text-(--text-muted) hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
                           onPress={() => setGroupToDelete(selectedGroup)}
                         >
                           <Trash2 size={13} />
@@ -1095,7 +1095,7 @@ export default function FriendsView() {
 
                   {}
                   <div className="mb-5">
-                    <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                       <Users size={12} className="opacity-60" />
                       Membri del Gruppo
                     </h4>
@@ -1103,7 +1103,7 @@ export default function FriendsView() {
                       {selectedGroup.members.map((m: GroupMember) => (
                         <div
                           key={m.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-500/5 border border-[var(--card-border)] text-xs font-semibold"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-500/5 border border-(--card-border) text-xs font-semibold"
                         >
                           <div className="w-4 h-4 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-[8px] font-black shrink-0">
                             {m.name.slice(0, 2).toUpperCase()}
@@ -1116,13 +1116,13 @@ export default function FriendsView() {
                     </div>
                   </div>
 
-                  <div className="mb-5 border-t border-[var(--card-border)]/50 pt-4">
-                    <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <div className="mb-5 border-t border-(--card-border)/50 pt-4">
+                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                       <Sparkles size={12} className="text-blue-500" />
                       Debiti Semplificati (Algoritmo Splitwise)
                     </h4>
                     {proposalsQuery.isLoading ? (
-                      <div className="text-[10px] text-[var(--text-muted)]">
+                      <div className="text-[10px] text-(--text-muted)">
                         Calcolo liquidazioni ottimali...
                       </div>
                     ) : proposalsQuery.data &&
@@ -1140,7 +1140,7 @@ export default function FriendsView() {
                             return (
                               <div
                                 key={`${p.fromUser.id}-${p.toUser.id}-${p.amountNok}`}
-                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/40 rounded-2xl p-3"
+                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-(--card-border)/40 rounded-2xl p-3"
                               >
                                 <div className="flex items-center gap-2 text-xs">
                                   <span
@@ -1148,12 +1148,12 @@ export default function FriendsView() {
                                       "font-bold",
                                       isFromMe
                                         ? "text-rose-500"
-                                        : "text-[var(--foreground)]",
+                                        : "text-foreground",
                                     )}
                                   >
                                     {p.fromUser.name} {isFromMe && "(Tu)"}
                                   </span>
-                                  <span className="text-[10px] text-[var(--text-muted)]">
+                                  <span className="text-[10px] text-(--text-muted)">
                                     deve dare
                                   </span>
                                   <span
@@ -1161,7 +1161,7 @@ export default function FriendsView() {
                                       "font-bold",
                                       isToMe
                                         ? "text-emerald-500"
-                                        : "text-[var(--foreground)]",
+                                        : "text-foreground",
                                     )}
                                   >
                                     {p.toUser.name} {isToMe && "(Tu)"}
@@ -1199,7 +1199,7 @@ export default function FriendsView() {
                         )}
                       </div>
                     ) : (
-                      <p className="text-[10px] text-[var(--text-muted)] italic pl-1">
+                      <p className="text-[10px] text-(--text-muted) italic pl-1">
                         Tutti i debiti in questo gruppo sono saldati!
                       </p>
                     )}
@@ -1242,14 +1242,14 @@ export default function FriendsView() {
 
                   {}
                   <div className="flex flex-col flex-1">
-                    <h4 className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Activity size={12} className="opacity-60" />
                       Cronologia Spese Gruppo
                     </h4>
 
                     <div className="flex-1 overflow-y-auto max-h-[200px] pr-1 flex flex-col gap-2.5">
                       {getGroupTransactions(selectedGroup.id).length === 0 ? (
-                        <div className="text-center py-8 text-xs text-[var(--text-muted)] font-semibold">
+                        <div className="text-center py-8 text-xs text-(--text-muted) font-semibold">
                           Nessuna spesa inserita per questo gruppo.
                         </div>
                       ) : (
@@ -1310,13 +1310,13 @@ export default function FriendsView() {
                           return (
                             <div
                               key={tx.id}
-                              className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)]"
+                              className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border)"
                             >
                               <div className="flex flex-col min-w-0">
-                                <span className="text-xs font-bold text-[var(--foreground)] truncate leading-tight">
+                                <span className="text-xs font-bold text-foreground truncate leading-tight">
                                   {tx.description || "Spesa gruppo"}
                                 </span>
-                                <span className="text-[8px] text-[var(--text-muted)] font-semibold flex items-center gap-2 mt-1">
+                                <span className="text-[8px] text-(--text-muted) font-semibold flex items-center gap-2 mt-1">
                                   <span className="flex items-center gap-1">
                                     <Calendar size={9} />
                                     {new Date(tx.date).toLocaleDateString()}
@@ -1341,7 +1341,7 @@ export default function FriendsView() {
                                   {isPayer ? "+" : "-"}{" "}
                                   {formatVal(activeAmount, displayCurrency)}
                                 </span>
-                                <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">
+                                <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
                                   Totale:{" "}
                                   {formatVal(originalAmount, displayCurrency)}
                                 </span>
@@ -1368,8 +1368,8 @@ export default function FriendsView() {
                   activeMobileTab !== "friends" && "hidden md:block",
                 )}
               >
-                <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 rounded-[2rem] h-full flex flex-col">
-                  <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full flex-shrink-0">
+                <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] h-full flex flex-col">
+                  <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full shrink-0">
                     <div className="flex gap-2.5 items-center">
                       <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
                         <Users size={15} />
@@ -1380,7 +1380,7 @@ export default function FriendsView() {
 
                   <CardContent className="p-0 flex flex-col flex-1">
                     {!friendsQuery.data || friendsQuery.data.length === 0 ? (
-                      <div className="flex-1 flex flex-col items-center justify-center text-xs text-[var(--text-muted)] gap-2 py-16">
+                      <div className="flex-1 flex flex-col items-center justify-center text-xs text-(--text-muted) gap-2 py-16">
                         <Users size={32} className="opacity-20" />
                         <span className="font-bold">
                           Non hai ancora nessun amico.
@@ -1405,7 +1405,7 @@ export default function FriendsView() {
                           return (
                             <div
                               key={friend.user.id}
-                              className="relative flex justify-between items-center p-4 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)] hover:bg-neutral-500/10 transition-colors flex-shrink-0"
+                              className="relative flex justify-between items-center p-4 rounded-2xl bg-neutral-500/5 border border-(--card-border) hover:bg-neutral-500/10 transition-colors shrink-0"
                             >
                               <button
                                 type="button"
@@ -1418,21 +1418,21 @@ export default function FriendsView() {
                               />
 
                               <div className="relative z-10 flex items-center gap-3.5 min-w-0 pointer-events-none">
-                                <div className="h-10 w-10 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/25 flex items-center justify-center flex-shrink-0 text-sm font-extrabold">
+                                <div className="h-10 w-10 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/25 flex items-center justify-center shrink-0 text-sm font-extrabold">
                                   {friend.user.name.slice(0, 2).toUpperCase()}
                                 </div>
 
                                 <div className="flex flex-col min-w-0">
-                                  <span className="text-xs font-black text-[var(--foreground)] truncate">
+                                  <span className="text-xs font-black text-foreground truncate">
                                     {friend.user.name}
                                   </span>
-                                  <span className="text-[9px] text-[var(--text-muted)] truncate">
+                                  <span className="text-[9px] text-(--text-muted) truncate">
                                     {friend.user.email}
                                   </span>
                                 </div>
                               </div>
 
-                              <div className="relative z-10 flex items-center gap-3 ml-4 flex-shrink-0">
+                              <div className="relative z-10 flex items-center gap-3 ml-4 shrink-0">
                                 <div className="flex flex-col items-end pointer-events-none">
                                   {hasBalance ? (
                                     <>
@@ -1451,12 +1451,12 @@ export default function FriendsView() {
                                             : "text-rose-500",
                                         )}
                                       />
-                                      <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">
+                                      <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
                                         {Math.abs(balValue).toFixed(0)} NOK
                                       </span>
                                     </>
                                   ) : (
-                                    <span className="text-xs text-[var(--text-muted)] font-bold">
+                                    <span className="text-xs text-(--text-muted) font-bold">
                                       Bilancio in pari
                                     </span>
                                   )}
@@ -1478,7 +1478,7 @@ export default function FriendsView() {
                                   isIconOnly
                                   variant="ghost"
                                   size="sm"
-                                  className="text-[var(--text-muted)] hover:text-rose-500 hover:bg-rose-500/10 rounded-xl h-8 w-8 min-w-8 cursor-pointer flex items-center justify-center border-0 ml-1"
+                                  className="text-(--text-muted) hover:text-rose-500 hover:bg-rose-500/10 rounded-xl h-8 w-8 min-w-8 cursor-pointer flex items-center justify-center border-0 ml-1"
                                   onPress={() => setFriendToDelete(friend)}
                                 >
                                   <Trash2 size={13} />
@@ -1525,9 +1525,9 @@ export default function FriendsView() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[420px] rounded-3xl p-6 shadow-2xl text-[var(--foreground)] z-10 flex flex-col max-h-[85vh]"
+              className="relative bg-(--card-solid) border border-(--card-border) w-full max-w-[420px] rounded-3xl p-6 shadow-2xl text-foreground z-10 flex flex-col max-h-[85vh]"
             >
-              <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 flex-shrink-0">
+              <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4 shrink-0">
                 <h3 className="font-extrabold text-sm flex items-center gap-2">
                   <FolderPlus size={16} className="text-blue-500" />
                   Crea Nuova Cartella (Gruppo)
@@ -1535,7 +1535,7 @@ export default function FriendsView() {
                 <Button
                   isIconOnly
                   variant="ghost"
-                  className="text-[var(--text-muted)] rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer"
+                  className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer"
                   onPress={() => setIsCreateGroupOpen(false)}
                 >
                   <X size={15} />
@@ -1547,7 +1547,7 @@ export default function FriendsView() {
                 className="flex flex-col gap-4 flex-1 overflow-hidden"
               >
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                     Nome della Cartella
                   </span>
                   <div className="bg-neutral-100 dark:bg-zinc-800/40 border border-neutral-200 dark:border-zinc-800/50 focus-within:border-blue-500/50 h-11 px-3 rounded-2xl flex items-center w-full transition-all">
@@ -1557,18 +1557,18 @@ export default function FriendsView() {
                       value={newGroupName}
                       onChange={(e) => setNewGroupName(e.target.value)}
                       required
-                      className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-[var(--text-muted)] min-w-0"
+                      className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted) min-w-0"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
-                  <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1 select-none">
+                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1 select-none">
                     Seleziona Amici
                   </span>
                   <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 max-h-[200px]">
                     {!friendsQuery.data || friendsQuery.data.length === 0 ? (
-                      <span className="text-[10px] text-[var(--text-muted)] font-semibold p-1">
+                      <span className="text-[10px] text-(--text-muted) font-semibold p-1">
                         Devi aggiungere amici prima di poter creare una
                         cartella.
                       </span>
@@ -1587,8 +1587,8 @@ export default function FriendsView() {
                             className={cn(
                               "flex items-center gap-3.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-left bg-transparent",
                               checked
-                                ? "border-blue-500/30 bg-blue-500/5 text-[var(--foreground)]"
-                                : "border-[var(--card-border)] hover:bg-neutral-500/5 text-[var(--foreground)]",
+                                ? "border-blue-500/30 bg-blue-500/5 text-foreground"
+                                : "border-(--card-border) hover:bg-neutral-500/5 text-foreground",
                             )}
                           >
                             <div
@@ -1596,7 +1596,7 @@ export default function FriendsView() {
                                 "h-5 w-5 rounded-md flex items-center justify-center border transition-all shrink-0",
                                 checked
                                   ? "bg-blue-500 border-transparent text-white"
-                                  : "border-[var(--card-border)] text-transparent",
+                                  : "border-(--card-border) text-transparent",
                               )}
                             >
                               <Check size={12} className="stroke-[3]" />
@@ -1605,7 +1605,7 @@ export default function FriendsView() {
                               <span className="text-xs font-bold truncate leading-none mb-0.5">
                                 {friend.user.name}
                               </span>
-                              <span className="text-[8px] text-[var(--text-muted)] truncate">
+                              <span className="text-[8px] text-(--text-muted) truncate">
                                 {friend.user.email}
                               </span>
                             </div>
@@ -1616,11 +1616,11 @@ export default function FriendsView() {
                   </div>
                 </div>
 
-                <div className="border-t border-[var(--card-border)] pt-4 mt-1 flex justify-end gap-2.5 flex-shrink-0">
+                <div className="border-t border-(--card-border) pt-4 mt-1 flex justify-end gap-2.5 shrink-0">
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-10 text-xs font-bold text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl cursor-pointer flex-1"
+                    className="h-10 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer flex-1"
                     onPress={() => setIsCreateGroupOpen(false)}
                   >
                     Annulla

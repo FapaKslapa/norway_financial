@@ -112,7 +112,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 min-w-9 cursor-pointer flex items-center justify-center transition-all bg-transparent"
+        className="relative text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-full h-9 w-9 min-w-9 cursor-pointer flex items-center justify-center transition-all bg-transparent"
         aria-label="Notifiche"
       >
         <Bell size={15} />
@@ -130,9 +130,9 @@ export function NotificationBell({ className }: NotificationBellProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-80 bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl rounded-2xl overflow-hidden z-[100] flex flex-col text-[var(--foreground)]"
+            className="absolute right-0 mt-2 w-80 bg-(--card-solid) border border-(--card-border) shadow-2xl rounded-2xl overflow-hidden z-[100] flex flex-col text-foreground"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--card-border)] bg-neutral-500/5">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-(--card-border) bg-neutral-500/5">
               <span className="text-xs font-black uppercase tracking-wider">
                 Notifiche
               </span>
@@ -160,7 +160,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
 
             <div className="flex-1 overflow-y-auto max-h-[300px]">
               {notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-8 px-4 text-center text-[var(--text-muted)]">
+                <div className="flex flex-col items-center justify-center py-8 px-4 text-center text-(--text-muted)">
                   <BellOff size={20} className="mb-2 opacity-40" />
                   <span className="text-[10px] font-medium">
                     Nessuna notifica
@@ -170,7 +170,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
                 notifications.map((n) => (
                   <div
                     key={n.id}
-                    className={`group flex items-start gap-2 p-3 border-b border-[var(--card-border)]/50 transition-all last:border-b-0 ${
+                    className={`group flex items-start gap-2 p-3 border-b border-(--card-border)/50 transition-all last:border-b-0 ${
                       n.read
                         ? "opacity-60 hover:opacity-100"
                         : "bg-blue-500/5 hover:bg-blue-500/10"
@@ -190,10 +190,10 @@ export function NotificationBell({ className }: NotificationBellProps) {
                       <span className="text-[10px] font-extrabold leading-tight">
                         {n.title}
                       </span>
-                      <p className="text-[9px] text-[var(--text-muted)] leading-relaxed">
+                      <p className="text-[9px] text-(--text-muted) leading-relaxed">
                         {n.message}
                       </p>
-                      <div className="flex items-center justify-between mt-1 text-[8px] text-[var(--text-muted)] font-medium w-full">
+                      <div className="flex items-center justify-between mt-1 text-[8px] text-(--text-muted) font-medium w-full">
                         <span>
                           {dayjs(n.createdAt).format("DD MMM, HH:mm")}
                         </span>
@@ -209,7 +209,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
                       <button
                         type="button"
                         onClick={() => deleteMutation.mutate({ id: n.id })}
-                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-rose-500/10 text-[var(--text-muted)] hover:text-rose-400 transition-all bg-transparent border-0 cursor-pointer"
+                        className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-rose-500/10 text-(--text-muted) hover:text-rose-400 transition-all bg-transparent border-0 cursor-pointer"
                       >
                         <X size={9} />
                       </button>

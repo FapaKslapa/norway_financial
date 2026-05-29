@@ -51,7 +51,7 @@ function FieldLabel({
   children: React.ReactNode;
 }) {
   return (
-    <span className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-1.5">
+    <span className="flex items-center gap-1.5 text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-1.5">
       <Icon size={11} className="opacity-60" />
       {children}
     </span>
@@ -169,17 +169,17 @@ export function TransactionModal({
                 onClose();
               }
             }}
-            className="bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[460px] rounded-t-[2rem] md:rounded-3xl shadow-2xl text-[var(--foreground)] max-h-[92dvh] md:max-h-[90vh] flex flex-col"
+            className="bg-(--card-solid) border border-(--card-border) w-full md:max-w-[460px] rounded-t-[2rem] md:rounded-3xl shadow-2xl text-foreground max-h-[92dvh] md:max-h-[90vh] flex flex-col"
           >
             <div className="flex md:hidden justify-center pt-3 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-[var(--card-border)]" />
+              <div className="w-10 h-1 rounded-full bg-(--card-border)" />
             </div>
 
-            <div className="flex items-center justify-between px-6 pt-3 md:pt-5 pb-4 border-b border-[var(--card-border)] flex-shrink-0">
+            <div className="flex items-center justify-between px-6 pt-3 md:pt-5 pb-4 border-b border-(--card-border) shrink-0">
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    "h-9 w-9 rounded-2xl flex items-center justify-center border flex-shrink-0 transition-all duration-300",
+                    "h-9 w-9 rounded-2xl flex items-center justify-center border shrink-0 transition-all duration-300",
                     txType === "expense"
                       ? "bg-rose-500/10 border-rose-500/20 text-rose-500"
                       : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500",
@@ -195,14 +195,14 @@ export function TransactionModal({
                   <h3 className="font-extrabold text-sm leading-tight">
                     Registra Transazione
                   </h3>
-                  <p className="text-[10px] text-[var(--text-muted)]">
+                  <p className="text-[10px] text-(--text-muted)">
                     Nuova spesa o guadagno
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                className="text-[var(--text-muted)] rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
                 <X size={15} />
@@ -217,7 +217,7 @@ export function TransactionModal({
                 {}
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
-                  <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">
+                  <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
                     <div
                       className={cn(
                         "absolute top-1 bottom-1 w-[calc(50%-6px)] rounded-lg transition-all duration-300 shadow-sm",
@@ -233,7 +233,7 @@ export function TransactionModal({
                         "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
                         txType === "expense"
                           ? "text-white"
-                          : "text-[var(--text-muted)]",
+                          : "text-(--text-muted)",
                       )}
                     >
                       <TrendingDown size={12} /> Spesa
@@ -245,7 +245,7 @@ export function TransactionModal({
                         "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
                         txType === "income"
                           ? "text-white"
-                          : "text-[var(--text-muted)]",
+                          : "text-(--text-muted)",
                       )}
                     >
                       <TrendingUp size={12} /> Guadagno
@@ -256,14 +256,14 @@ export function TransactionModal({
                 {}
                 <div>
                   <FieldLabel icon={Type}>Descrizione</FieldLabel>
-                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                     <input
                       type="text"
                       placeholder="Es. Cena, Stipendio, Affitto, Supermercato..."
                       value={txDesc}
                       onChange={(e) => setTxDesc(e.target.value)}
                       required
-                      className="text-sm text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-[var(--text-muted)]"
+                      className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted)"
                     />
                   </div>
                 </div>
@@ -291,12 +291,12 @@ export function TransactionModal({
                 {}
                 {convertedAmount !== null && (
                   <div className="flex items-center justify-between px-3 py-2.5 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-                    <div className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-muted)]">
+                    <div className="flex items-center gap-2 text-[11px] font-semibold text-(--text-muted)">
                       <ArrowLeftRight size={11} className="text-blue-500" />
                       Conversione stimata
                     </div>
                     <div className="flex items-center gap-1.5 text-xs font-black">
-                      <span className="text-[var(--text-muted)]">
+                      <span className="text-(--text-muted)">
                         {parsedAmount.toFixed(2)} {txCurrency}
                       </span>
                       <span className="text-neutral-400">→</span>
@@ -326,19 +326,19 @@ export function TransactionModal({
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="flex flex-col gap-3 p-3.5 bg-neutral-500/5 border border-[var(--card-border)] rounded-2xl overflow-hidden"
+                        className="flex flex-col gap-3 p-3.5 bg-neutral-500/5 border border-(--card-border) rounded-2xl overflow-hidden"
                       >
-                        <div className="bg-[var(--card-solid)] h-10 px-3 rounded-xl flex items-center border border-[var(--card-border)] w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                        <div className="bg-(--card-solid) h-10 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                           <input
                             type="text"
                             placeholder="Nome categoria"
                             value={newCatName}
                             onChange={(e) => setNewCatName(e.target.value)}
-                            className="text-sm text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full placeholder:text-[var(--text-muted)]"
+                            className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full placeholder:text-(--text-muted)"
                           />
                         </div>
                         <div>
-                          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider block mb-1.5">
+                          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider block mb-1.5">
                             Colore
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -349,7 +349,7 @@ export function TransactionModal({
                                 className={cn(
                                   "w-5 h-5 rounded-full cursor-pointer transition-all border-2",
                                   newCatColor === col
-                                    ? "border-[var(--foreground)] scale-110 shadow"
+                                    ? "border-foreground scale-110 shadow"
                                     : "border-transparent",
                                 )}
                                 style={{ backgroundColor: col }}
@@ -359,10 +359,10 @@ export function TransactionModal({
                           </div>
                         </div>
                         <div>
-                          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider block mb-1.5">
+                          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider block mb-1.5">
                             Icona
                           </span>
-                          <div className="flex flex-wrap gap-1.5 bg-[var(--card-solid)] p-2 rounded-xl border border-[var(--card-border)] max-h-[72px] overflow-y-auto">
+                          <div className="flex flex-wrap gap-1.5 bg-(--card-solid) p-2 rounded-xl border border-(--card-border) max-h-[72px] overflow-y-auto">
                             {CURATED_ICONS.map((ico) => (
                               <button
                                 type="button"
@@ -371,7 +371,7 @@ export function TransactionModal({
                                   "p-1 rounded-lg cursor-pointer transition-all",
                                   newCatIcon === ico
                                     ? "bg-blue-500 text-white"
-                                    : "text-[var(--foreground)] hover:bg-neutral-500/10",
+                                    : "text-foreground hover:bg-neutral-500/10",
                                 )}
                                 onClick={() => setNewCatIcon(ico)}
                               >
@@ -406,11 +406,11 @@ export function TransactionModal({
               </div>
 
               {}
-              <div className="px-6 pb-5 pt-3 border-t border-[var(--card-border)] flex-shrink-0">
+              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0">
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[var(--foreground)] text-[var(--background)] font-bold text-sm h-12 rounded-xl cursor-pointer hover:opacity-90 shadow-sm w-full border-0 disabled:opacity-50 flex items-center justify-center transition-all"
+                  className="bg-foreground text-background font-bold text-sm h-12 rounded-xl cursor-pointer hover:opacity-90 shadow-sm w-full border-0 disabled:opacity-50 flex items-center justify-center transition-all"
                 >
                   {isSubmitting ? "Salvataggio..." : "Salva Transazione"}
                 </button>

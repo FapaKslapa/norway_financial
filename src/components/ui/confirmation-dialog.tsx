@@ -59,7 +59,7 @@ export function ConfirmationDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full max-w-[350px] rounded-[2rem] p-6 shadow-2xl text-[var(--foreground)] z-10 flex flex-col items-center text-center overflow-hidden"
+            className="relative bg-(--card-solid) border border-(--card-border) w-full max-w-[350px] rounded-[2rem] p-6 shadow-2xl text-foreground z-10 flex flex-col items-center text-center overflow-hidden"
           >
             {}
             <div
@@ -76,11 +76,11 @@ export function ConfirmationDialog({
               )}
             </div>
 
-            <h3 className="font-extrabold text-sm tracking-tight mb-2 px-1 text-[var(--foreground)]">
+            <h3 className="font-extrabold text-sm tracking-tight mb-2 px-1 text-foreground">
               {title}
             </h3>
 
-            <p className="text-[10px] text-[var(--text-muted)] leading-relaxed mb-6 px-2 font-medium">
+            <p className="text-[10px] text-(--text-muted) leading-relaxed mb-6 px-2 font-medium">
               {message}
             </p>
 
@@ -88,7 +88,7 @@ export function ConfirmationDialog({
               <button
                 type="button"
                 disabled={isPending}
-                className="border border-[var(--card-border)] hover:bg-neutral-500/10 text-xs font-bold h-10 rounded-xl cursor-pointer text-[var(--foreground)] bg-transparent transition-all flex items-center justify-center disabled:opacity-50"
+                className="border border-(--card-border) hover:bg-neutral-500/10 text-xs font-bold h-10 rounded-xl cursor-pointer text-foreground bg-transparent transition-all flex items-center justify-center disabled:opacity-50"
                 onClick={onClose}
               >
                 {cancelLabel}

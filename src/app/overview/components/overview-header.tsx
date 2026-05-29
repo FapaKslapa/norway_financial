@@ -22,9 +22,9 @@ export function OverviewHeader({
         <h2 className="text-2xl font-extrabold tracking-tight">
           Panoramica Mensile
         </h2>
-        <p className="text-[var(--text-muted)] text-xs">
+        <p className="text-(--text-muted) text-xs">
           Mese corrente:{" "}
-          <span className="font-bold text-[var(--foreground)] capitalize">
+          <span className="font-bold text-foreground capitalize">
             {dayjs().format("MMMM YYYY")}
           </span>
         </p>

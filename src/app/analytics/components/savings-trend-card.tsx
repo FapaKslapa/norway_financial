@@ -39,13 +39,13 @@ export function SavingsTrendCard({
   );
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget select-none w-full h-full flex flex-col">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1 flex-shrink-0">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 apple-widget select-none w-full h-full flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-(--card-border) mb-6 flex flex-col items-start gap-1 shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <Activity size={14} className="text-blue-500" />
           Trend Ultimi 6 Mesi
         </h4>
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-[10px] text-(--text-muted)">
           Confronto entrate (sinistra) e uscite (destra)
         </p>
       </CardHeader>
@@ -106,7 +106,7 @@ export function SavingsTrendCard({
                 </div>
 
                 <div className="flex flex-col items-center mt-1">
-                  <span className="text-[10px] font-extrabold text-[var(--foreground)]">
+                  <span className="text-[10px] font-extrabold text-foreground">
                     {d.label}
                   </span>
                   <span

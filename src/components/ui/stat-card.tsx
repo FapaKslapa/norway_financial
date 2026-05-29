@@ -37,17 +37,17 @@ export function StatCard({
         ease: [0.16, 1, 0.3, 1],
       }}
       className={cn(
-        "border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 apple-widget flex flex-col justify-between select-none cursor-default",
+        "border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 apple-widget flex flex-col justify-between select-none cursor-default",
         className,
       )}
     >
       <div className="flex justify-between items-center w-full">
-        <span className="text-xs text-[var(--text-muted)] font-semibold">
+        <span className="text-xs text-(--text-muted) font-semibold">
           {title}
         </span>
         <div
           className={cn(
-            "p-1.5 rounded-lg flex-shrink-0 flex items-center justify-center",
+            "p-1.5 rounded-lg shrink-0 flex items-center justify-center",
             iconBgColor,
             iconColor,
           )}
@@ -59,7 +59,7 @@ export function StatCard({
         {typeof value === "string" || typeof value === "number" ? (
           <h3
             className={cn(
-              "text-2xl font-black tracking-tight text-[var(--foreground)] truncate w-full",
+              "text-2xl font-black tracking-tight text-foreground truncate w-full",
               String(value).length > 15 && "text-base",
               String(value).length > 11 &&
                 String(value).length <= 15 &&
@@ -74,7 +74,7 @@ export function StatCard({
           value
         )}
         {subtitle && (
-          <div className="text-[10px] text-[var(--text-muted)] mt-1">
+          <div className="text-[10px] text-(--text-muted) mt-1">
             {subtitle}
           </div>
         )}

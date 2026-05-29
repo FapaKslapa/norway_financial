@@ -26,15 +26,15 @@ export function CategoryTotalsCard({
   const totalEur = categoryTotals.reduce((sum, c) => sum + c.amountEur, 0);
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 apple-widget transition-all select-none">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 apple-widget transition-all select-none">
       <CardHeader className="flex flex-col gap-0.5 p-0 mb-4 items-start">
         <span className="text-[9px] text-blue-500 font-bold uppercase tracking-wider">
           Distribuzione Spese
         </span>
-        <h3 className="text-sm font-extrabold text-[var(--foreground)] font-sans">
+        <h3 className="text-sm font-extrabold text-foreground font-sans">
           Totali per Categoria
         </h3>
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-[10px] text-(--text-muted)">
           Basato sui filtri attivi (Solo Uscite)
         </p>
       </CardHeader>
@@ -57,16 +57,16 @@ export function CategoryTotalsCard({
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2 min-w-0">
                   <div
-                    className="p-1.5 rounded-lg text-white flex-shrink-0"
+                    className="p-1.5 rounded-lg text-white shrink-0"
                     style={{ backgroundColor: tot.color }}
                   >
                     <CategoryIcon name={tot.icon} size={11} />
                   </div>
-                  <span className="text-xs font-bold truncate text-[var(--foreground)]">
+                  <span className="text-xs font-bold truncate text-foreground">
                     {tot.name}
                   </span>
                 </div>
-                <span className="text-xs font-black text-[var(--foreground)] font-mono">
+                <span className="text-xs font-black text-foreground font-mono">
                   {formatCurrency(displayAmount, displayCurrency)}
                 </span>
               </div>
@@ -81,7 +81,7 @@ export function CategoryTotalsCard({
                 />
               </div>
 
-              <div className="flex justify-between items-center text-[8px] text-[var(--text-muted)] font-bold uppercase tracking-wider pl-1">
+              <div className="flex justify-between items-center text-[8px] text-(--text-muted) font-bold uppercase tracking-wider pl-1">
                 <span>
                   {tot.count} transazion{tot.count === 1 ? "e" : "i"}
                 </span>
@@ -92,7 +92,7 @@ export function CategoryTotalsCard({
         })}
 
         {categoryTotals.length === 0 && (
-          <div className="text-center py-6 text-xs text-[var(--text-muted)] font-medium">
+          <div className="text-center py-6 text-xs text-(--text-muted) font-medium">
             Nessuna spesa trovata per i criteri selezionati.
           </div>
         )}

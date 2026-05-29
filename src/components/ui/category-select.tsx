@@ -102,13 +102,13 @@ export function CategorySelect({
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs font-bold bg-neutral-500/5 dark:bg-zinc-800/30 text-[var(--foreground)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-[var(--card-border)] focus-visible:ring-2 focus-visible:ring-blue-500/30 select-none",
+          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs font-bold bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-(--card-border) focus-visible:ring-2 focus-visible:ring-blue-500/30 select-none",
           triggerClassName,
         )}
       >
         <div className="flex items-center gap-2 min-w-0">
           <div
-            className="w-5 h-5 rounded-md flex items-center justify-center text-white flex-shrink-0"
+            className="w-5 h-5 rounded-md flex items-center justify-center text-white shrink-0"
             style={{ backgroundColor: selected.color }}
           >
             <CategoryIcon name={selected.icon} size={11} />
@@ -117,7 +117,7 @@ export function CategorySelect({
             {selected.name || placeholder || generalLabel}
           </span>
         </div>
-        <ChevronDown size={12} className="text-neutral-400 flex-shrink-0" />
+        <ChevronDown size={12} className="text-neutral-400 shrink-0" />
       </button>
 
       <AnimatePresence>
@@ -137,13 +137,13 @@ export function CategorySelect({
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: -8 }}
               transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-              className="fixed left-1/2 top-[20vh] z-[200] w-full max-w-[360px] -translate-x-1/2 rounded-2xl border border-[var(--card-border)] bg-[var(--card-solid)] shadow-2xl overflow-hidden flex flex-col"
+              className="fixed left-1/2 top-[20vh] z-[200] w-full max-w-[360px] -translate-x-1/2 rounded-2xl border border-(--card-border) bg-(--card-solid) shadow-2xl overflow-hidden flex flex-col"
               style={{ maxHeight: "60vh" }}
             >
-              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--card-border)]">
+              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-(--card-border)">
                 <Search
                   size={14}
-                  className="text-[var(--text-muted)] flex-shrink-0"
+                  className="text-(--text-muted) shrink-0"
                 />
                 <input
                   ref={searchRef}
@@ -154,13 +154,13 @@ export function CategorySelect({
                     setQuery(e.target.value);
                     setActiveIndex(0);
                   }}
-                  className="flex-1 bg-transparent border-0 outline-none text-xs text-[var(--foreground)] placeholder:text-[var(--text-muted)] font-medium"
+                  className="flex-1 bg-transparent border-0 outline-none text-xs text-foreground placeholder:text-(--text-muted) font-medium"
                 />
                 {query && (
                   <button
                     type="button"
                     onClick={() => setQuery("")}
-                    className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors bg-transparent border-0 cursor-pointer p-0.5"
+                    className="text-(--text-muted) hover:text-foreground transition-colors bg-transparent border-0 cursor-pointer p-0.5"
                   >
                     ✕
                   </button>
@@ -172,7 +172,7 @@ export function CategorySelect({
                 className="overflow-y-auto py-1.5 flex flex-col"
               >
                 {filtered.length === 0 && (
-                  <div className="py-8 text-center text-xs text-[var(--text-muted)] font-medium">
+                  <div className="py-8 text-center text-xs text-(--text-muted) font-medium">
                     Nessuna categoria trovata.
                   </div>
                 )}
@@ -197,7 +197,7 @@ export function CategorySelect({
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className="w-6 h-6 rounded-lg flex items-center justify-center text-white flex-shrink-0"
+                          className="w-6 h-6 rounded-lg flex items-center justify-center text-white shrink-0"
                           style={{ backgroundColor: opt.color }}
                         >
                           <CategoryIcon name={opt.icon} size={12} />
@@ -207,7 +207,7 @@ export function CategorySelect({
                             "text-xs font-bold truncate",
                             isSelected
                               ? "text-blue-500"
-                              : "text-[var(--foreground)]",
+                              : "text-foreground",
                           )}
                         >
                           {opt.name}
@@ -216,7 +216,7 @@ export function CategorySelect({
                       {isSelected && (
                         <Check
                           size={13}
-                          className="text-blue-500 flex-shrink-0 ml-3"
+                          className="text-blue-500 shrink-0 ml-3"
                         />
                       )}
                     </button>

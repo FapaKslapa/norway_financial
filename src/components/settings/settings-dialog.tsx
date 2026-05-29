@@ -270,13 +270,13 @@ export function SettingsDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 16 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative w-full md:max-w-[780px] bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl flex flex-col md:flex-row text-[var(--foreground)] z-10 rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden h-[92dvh] md:h-auto md:min-h-[500px]"
+            className="relative w-full md:max-w-[780px] bg-(--card-solid) border border-(--card-border) shadow-2xl flex flex-col md:flex-row text-foreground z-10 rounded-t-[2.5rem] md:rounded-[2.5rem] overflow-hidden h-[92dvh] md:h-auto md:min-h-[500px]"
           >
             <div className="flex md:hidden justify-center pt-3 pb-0 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-[var(--card-border)]" />
+              <div className="w-10 h-1 rounded-full bg-(--card-border)" />
             </div>
 
-            <div className="flex md:hidden items-center justify-between px-6 pt-4 pb-3 border-b border-[var(--card-border)] shrink-0">
+            <div className="flex md:hidden items-center justify-between px-6 pt-4 pb-3 border-b border-(--card-border) shrink-0">
               <div className="flex items-center gap-2">
                 <Settings
                   size={15}
@@ -289,7 +289,7 @@ export function SettingsDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="h-8 w-8 rounded-full flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all"
+                className="h-8 w-8 rounded-full flex items-center justify-center text-(--text-muted) hover:text-foreground hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all"
                 aria-label="Chiudi"
               >
                 <X size={16} />
@@ -299,13 +299,13 @@ export function SettingsDialog({
             <button
               type="button"
               onClick={onClose}
-              className="hidden md:flex absolute top-4 right-4 h-8 w-8 rounded-full items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
+              className="hidden md:flex absolute top-4 right-4 h-8 w-8 rounded-full items-center justify-center text-(--text-muted) hover:text-foreground hover:bg-neutral-500/10 cursor-pointer bg-transparent border-0 transition-all z-20"
               aria-label="Chiudi"
             >
               <X size={16} />
             </button>
 
-            <div className="w-full md:w-[220px] bg-[var(--card-sidebar)] border-b md:border-b-0 md:border-r border-[var(--card-border)] p-5 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
+            <div className="w-full md:w-[220px] bg-(--card-sidebar) border-b md:border-b-0 md:border-r border-(--card-border) p-5 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible select-none shrink-0 scrollbar-none">
               <div className="hidden md:flex items-center gap-2.5 mb-5 px-2">
                 <Settings
                   size={18}
@@ -322,8 +322,8 @@ export function SettingsDialog({
                 className={cn(
                   "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "general"
-                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
+                    ? "bg-foreground text-background shadow-md"
+                    : "text-(--text-muted) hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-foreground",
                 )}
               >
                 <Sliders size={15} />
@@ -336,8 +336,8 @@ export function SettingsDialog({
                 className={cn(
                   "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "budget"
-                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
+                    ? "bg-foreground text-background shadow-md"
+                    : "text-(--text-muted) hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-foreground",
                 )}
               >
                 <DollarSign size={15} />
@@ -350,8 +350,8 @@ export function SettingsDialog({
                 className={cn(
                   "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "profile"
-                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
+                    ? "bg-foreground text-background shadow-md"
+                    : "text-(--text-muted) hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-foreground",
                 )}
               >
                 <User size={15} />
@@ -364,8 +364,8 @@ export function SettingsDialog({
                 className={cn(
                   "flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all border-0 cursor-pointer flex-1 md:flex-none md:w-full md:text-left bg-transparent shrink-0 hover:scale-[1.02] active:scale-[0.98]",
                   activeTab === "notifications"
-                    ? "bg-[var(--foreground)] text-[var(--background)] shadow-md"
-                    : "text-[var(--text-muted)] hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-[var(--foreground)]",
+                    ? "bg-foreground text-background shadow-md"
+                    : "text-(--text-muted) hover:bg-neutral-100 dark:hover:bg-zinc-800/40 hover:text-foreground",
                 )}
               >
                 <Bell size={15} />
@@ -381,14 +381,14 @@ export function SettingsDialog({
                       <h4 className="text-base font-black tracking-tight mb-1">
                         Visualizzazione & Stile
                       </h4>
-                      <p className="text-xs text-[var(--text-muted)]">
+                      <p className="text-xs text-(--text-muted)">
                         Modifica le preferenze estetiche dell'applicazione
                       </p>
                     </div>
 
-                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
                       <div className="flex flex-col gap-2">
-                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                        <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                           Valuta Preferita
                         </span>
                         <CurrencySelect
@@ -399,18 +399,18 @@ export function SettingsDialog({
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                        <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                           Modalità Tema
                         </span>
-                        <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 w-full border border-[var(--card-border)]/40">
+                        <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 w-full border border-(--card-border)/40">
                           <button
                             type="button"
                             onClick={() => changeTheme("light")}
                             className={cn(
-                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-[var(--foreground)]",
+                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-foreground",
                               theme === "light"
-                                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                                : "text-[var(--text-muted)]",
+                                ? "bg-foreground text-background shadow-sm"
+                                : "text-(--text-muted)",
                             )}
                           >
                             <Sun size={13} /> Chiaro
@@ -419,10 +419,10 @@ export function SettingsDialog({
                             type="button"
                             onClick={() => changeTheme("dark")}
                             className={cn(
-                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-[var(--foreground)]",
+                              "flex-1 py-2 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent hover:text-foreground",
                               theme === "dark"
-                                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                                : "text-[var(--text-muted)]",
+                                ? "bg-foreground text-background shadow-sm"
+                                : "text-(--text-muted)",
                             )}
                           >
                             <Moon size={13} /> Scuro
@@ -431,10 +431,10 @@ export function SettingsDialog({
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                        <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                           Colore Accento
                         </span>
-                        <div className="flex flex-wrap gap-3 p-3 bg-neutral-100/50 dark:bg-zinc-800/20 rounded-xl border border-[var(--card-border)]/40">
+                        <div className="flex flex-wrap gap-3 p-3 bg-neutral-100/50 dark:bg-zinc-800/20 rounded-xl border border-(--card-border)/40">
                           {ACCENT_COLORS.map((col) => (
                             <button
                               key={col.id}
@@ -463,7 +463,7 @@ export function SettingsDialog({
                       <h4 className="text-base font-black tracking-tight mb-1">
                         Limiti Budget Mensile
                       </h4>
-                      <p className="text-xs text-[var(--text-muted)]">
+                      <p className="text-xs text-(--text-muted)">
                         Imposta i tuoi obiettivi di spesa mensili in{" "}
                         <span className="font-extrabold text-blue-500">
                           {displayCurrency}
@@ -471,10 +471,10 @@ export function SettingsDialog({
                       </p>
                     </div>
 
-                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/60 rounded-[1.5rem] p-5 flex flex-col gap-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
-                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                             Budget Target (Obiettivo)
                           </span>
                           <MoneyInput
@@ -486,7 +486,7 @@ export function SettingsDialog({
                         </div>
 
                         <div className="flex flex-col gap-2">
-                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                             Budget Massimo (Limite)
                           </span>
                           <MoneyInput
@@ -499,10 +499,10 @@ export function SettingsDialog({
                       </div>
 
                       {displayCurrency === "EUR" && (
-                        <div className="flex items-start gap-2.5 text-[10px] text-[var(--text-muted)] bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
+                        <div className="flex items-start gap-2.5 text-[10px] text-(--text-muted) bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
                           <Info
                             size={13}
-                            className="flex-shrink-0 mt-0.5 text-blue-500"
+                            className="shrink-0 mt-0.5 text-blue-500"
                           />
                           <span>
                             I valori vengono convertiti in NOK al salvataggio
@@ -518,14 +518,14 @@ export function SettingsDialog({
                         <h5 className="text-xs font-black mb-0.5">
                           Budget per Categoria
                         </h5>
-                        <p className="text-[10px] text-[var(--text-muted)]">
+                        <p className="text-[10px] text-(--text-muted)">
                           Imposta limiti specifici per categoria di spesa
                         </p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[220px] overflow-y-auto pr-1">
                         {categoriesQuery.isLoading ? (
-                          <div className="text-xs text-[var(--text-muted)] py-4 text-center font-bold col-span-2">
+                          <div className="text-xs text-(--text-muted) py-4 text-center font-bold col-span-2">
                             Caricamento...
                           </div>
                         ) : categoriesQuery.data &&
@@ -533,20 +533,20 @@ export function SettingsDialog({
                           categoriesQuery.data.map((cat) => (
                             <div
                               key={cat.id}
-                              className="flex items-center justify-between gap-3 bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/50 rounded-2xl p-2.5"
+                              className="flex items-center justify-between gap-3 bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/50 rounded-2xl p-2.5"
                             >
                               <div className="flex items-center gap-2 min-w-0">
                                 <div
-                                  className="w-7 h-7 rounded-xl flex items-center justify-center text-white flex-shrink-0"
+                                  className="w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0"
                                   style={{ backgroundColor: cat.color }}
                                 >
                                   <CategoryIcon name={cat.icon} size={13} />
                                 </div>
-                                <span className="text-[11px] font-bold text-[var(--foreground)] truncate">
+                                <span className="text-[11px] font-bold text-foreground truncate">
                                   {cat.name}
                                 </span>
                               </div>
-                              <div className="w-[110px] flex-shrink-0">
+                              <div className="w-[110px] shrink-0">
                                 <MoneyInput
                                   value={catBudgets[cat.id] || "0.00"}
                                   onChange={(newVal) => {
@@ -562,7 +562,7 @@ export function SettingsDialog({
                             </div>
                           ))
                         ) : (
-                          <div className="text-xs text-[var(--text-muted)] py-4 text-center font-bold col-span-2">
+                          <div className="text-xs text-(--text-muted) py-4 text-center font-bold col-span-2">
                             Nessuna categoria
                           </div>
                         )}
@@ -577,13 +577,13 @@ export function SettingsDialog({
                       <h4 className="text-base font-black tracking-tight mb-1">
                         Informazioni Profilo
                       </h4>
-                      <p className="text-xs text-[var(--text-muted)]">
+                      <p className="text-xs text-(--text-muted)">
                         Gestisci le tue informazioni personali e l'immagine del
                         profilo
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-6 p-6 bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] items-center">
+                    <div className="flex flex-col gap-6 p-6 bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/60 rounded-[1.5rem] items-center">
                       <button
                         type="button"
                         className="relative group cursor-pointer border-0 p-0 bg-transparent rounded-full outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
@@ -632,7 +632,7 @@ export function SettingsDialog({
 
                       <div className="w-full flex flex-col gap-4 mt-2">
                         <div className="flex flex-col gap-1.5 text-left">
-                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                             Nome Profilo
                           </span>
                           <input
@@ -641,24 +641,24 @@ export function SettingsDialog({
                             value={profileName}
                             onChange={(e) => setProfileName(e.target.value)}
                             required
-                            className="h-11 px-3.5 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
+                            className="h-11 px-3.5 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-foreground placeholder:text-(--text-muted) focus-within:ring-2 focus-within:ring-blue-500/20"
                           />
                         </div>
 
                         <div className="flex flex-col gap-1.5 text-left opacity-75">
-                          <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                          <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                             Indirizzo Email
                           </span>
                           <input
                             type="email"
                             value={user.email}
                             disabled
-                            className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--text-muted)] cursor-not-allowed"
+                            className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-(--text-muted) cursor-not-allowed"
                           />
                         </div>
                       </div>
 
-                      <div className="w-full border-t border-[var(--card-border)]/40 my-2" />
+                      <div className="w-full border-t border-(--card-border)/40 my-2" />
 
                       <button
                         type="button"
@@ -678,12 +678,12 @@ export function SettingsDialog({
                       <h4 className="text-base font-black tracking-tight mb-1">
                         Preferenze Notifiche
                       </h4>
-                      <p className="text-xs text-[var(--text-muted)]">
+                      <p className="text-xs text-(--text-muted)">
                         Scegli quando ricevere notifiche in-app
                       </p>
                     </div>
 
-                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/60 rounded-[1.5rem] p-5 flex flex-col divide-y divide-[var(--card-border)]/40">
+                    <div className="bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/60 rounded-[1.5rem] p-5 flex flex-col divide-y divide-(--card-border)/40">
                       {(
                         [
                           {
@@ -719,10 +719,10 @@ export function SettingsDialog({
                           className="flex items-center justify-between gap-4 py-3.5 first:pt-0 last:pb-0"
                         >
                           <div className="flex flex-col gap-0.5 min-w-0">
-                            <span className="text-xs font-bold text-[var(--foreground)]">
+                            <span className="text-xs font-bold text-foreground">
                               {label}
                             </span>
-                            <span className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                            <span className="text-[10px] text-(--text-muted) leading-relaxed">
                               {description}
                             </span>
                           </div>
@@ -751,11 +751,11 @@ export function SettingsDialog({
                   </div>
                 )}
               </div>
-              <div className="flex gap-3 mt-6 pt-5 border-t border-[var(--card-border)] shrink-0 bg-[var(--card-solid)]">
+              <div className="flex gap-3 mt-6 pt-5 border-t border-(--card-border) shrink-0 bg-(--card-solid)">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-2xl h-11 cursor-pointer bg-transparent transition-all"
+                  className="flex-1 text-foreground border border-(--card-border) hover:bg-neutral-100 dark:hover:bg-zinc-800/50 text-xs font-bold rounded-2xl h-11 cursor-pointer bg-transparent transition-all"
                 >
                   Annulla
                 </button>
@@ -763,7 +763,7 @@ export function SettingsDialog({
                   type="button"
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="flex-1 bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-black rounded-2xl h-11 cursor-pointer flex items-center justify-center gap-2 border-0 disabled:opacity-50 transition-all"
+                  className="flex-1 bg-foreground text-background hover:opacity-90 text-xs font-black rounded-2xl h-11 cursor-pointer flex items-center justify-center gap-2 border-0 disabled:opacity-50 transition-all"
                 >
                   {isSaving ? (
                     <Loader2 size={14} className="animate-spin" />

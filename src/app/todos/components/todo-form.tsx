@@ -70,7 +70,7 @@ export function TodoForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col sm:flex-row gap-2 p-2 bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-[var(--card-shadow)] relative z-20"
+      className="flex flex-col sm:flex-row gap-2 p-2 bg-(--card) border border-(--card-border) rounded-2xl shadow-(--card-shadow) relative z-20"
     >
       <div className="flex items-center gap-2 flex-1">
         <input
@@ -79,7 +79,7 @@ export function TodoForm({
           value={todoTitle}
           onChange={(e) => setTodoTitle(e.target.value)}
           required
-          className="text-xs text-[var(--foreground)] flex-1 min-w-0 bg-neutral-500/5 dark:bg-zinc-800/30 border border-[var(--card-border)] focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold placeholder:font-normal transition-all"
+          className="text-xs text-foreground flex-1 min-w-0 bg-neutral-500/5 dark:bg-zinc-800/30 border border-(--card-border) focus:border-blue-500/50 h-10 px-3.5 rounded-xl outline-none font-semibold placeholder:font-normal transition-all"
         />
         <button
           type="submit"
@@ -105,7 +105,7 @@ export function TodoForm({
             onChange={setTodoEstAmount}
             currency={todoEstCurrency}
             placeholder="0.00"
-            className="h-10 border border-[var(--card-border)] bg-neutral-500/5 dark:bg-zinc-800/30"
+            className="h-10 border border-(--card-border) bg-neutral-500/5 dark:bg-zinc-800/30"
             inputClassName="text-xs font-bold"
           />
         </div>

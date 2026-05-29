@@ -318,12 +318,12 @@ export default function TransactionsView() {
           <h2 className="text-lg md:text-2xl font-black tracking-tight">
             Transazioni
           </h2>
-          <p className="text-[var(--text-muted)] text-xs hidden md:block">
+          <p className="text-(--text-muted) text-xs hidden md:block">
             Visualizza, filtra o importa le tue spese ed entrate
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 md:gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           <Button
             variant="outline"
             className="font-bold text-xs bg-blue-500 text-white border-0 hover:opacity-90 rounded-xl h-9 md:h-10 px-2.5 md:px-4 flex items-center justify-center gap-1 cursor-pointer shadow-sm"
@@ -336,7 +336,7 @@ export default function TransactionsView() {
 
           <Button
             variant="outline"
-            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
+            className="font-semibold text-xs border-(--card-border) hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-foreground bg-(--card)"
             onPress={() => setIsCsvModalOpen(true)}
           >
             <FileSpreadsheet size={13} className="text-emerald-500" />
@@ -346,7 +346,7 @@ export default function TransactionsView() {
 
           <Button
             variant="outline"
-            className="font-semibold text-xs border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-[var(--foreground)] bg-[var(--card)]"
+            className="font-semibold text-xs border-(--card-border) hover:bg-neutral-500/10 rounded-xl h-9 md:h-10 px-2.5 md:px-3 flex items-center justify-center gap-1.5 cursor-pointer text-foreground bg-(--card)"
             onPress={() => setIsCatManageOpen(true)}
           >
             <span className="hidden sm:inline">Gestisci Categorie</span>
@@ -355,15 +355,15 @@ export default function TransactionsView() {
         </div>
       </motion.div>
 
-      <div className="flex lg:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none">
+      <div className="flex lg:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-(--card-border) p-1 w-full shrink-0 select-none">
         <button
           type="button"
           onClick={() => setActiveMobileTab("list")}
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeMobileTab === "list"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Transazioni
@@ -374,8 +374,8 @@ export default function TransactionsView() {
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeMobileTab === "summary"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Riepilogo
@@ -386,8 +386,8 @@ export default function TransactionsView() {
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent flex items-center justify-center gap-1",
             activeMobileTab === "filters"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Filtri
@@ -431,7 +431,7 @@ export default function TransactionsView() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          "flex bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm max-w-[380px] select-none",
+          "flex bg-(--card) border border-(--card-border) rounded-2xl p-1 shadow-sm max-w-[380px] select-none",
           activeMobileTab !== "list" && "hidden lg:flex",
         )}
       >
@@ -443,8 +443,8 @@ export default function TransactionsView() {
             className={cn(
               "flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 bg-transparent",
               viewMode === mode
-                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                : "text-[var(--text-muted)] hover:bg-neutral-500/10 hover:text-[var(--foreground)]",
+                ? "bg-foreground text-background shadow-sm"
+                : "text-(--text-muted) hover:bg-neutral-500/10 hover:text-foreground",
             )}
           >
             {mode === "timeline" && <List size={13} />}

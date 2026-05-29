@@ -12,8 +12,8 @@ export function OverviewFriendBalancesCard() {
 
   if (query.isLoading) {
     return (
-      <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] h-full flex flex-col justify-center items-center">
-        <span className="text-xs text-[var(--text-muted)] font-bold">
+      <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] h-full flex flex-col justify-center items-center">
+        <span className="text-xs text-(--text-muted) font-bold">
           Caricamento bilancio...
         </span>
       </Card>
@@ -42,21 +42,21 @@ export function OverviewFriendBalancesCard() {
   const netBalance = totalCredit - totalDebit;
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col justify-between">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-4 flex flex-col items-start gap-1">
+    <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col justify-between">
+      <CardHeader className="p-0 pb-4 border-b border-(--card-border) mb-4 flex flex-col items-start gap-1">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <Users size={14} className="text-blue-500" />
           Bilancio Amici
         </h4>
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-[10px] text-(--text-muted)">
           Riepilogo dei debiti e crediti con i tuoi contatti
         </p>
       </CardHeader>
 
       <CardContent className="p-0 flex-1 flex flex-col gap-4 overflow-hidden">
-        <div className="grid grid-cols-2 gap-3.5 bg-neutral-500/5 dark:bg-zinc-800/10 border border-[var(--card-border)]/40 p-3 rounded-2xl">
+        <div className="grid grid-cols-2 gap-3.5 bg-neutral-500/5 dark:bg-zinc-800/10 border border-(--card-border)/40 p-3 rounded-2xl">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider flex items-center gap-0.5">
+            <span className="text-[8px] text-(--text-muted) font-black uppercase tracking-wider flex items-center gap-0.5">
               <ArrowDownLeft size={10} className="text-emerald-500" /> Ti Devono
             </span>
             <span className="text-xs font-black text-emerald-500">
@@ -64,7 +64,7 @@ export function OverviewFriendBalancesCard() {
             </span>
           </div>
           <div className="flex flex-col gap-0.5 items-end">
-            <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-wider flex items-center gap-0.5">
+            <span className="text-[8px] text-(--text-muted) font-black uppercase tracking-wider flex items-center gap-0.5">
               Devi Dare <ArrowUpRight size={10} className="text-rose-500" />
             </span>
             <span className="text-xs font-black text-rose-500">
@@ -75,7 +75,7 @@ export function OverviewFriendBalancesCard() {
 
         <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2.5 max-h-[140px] scrollbar-none">
           {convertedItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center text-[var(--text-muted)] h-full">
+            <div className="flex flex-col items-center justify-center py-6 text-center text-(--text-muted) h-full">
               <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-1.5">
                 <Check size={14} />
               </div>
@@ -91,17 +91,17 @@ export function OverviewFriendBalancesCard() {
               return (
                 <div
                   key={item.user.id}
-                  className="flex items-center justify-between p-2 rounded-xl bg-neutral-500/5 border border-[var(--card-border)]/30 hover:bg-neutral-500/10 transition-colors"
+                  className="flex items-center justify-between p-2 rounded-xl bg-neutral-500/5 border border-(--card-border)/30 hover:bg-neutral-500/10 transition-colors"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-6 w-6 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center font-bold text-[10px] uppercase flex-shrink-0">
+                    <div className="h-6 w-6 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
                       {initials}
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[11px] font-bold text-[var(--foreground)] truncate">
+                      <span className="text-[11px] font-bold text-foreground truncate">
                         {item.user.name || "Amico"}
                       </span>
-                      <span className="text-[8px] text-[var(--text-muted)] truncate">
+                      <span className="text-[8px] text-(--text-muted) truncate">
                         {item.user.email}
                       </span>
                     </div>
@@ -123,8 +123,8 @@ export function OverviewFriendBalancesCard() {
         </div>
       </CardContent>
 
-      <div className="border-t border-[var(--card-border)] pt-3.5 mt-3 flex justify-between items-center text-[10px]">
-        <span className="text-[9px] text-[var(--text-muted)] font-extrabold uppercase">
+      <div className="border-t border-(--card-border) pt-3.5 mt-3 flex justify-between items-center text-[10px]">
+        <span className="text-[9px] text-(--text-muted) font-extrabold uppercase">
           Stato Netto
         </span>
         <span
@@ -134,7 +134,7 @@ export function OverviewFriendBalancesCard() {
               ? "text-emerald-500"
               : netBalance < 0
                 ? "text-rose-500"
-                : "text-[var(--text-muted)]",
+                : "text-(--text-muted)",
           )}
         >
           {netBalance > 0 ? "+" : ""}

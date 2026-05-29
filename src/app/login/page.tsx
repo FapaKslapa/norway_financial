@@ -48,20 +48,20 @@ export default function LoginPage() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center bg-[var(--background)] px-4 select-none transition-colors duration-500"
+      className="relative min-h-screen flex items-center justify-center bg-background px-4 select-none transition-colors duration-500"
     >
       <div className="absolute top-6 right-6 z-50">
         <button
           type="button"
           onClick={toggleTheme}
-          className="w-9 h-9 bg-[var(--card-solid)] border border-[var(--card-border)] shadow-sm hover:scale-105 active:scale-95 transition-all text-[var(--foreground)] rounded-full flex items-center justify-center cursor-pointer"
+          className="w-9 h-9 bg-(--card-solid) border border-(--card-border) shadow-sm hover:scale-105 active:scale-95 transition-all text-foreground rounded-full flex items-center justify-center cursor-pointer"
         >
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </div>
 
       <div ref={cardRef} className="w-full max-w-[400px] z-10">
-        <div className="w-full border border-[var(--card-border)] bg-[var(--card-solid)] shadow-[var(--card-shadow)] py-8 px-6 rounded-3xl text-[var(--foreground)] transition-all duration-300">
+        <div className="w-full border border-(--card-border) bg-(--card-solid) shadow-(--card-shadow) py-8 px-6 rounded-3xl text-foreground transition-all duration-300">
           <div className="flex flex-col gap-2 items-center justify-center pb-6">
             <Image
               src="/logo.png"
@@ -70,17 +70,17 @@ export default function LoginPage() {
               height={56}
               className="rounded-2xl mb-2"
             />
-            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">
               Gravio
             </h1>
-            <p className="text-xs text-[var(--text-muted)] text-center font-normal max-w-[280px]">
+            <p className="text-xs text-(--text-muted) text-center font-normal max-w-[280px]">
               Gestisci le tue finanze personali in qualsiasi valuta.
             </p>
           </div>
 
-          <div className="relative flex p-1 bg-neutral-500/5 border border-[var(--card-border)] rounded-xl mb-6">
+          <div className="relative flex p-1 bg-neutral-500/5 border border-(--card-border) rounded-xl mb-6">
             <motion.div
-              className="absolute top-1 bottom-1 rounded-lg bg-[var(--card-solid)] shadow-sm border border-[var(--card-border)]"
+              className="absolute top-1 bottom-1 rounded-lg bg-(--card-solid) shadow-sm border border-(--card-border)"
               animate={{
                 left: tab === "login" ? 4 : "calc(50%)",
                 width: "calc(50% - 4px)",
@@ -90,14 +90,14 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setTab("login")}
-              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "login" ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}`}
+              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "login" ? "text-foreground" : "text-(--text-muted)"}`}
             >
               Accedi
             </button>
             <button
               type="button"
               onClick={() => setTab("register")}
-              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "register" ? "text-[var(--foreground)]" : "text-[var(--text-muted)]"}`}
+              className={`flex-1 text-[11px] font-bold py-2 z-10 relative transition-colors cursor-pointer bg-transparent border-0 rounded-lg ${tab === "register" ? "text-foreground" : "text-(--text-muted)"}`}
             >
               Registrati
             </button>
@@ -179,12 +179,12 @@ function LoginForm() {
           >
             <CheckCircle2 size={32} />
           </motion.div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             Controlla la tua email
           </h3>
-          <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-w-[260px]">
+          <p className="text-xs text-(--text-muted) leading-relaxed mb-6 max-w-[260px]">
             Abbiamo inviato un link di accesso a{" "}
-            <strong className="text-[var(--foreground)]">{email}</strong>.
+            <strong className="text-foreground">{email}</strong>.
             Controlla anche la cartella spam.
           </p>
           <button
@@ -193,7 +193,7 @@ function LoginForm() {
               setIsSuccess(false);
               setEmail("");
             }}
-            className="w-full py-2.5 text-xs font-semibold border border-[var(--card-border)] text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer rounded-xl bg-transparent transition-all"
+            className="w-full py-2.5 text-xs font-semibold border border-(--card-border) text-foreground hover:bg-neutral-500/10 cursor-pointer rounded-xl bg-transparent transition-all"
           >
             Usa un'altra email
           </button>
@@ -210,14 +210,14 @@ function LoginForm() {
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="login-email"
-              className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+              className="text-[11px] text-(--text-muted) font-semibold tracking-wider uppercase ml-1"
             >
               Email
             </label>
-            <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+            <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-(--card-border) focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
               <Mail
                 size={15}
-                className="text-[var(--text-muted)] flex-shrink-0"
+                className="text-(--text-muted) shrink-0"
               />
               <input
                 id="login-email"
@@ -226,7 +226,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+                className="text-xs placeholder:text-neutral-400 text-foreground flex-1 bg-transparent border-0 outline-none"
               />
             </div>
           </div>
@@ -239,7 +239,7 @@ function LoginForm() {
                 exit={{ opacity: 0, y: -8 }}
                 className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs"
               >
-                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
                 <span>{error}</span>
               </motion.div>
             )}
@@ -250,7 +250,7 @@ function LoginForm() {
             disabled={isLoading}
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            className="mt-1 w-full bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
+            className="mt-1 w-full bg-foreground text-background font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
           >
             {isLoading ? (
               <>
@@ -265,7 +265,7 @@ function LoginForm() {
             )}
           </motion.button>
 
-          <p className="text-center text-[10px] text-[var(--text-muted)] border-t border-[var(--card-border)] pt-4 leading-relaxed">
+          <p className="text-center text-[10px] text-(--text-muted) border-t border-(--card-border) pt-4 leading-relaxed">
             Riceverai un link via email. Nessuna password richiesta.
           </p>
         </motion.form>
@@ -305,18 +305,18 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         >
           <CheckCircle2 size={32} />
         </motion.div>
-        <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">
+        <h3 className="text-lg font-semibold text-foreground mb-2">
           Controlla la tua email
         </h3>
-        <p className="text-xs text-[var(--text-muted)] leading-relaxed mb-6 max-w-[260px]">
+        <p className="text-xs text-(--text-muted) leading-relaxed mb-6 max-w-[260px]">
           Abbiamo inviato un link di attivazione a{" "}
-          <strong className="text-[var(--foreground)]">{email}</strong>. Dopo
+          <strong className="text-foreground">{email}</strong>. Dopo
           l'attivazione potrai accedere con Magic Link.
         </p>
         <button
           type="button"
           onClick={onSuccess}
-          className="w-full py-2.5 text-xs font-semibold bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 cursor-pointer rounded-xl border-0 transition-all"
+          className="w-full py-2.5 text-xs font-semibold bg-foreground text-background hover:opacity-90 cursor-pointer rounded-xl border-0 transition-all"
         >
           Vai al login
         </button>
@@ -329,12 +329,12 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-name"
-          className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+          className="text-[11px] text-(--text-muted) font-semibold tracking-wider uppercase ml-1"
         >
           Nome
         </label>
-        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-          <User size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-(--card-border) focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+          <User size={15} className="text-(--text-muted) shrink-0" />
           <input
             id="reg-name"
             type="text"
@@ -342,7 +342,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+            className="text-xs placeholder:text-neutral-400 text-foreground flex-1 bg-transparent border-0 outline-none"
           />
         </div>
       </div>
@@ -350,12 +350,12 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="reg-email"
-          className="text-[11px] text-[var(--text-muted)] font-semibold tracking-wider uppercase ml-1"
+          className="text-[11px] text-(--text-muted) font-semibold tracking-wider uppercase ml-1"
         >
           Email
         </label>
-        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-          <Mail size={15} className="text-[var(--text-muted)] flex-shrink-0" />
+        <div className="bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center gap-2 border border-(--card-border) focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+          <Mail size={15} className="text-(--text-muted) shrink-0" />
           <input
             id="reg-email"
             type="email"
@@ -363,7 +363,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="text-xs placeholder:text-neutral-400 text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none"
+            className="text-xs placeholder:text-neutral-400 text-foreground flex-1 bg-transparent border-0 outline-none"
           />
         </div>
       </div>
@@ -376,7 +376,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             exit={{ opacity: 0, y: -8 }}
             className="flex items-start gap-2.5 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs"
           >
-            <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+            <AlertCircle size={14} className="shrink-0 mt-0.5" />
             <span>{registerMutation.error.message}</span>
           </motion.div>
         )}
@@ -387,7 +387,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         disabled={registerMutation.isPending}
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
-        className="mt-1 w-full bg-[var(--foreground)] text-[var(--background)] font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
+        className="mt-1 w-full bg-foreground text-background font-semibold text-xs h-11 flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:opacity-90 rounded-xl border-0 disabled:opacity-50 transition-all"
       >
         {registerMutation.isPending ? (
           <>
@@ -402,7 +402,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         )}
       </motion.button>
 
-      <p className="text-center text-[10px] text-[var(--text-muted)] border-t border-[var(--card-border)] pt-4 leading-relaxed">
+      <p className="text-center text-[10px] text-(--text-muted) border-t border-(--card-border) pt-4 leading-relaxed">
         Riceverai un'email di attivazione. Nessuna password.
       </p>
     </form>

@@ -73,15 +73,15 @@ export function TodoItems({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full flex-shrink-0 select-none mb-2">
+      <div className="flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-(--card-border) p-1 w-full shrink-0 select-none mb-2">
         <button
           type="button"
           onClick={() => setActiveTab("active")}
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeTab === "active"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Da Acquistare ({activeTodos.length})
@@ -92,8 +92,8 @@ export function TodoItems({
           className={cn(
             "flex-1 py-2 text-xs font-extrabold rounded-[0.9rem] transition-all border-0 cursor-pointer bg-transparent",
             activeTab === "completed"
-              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-              : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+              ? "bg-foreground text-background shadow-sm"
+              : "text-(--text-muted) hover:text-foreground",
           )}
         >
           Completati ({completedTodos.length})
@@ -102,14 +102,14 @@ export function TodoItems({
 
       <div
         className={cn(
-          "border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-5 rounded-3xl transition-all",
+          "border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-3xl transition-all",
           activeTab !== "active" && "hidden md:block",
         )}
       >
-        <div className="flex flex-row items-center justify-between pb-3 border-b border-[var(--card-border)] mb-4 gap-2">
+        <div className="flex flex-row items-center justify-between pb-3 border-b border-(--card-border) mb-4 gap-2">
           <div className="flex items-center gap-2">
             <ShoppingBag size={14} className="text-blue-500" />
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">
+            <span className="text-xs font-bold uppercase tracking-wider text-(--text-muted)">
               <span className="hidden sm:inline">Articoli da Acquistare</span>
               <span className="sm:hidden">Da Acquistare</span> (
               {activeTodos.length})
@@ -128,7 +128,7 @@ export function TodoItems({
                       );
                       onToggleAllSelectTodos(!allSelected);
                     }}
-                    className="text-[10px] font-bold px-2 py-1 rounded-xl border border-[var(--card-border)] bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
+                    className="text-[10px] font-bold px-2 py-1 rounded-xl border border-(--card-border) bg-neutral-500/5 hover:bg-neutral-500/10 cursor-pointer transition-all"
                   >
                     {activeTodos.every((t) =>
                       selectedTodoIds.includes(t.id),
@@ -216,7 +216,7 @@ export function TodoItems({
                   isSelectionMode && "cursor-pointer",
                   isSelectionMode && isSelected
                     ? "bg-blue-500/5 border-blue-500/30 shadow-sm"
-                    : "bg-neutral-500/5 dark:bg-zinc-800/10 border-[var(--card-border)] hover:bg-neutral-500/10 dark:hover:bg-zinc-800/20",
+                    : "bg-neutral-500/5 dark:bg-zinc-800/10 border-(--card-border) hover:bg-neutral-500/10 dark:hover:bg-zinc-800/20",
                 )}
               >
                 <div className="flex items-center gap-3.5 min-w-0 flex-1">
@@ -227,7 +227,7 @@ export function TodoItems({
                         e.stopPropagation();
                         onToggleSelectTodo(todoItem.id);
                       }}
-                      className="h-5 w-5 rounded-lg text-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 border-0 bg-transparent"
+                      className="h-5 w-5 rounded-lg text-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer shrink-0 border-0 bg-transparent"
                       title="Seleziona"
                     >
                       {isSelected ? (
@@ -243,7 +243,7 @@ export function TodoItems({
                         e.stopPropagation();
                         onToggleTodo(todoItem.id, true);
                       }}
-                      className="h-5 w-5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer flex-shrink-0 group/check"
+                      className="h-5 w-5 rounded-full border border-neutral-300 dark:border-neutral-700 hover:border-blue-500 hover:bg-blue-500/10 flex items-center justify-center transition-all cursor-pointer shrink-0 group/check"
                       title="Segna come completato"
                     >
                       <Check
@@ -254,11 +254,11 @@ export function TodoItems({
                   )}
 
                   <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-[var(--foreground)] truncate">
+                    <span className="text-xs font-bold text-foreground truncate">
                       {todoItem.title}
                     </span>
                     {todoItem.notes && (
-                      <p className="text-[10px] text-[var(--text-muted)] font-normal mt-0.5 line-clamp-2 leading-relaxed">
+                      <p className="text-[10px] text-(--text-muted) font-normal mt-0.5 line-clamp-2 leading-relaxed">
                         {todoItem.notes}
                       </p>
                     )}
@@ -273,7 +273,7 @@ export function TodoItems({
                         </span>
                       )}
                       {estAmountNum && (
-                        <span className="text-[9px] text-[var(--text-muted)] font-medium select-none">
+                        <span className="text-[9px] text-(--text-muted) font-medium select-none">
                           Stima:{" "}
                           {formatCurrency(
                             estAmountNum,
@@ -286,7 +286,7 @@ export function TodoItems({
                 </div>
 
                 {!isSelectionMode && (
-                  <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                  <div className="flex items-center gap-2 ml-2 shrink-0">
                     <button
                       type="button"
                       className="text-rose-500 hover:bg-rose-500/15 rounded-lg h-7 w-7 border-0 cursor-pointer flex items-center justify-center bg-transparent transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
@@ -305,7 +305,7 @@ export function TodoItems({
           })}
 
           {activeTodos.length === 0 && (
-            <div className="text-center py-10 text-xs text-[var(--text-muted)] font-medium col-span-full">
+            <div className="text-center py-10 text-xs text-(--text-muted) font-medium col-span-full">
               Nessun elemento attivo in questa lista. Aggiungine uno qui sopra!
             </div>
           )}
@@ -315,14 +315,14 @@ export function TodoItems({
       {completedTodos.length > 0 && (
         <div
           className={cn(
-            "border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-4 rounded-3xl transition-all",
+            "border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-4 rounded-3xl transition-all",
             activeTab !== "completed" && "hidden md:block",
           )}
         >
           <button
             type="button"
             onClick={() => setShowCompleted(!showCompleted)}
-            className="w-full flex items-center justify-between text-left cursor-pointer border-0 bg-transparent py-1 px-1 outline-none select-none text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
+            className="w-full flex items-center justify-between text-left cursor-pointer border-0 bg-transparent py-1 px-1 outline-none select-none text-(--text-muted) hover:text-foreground transition-colors"
           >
             <div className="flex items-center gap-2">
               <div className="p-1 rounded-md bg-emerald-500/10 text-emerald-500">
@@ -361,14 +361,14 @@ export function TodoItems({
                     return (
                       <div
                         key={todoItem.id}
-                        className="flex justify-between items-center p-3 rounded-2xl border border-[var(--card-border)] bg-neutral-500/5 dark:bg-zinc-800/5 hover:bg-neutral-500/10 dark:hover:bg-zinc-800/15 opacity-75 hover:opacity-100 transition-all group"
+                        className="flex justify-between items-center p-3 rounded-2xl border border-(--card-border) bg-neutral-500/5 dark:bg-zinc-800/5 hover:bg-neutral-500/10 dark:hover:bg-zinc-800/15 opacity-75 hover:opacity-100 transition-all group"
                       >
                         <div className="flex items-center gap-3.5 min-w-0 flex-1">
                           {}
                           <button
                             type="button"
                             onClick={() => onToggleTodo(todoItem.id, false)}
-                            className="h-5 w-5 rounded-full bg-blue-500 border border-transparent flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
+                            className="h-5 w-5 rounded-full bg-blue-500 border border-transparent flex items-center justify-center transition-all cursor-pointer shrink-0"
                             title="Segna come da acquistare"
                           >
                             <Check
@@ -378,11 +378,11 @@ export function TodoItems({
                           </button>
 
                           <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-semibold text-[var(--foreground)] line-through text-[var(--text-muted)] truncate">
+                            <span className="text-xs font-semibold text-foreground line-through text-(--text-muted) truncate">
                               {todoItem.title}
                             </span>
                             {todoItem.notes && (
-                              <p className="text-[10px] text-[var(--text-muted)]/60 font-normal mt-0.5 line-clamp-2 line-through leading-relaxed">
+                              <p className="text-[10px] text-(--text-muted)/60 font-normal mt-0.5 line-clamp-2 line-through leading-relaxed">
                                 {todoItem.notes}
                               </p>
                             )}
@@ -397,7 +397,7 @@ export function TodoItems({
                                 </span>
                               )}
                               {estAmountNum && (
-                                <span className="text-[9px] text-[var(--text-muted)]/70 font-medium select-none">
+                                <span className="text-[9px] text-(--text-muted)/70 font-medium select-none">
                                   Stima:{" "}
                                   {formatCurrency(
                                     estAmountNum,
@@ -409,7 +409,7 @@ export function TodoItems({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                        <div className="flex items-center gap-2 ml-2 shrink-0">
                           {!todoItem.convertedToTransactionId ? (
                             <button
                               type="button"

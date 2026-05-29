@@ -96,13 +96,13 @@ export function ExpenseTrendCard({
   };
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
-      <CardHeader className="p-0 pb-4 border-b border-[var(--card-border)] mb-6 flex flex-col items-start gap-1 flex-shrink-0">
+    <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
+      <CardHeader className="p-0 pb-4 border-b border-(--card-border) mb-6 flex flex-col items-start gap-1 shrink-0">
         <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5 font-sans">
           <TrendingDown size={14} className="text-rose-500" />
           Andamento Spese
         </h4>
-        <p className="text-[10px] text-[var(--text-muted)]">
+        <p className="text-[10px] text-(--text-muted)">
           Analisi delle uscite mensili negli ultimi 6 mesi
         </p>
       </CardHeader>

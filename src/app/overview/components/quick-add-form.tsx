@@ -45,7 +45,7 @@ function FieldLabel({
   children: React.ReactNode;
 }) {
   return (
-    <span className="flex items-center gap-1.5 text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider mb-1.5">
+    <span className="flex items-center gap-1.5 text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-1.5">
       <Icon size={11} className="opacity-60" />
       {children}
     </span>
@@ -155,17 +155,17 @@ export function QuickAddForm({
                 onClose();
               }
             }}
-            className="relative bg-[var(--card-solid)] border border-[var(--card-border)] w-full md:max-w-[520px] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl text-[var(--foreground)] z-10 max-h-[92dvh] md:max-h-[85vh] flex flex-col mx-0 md:mx-4 overflow-hidden"
+            className="relative bg-(--card-solid) border border-(--card-border) w-full md:max-w-[520px] rounded-t-[2rem] md:rounded-[2rem] shadow-2xl text-foreground z-10 max-h-[92dvh] md:max-h-[85vh] flex flex-col mx-0 md:mx-4 overflow-hidden"
           >
             <div className="flex md:hidden justify-center pt-3 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-[var(--card-border)]" />
+              <div className="w-10 h-1 rounded-full bg-(--card-border)" />
             </div>
 
-            <div className="flex items-center justify-between px-6 pt-3 md:pt-6 pb-4 border-b border-[var(--card-border)] flex-shrink-0">
+            <div className="flex items-center justify-between px-6 pt-3 md:pt-6 pb-4 border-b border-(--card-border) shrink-0">
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    "h-9 w-9 rounded-2xl flex items-center justify-center border flex-shrink-0 transition-all duration-300",
+                    "h-9 w-9 rounded-2xl flex items-center justify-center border shrink-0 transition-all duration-300",
                     type === "expense"
                       ? "bg-rose-500/10 border-rose-500/20 text-rose-500"
                       : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500",
@@ -181,7 +181,7 @@ export function QuickAddForm({
                   <h3 className="font-extrabold text-sm leading-tight">
                     {type === "expense" ? "Nuova Spesa" : "Nuovo Guadagno"}
                   </h3>
-                  <p className="text-[10px] text-[var(--text-muted)]">
+                  <p className="text-[10px] text-(--text-muted)">
                     Registra rapidamente una transazione
                   </p>
                 </div>
@@ -189,7 +189,7 @@ export function QuickAddForm({
               <Button
                 isIconOnly
                 variant="ghost"
-                className="text-[var(--text-muted)] rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer flex items-center justify-center flex-shrink-0"
+                className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer flex items-center justify-center shrink-0"
                 onPress={onClose}
               >
                 <X size={16} />
@@ -200,7 +200,7 @@ export function QuickAddForm({
               <div className="px-6 pt-5 pb-36 flex flex-col gap-5">
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
-                  <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">
+                  <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
                     <div
                       className={cn(
                         "absolute top-1 bottom-1 w-[calc(50%-6px)] rounded-lg transition-all duration-300 shadow-sm",
@@ -216,7 +216,7 @@ export function QuickAddForm({
                         "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
                         type === "expense"
                           ? "text-white"
-                          : "text-[var(--text-muted)]",
+                          : "text-(--text-muted)",
                       )}
                     >
                       <TrendingDown size={12} /> Spesa
@@ -228,7 +228,7 @@ export function QuickAddForm({
                         "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
                         type === "income"
                           ? "text-white"
-                          : "text-[var(--text-muted)]",
+                          : "text-(--text-muted)",
                       )}
                     >
                       <TrendingUp size={12} /> Guadagno
@@ -238,13 +238,13 @@ export function QuickAddForm({
 
                 <div>
                   <FieldLabel icon={Type}>Descrizione</FieldLabel>
-                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 h-11 px-3 rounded-xl flex items-center border border-[var(--card-border)] focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
+                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 h-11 px-3 rounded-xl flex items-center border border-(--card-border) focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                     <input
                       type="text"
                       placeholder="Es. Cena fuori, Stipendio, Supermercato..."
                       value={desc}
                       onChange={(e) => setDesc(e.target.value)}
-                      className="text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-[var(--text-muted)]"
+                      className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted)"
                     />
                   </div>
                 </div>
@@ -277,12 +277,12 @@ export function QuickAddForm({
                       className="overflow-hidden"
                     >
                       <div className="flex items-center justify-between px-4 py-2.5 rounded-2xl bg-blue-500/5 border border-blue-500/10">
-                        <div className="flex items-center gap-2 text-[11px] font-semibold text-[var(--text-muted)]">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold text-(--text-muted)">
                           <ArrowLeftRight size={11} className="text-blue-500" />
                           Conversione stimata
                         </div>
                         <div className="flex items-center gap-1.5 text-xs font-black">
-                          <span className="text-[var(--text-muted)]">
+                          <span className="text-(--text-muted)">
                             {parsedAmount.toFixed(2)} {currency}
                           </span>
                           <span className="text-neutral-400">→</span>
@@ -311,11 +311,11 @@ export function QuickAddForm({
                 </div>
               </div>
 
-              <div className="px-6 pb-6 pt-3 border-t border-[var(--card-border)] flex gap-3 flex-shrink-0 bg-[var(--card-solid)]">
+              <div className="px-6 pb-6 pt-3 border-t border-(--card-border) flex gap-3 shrink-0 bg-(--card-solid)">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 h-12 text-xs font-bold text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-colors"
+                  className="flex-1 h-12 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer bg-transparent transition-colors"
                 >
                   Annulla
                 </button>

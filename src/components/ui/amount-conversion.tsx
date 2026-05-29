@@ -30,14 +30,14 @@ export function AmountConversion({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98, y: 4 }}
       transition={{ duration: 0.2 }}
-      className="flex items-center justify-between p-3 rounded-2xl bg-neutral-500/5 border border-[var(--card-border)] select-none"
+      className="flex items-center justify-between p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border) select-none"
     >
-      <div className="flex items-center gap-2 text-xs font-semibold text-[var(--text-muted)]">
+      <div className="flex items-center gap-2 text-xs font-semibold text-(--text-muted)">
         <ArrowRightLeft size={13} className="text-blue-500 animate-pulse" />
         <span>Valore stimato:</span>
       </div>
-      <div className="flex items-center gap-1.5 text-xs font-black text-[var(--foreground)]">
-        <span className="text-[var(--text-muted)] font-bold">
+      <div className="flex items-center gap-1.5 text-xs font-black text-foreground">
+        <span className="text-(--text-muted) font-bold">
           {formatCurrency(parsed, fromCurrency)}
         </span>
         <span className="text-neutral-400 font-bold">→</span>

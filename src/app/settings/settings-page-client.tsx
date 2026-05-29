@@ -244,7 +244,7 @@ export function SettingsPageClient() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="h-9 w-9 rounded-full border border-[var(--card-border)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--foreground)] hover:bg-neutral-500/10 cursor-pointer bg-[var(--card-solid)] transition-all shrink-0"
+            className="h-9 w-9 rounded-full border border-(--card-border) flex items-center justify-center text-(--text-muted) hover:text-foreground hover:bg-neutral-500/10 cursor-pointer bg-(--card-solid) transition-all shrink-0"
           >
             <ChevronLeft size={16} />
           </button>
@@ -264,7 +264,7 @@ export function SettingsPageClient() {
           disabled={isSaving}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
-          className="bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-black rounded-2xl h-10 px-5 cursor-pointer flex items-center gap-2 border-0 disabled:opacity-50 transition-opacity shadow-sm shrink-0"
+          className="bg-foreground text-background hover:opacity-90 text-xs font-black rounded-2xl h-10 px-5 cursor-pointer flex items-center gap-2 border-0 disabled:opacity-50 transition-opacity shadow-sm shrink-0"
         >
           {isSaving ? (
             <Loader2 size={13} className="animate-spin" />
@@ -281,7 +281,7 @@ export function SettingsPageClient() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-        className="flex rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-[var(--card-border)] p-1 w-full select-none"
+        className="flex rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-(--card-border) p-1 w-full select-none"
       >
         {TABS.map(({ id, label, Icon }) => (
           <button
@@ -291,8 +291,8 @@ export function SettingsPageClient() {
             className={cn(
               "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-[0.9rem] text-xs font-extrabold transition-all border-0 cursor-pointer bg-transparent",
               activeTab === id
-                ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                ? "bg-foreground text-background shadow-sm"
+                : "text-(--text-muted) hover:text-foreground",
             )}
           >
             <Icon size={13} />
@@ -313,14 +313,14 @@ export function SettingsPageClient() {
           {activeTab === "general" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Currency */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl shrink-0">
                     <DollarSign size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Valuta Preferita</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Usata in tutta l'app
                     </p>
                   </div>
@@ -333,27 +333,27 @@ export function SettingsPageClient() {
               </div>
 
               {/* Theme */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-xl shrink-0">
                     <Sun size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Modalità Tema</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Chiaro o scuro
                     </p>
                   </div>
                 </div>
-                <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 border border-[var(--card-border)]/40">
+                <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 border border-(--card-border)/40">
                   <button
                     type="button"
                     onClick={() => changeTheme("light")}
                     className={cn(
                       "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent",
                       theme === "light"
-                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                        : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-(--text-muted) hover:text-foreground",
                     )}
                   >
                     <Sun size={13} /> Chiaro
@@ -364,8 +364,8 @@ export function SettingsPageClient() {
                     className={cn(
                       "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent",
                       theme === "dark"
-                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                        : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-(--text-muted) hover:text-foreground",
                     )}
                   >
                     <Moon size={13} /> Scuro
@@ -374,14 +374,14 @@ export function SettingsPageClient() {
               </div>
 
               {/* Accent colors — full width */}
-              <div className="md:col-span-2 bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
+              <div className="md:col-span-2 bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-purple-500/10 border border-purple-500/20 text-purple-500 rounded-xl shrink-0">
                     <Check size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Colore Accento</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Colore principale dell'interfaccia
                     </p>
                   </div>
@@ -409,8 +409,8 @@ export function SettingsPageClient() {
                         className={cn(
                           "text-[9px] font-bold transition-colors",
                           accent === col.id
-                            ? "text-[var(--foreground)]"
-                            : "text-[var(--text-muted)]",
+                            ? "text-foreground"
+                            : "text-(--text-muted)",
                         )}
                       >
                         {col.name.split(" ")[0]}
@@ -425,14 +425,14 @@ export function SettingsPageClient() {
           {activeTab === "budget" && (
             <div className="flex flex-col gap-4">
               {/* Global budget */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
-                <div className="flex items-center gap-3 pb-4 border-b border-[var(--card-border)]">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
+                <div className="flex items-center gap-3 pb-4 border-b border-(--card-border)">
                   <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl shrink-0">
                     <DollarSign size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Budget Mensile Globale</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Obiettivi di spesa in{" "}
                       <span className="font-extrabold text-blue-500">
                         {displayCurrency}
@@ -442,7 +442,7 @@ export function SettingsPageClient() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                       Budget Target (Obiettivo)
                     </span>
                     <MoneyInput
@@ -453,7 +453,7 @@ export function SettingsPageClient() {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                       Budget Massimo (Limite)
                     </span>
                     <MoneyInput
@@ -465,10 +465,10 @@ export function SettingsPageClient() {
                   </div>
                 </div>
                 {displayCurrency === "EUR" && (
-                  <div className="flex items-start gap-2.5 text-[10px] text-[var(--text-muted)] bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
+                  <div className="flex items-start gap-2.5 text-[10px] text-(--text-muted) bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
                     <Info
                       size={13}
-                      className="flex-shrink-0 mt-0.5 text-blue-500"
+                      className="shrink-0 mt-0.5 text-blue-500"
                     />
                     <span>
                       I valori vengono convertiti in NOK al salvataggio al tasso
@@ -479,21 +479,21 @@ export function SettingsPageClient() {
               </div>
 
               {/* Per-category budget */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
-                <div className="flex items-center gap-3 pb-4 border-b border-[var(--card-border)]">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-4 shadow-sm">
+                <div className="flex items-center gap-3 pb-4 border-b border-(--card-border)">
                   <div className="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-xl shrink-0">
                     <Sliders size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Budget per Categoria</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Limiti di spesa per ogni categoria
                     </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {categoriesQuery.isLoading ? (
-                    <div className="text-xs text-[var(--text-muted)] py-6 text-center font-bold col-span-2">
+                    <div className="text-xs text-(--text-muted) py-6 text-center font-bold col-span-2">
                       Caricamento...
                     </div>
                   ) : categoriesQuery.data &&
@@ -501,20 +501,20 @@ export function SettingsPageClient() {
                     categoriesQuery.data.map((cat) => (
                       <div
                         key={cat.id}
-                        className="flex items-center justify-between gap-3 bg-neutral-500/5 border border-[var(--card-border)]/40 rounded-2xl p-3"
+                        className="flex items-center justify-between gap-3 bg-neutral-500/5 border border-(--card-border)/40 rounded-2xl p-3"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div
-                            className="w-8 h-8 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm"
+                            className="w-8 h-8 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm"
                             style={{ backgroundColor: cat.color }}
                           >
                             <CategoryIcon name={cat.icon} size={14} />
                           </div>
-                          <span className="text-xs font-bold text-[var(--foreground)] truncate">
+                          <span className="text-xs font-bold text-foreground truncate">
                             {cat.name}
                           </span>
                         </div>
-                        <div className="w-[110px] flex-shrink-0">
+                        <div className="w-[110px] shrink-0">
                           <MoneyInput
                             value={catBudgets[cat.id] || "0.00"}
                             onChange={(newVal) =>
@@ -530,7 +530,7 @@ export function SettingsPageClient() {
                       </div>
                     ))
                   ) : (
-                    <div className="text-xs text-[var(--text-muted)] py-6 text-center font-bold col-span-2">
+                    <div className="text-xs text-(--text-muted) py-6 text-center font-bold col-span-2">
                       Nessuna categoria creata
                     </div>
                   )}
@@ -542,14 +542,14 @@ export function SettingsPageClient() {
           {activeTab === "profile" && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Avatar + name */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
-                <div className="flex items-center gap-3 pb-4 border-b border-[var(--card-border)]">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
+                <div className="flex items-center gap-3 pb-4 border-b border-(--card-border)">
                   <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl shrink-0">
                     <User size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Informazioni Personali</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Nome e foto profilo
                     </p>
                   </div>
@@ -599,7 +599,7 @@ export function SettingsPageClient() {
 
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                       Nome
                     </span>
                     <input
@@ -607,42 +607,42 @@ export function SettingsPageClient() {
                       placeholder="Il tuo nome"
                       value={profileName}
                       onChange={(e) => setProfileName(e.target.value)}
-                      className="h-11 px-3.5 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
+                      className="h-11 px-3.5 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-foreground placeholder:text-(--text-muted) focus-within:ring-2 focus-within:ring-blue-500/20"
                     />
                   </div>
                   <div className="flex flex-col gap-1.5 opacity-70">
-                    <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
+                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
                       Email
                     </span>
                     <input
                       type="email"
                       value={user.email}
                       disabled
-                      className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--text-muted)] cursor-not-allowed"
+                      className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-(--text-muted) cursor-not-allowed"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Account actions */}
-              <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
-                <div className="flex items-center gap-3 pb-4 border-b border-[var(--card-border)]">
+              <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-5 shadow-sm">
+                <div className="flex items-center gap-3 pb-4 border-b border-(--card-border)">
                   <div className="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl shrink-0">
                     <LogOut size={14} />
                   </div>
                   <div>
                     <p className="text-xs font-black">Account</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">
+                    <p className="text-[10px] text-(--text-muted)">
                       Azioni sull'account
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between gap-4 p-4 bg-neutral-500/5 rounded-2xl border border-[var(--card-border)]/40">
+                  <div className="flex items-center justify-between gap-4 p-4 bg-neutral-500/5 rounded-2xl border border-(--card-border)/40">
                     <div>
                       <p className="text-xs font-bold">{user.name}</p>
-                      <p className="text-[10px] text-[var(--text-muted)] truncate">
+                      <p className="text-[10px] text-(--text-muted) truncate">
                         {user.email}
                       </p>
                     </div>
@@ -675,14 +675,14 @@ export function SettingsPageClient() {
           )}
 
           {activeTab === "notifications" && (
-            <div className="bg-[var(--card-solid)] border border-[var(--card-border)] rounded-[2rem] p-6 flex flex-col gap-0 shadow-sm">
-              <div className="flex items-center gap-3 pb-4 mb-2 border-b border-[var(--card-border)]">
+            <div className="bg-(--card-solid) border border-(--card-border) rounded-[2rem] p-6 flex flex-col gap-0 shadow-sm">
+              <div className="flex items-center gap-3 pb-4 mb-2 border-b border-(--card-border)">
                 <div className="p-2 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl shrink-0">
                   <Bell size={14} />
                 </div>
                 <div>
                   <p className="text-xs font-black">Preferenze Notifiche</p>
-                  <p className="text-[10px] text-[var(--text-muted)]">
+                  <p className="text-[10px] text-(--text-muted)">
                     Scegli quando ricevere notifiche in-app
                   </p>
                 </div>
@@ -755,13 +755,13 @@ export function SettingsPageClient() {
               ).map(({ label, description, checked, onChange }) => (
                 <div
                   key={label}
-                  className="flex items-center justify-between gap-6 py-4 border-b border-[var(--card-border)]/40 last:border-0"
+                  className="flex items-center justify-between gap-6 py-4 border-b border-(--card-border)/40 last:border-0"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-xs font-bold text-[var(--foreground)]">
+                    <span className="text-xs font-bold text-foreground">
                       {label}
                     </span>
-                    <span className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                    <span className="text-[10px] text-(--text-muted) leading-relaxed">
                       {description}
                     </span>
                   </div>

@@ -83,7 +83,7 @@ function OriginalAmountHint({
     displayCurrency,
   );
   return (
-    <span className="text-[9px] text-[var(--text-muted)] font-medium flex items-center gap-0.5">
+    <span className="text-[9px] text-(--text-muted) font-medium flex items-center gap-0.5">
       {tx.amount} {tx.currency} → {formatCurrency(converted, displayCurrency)}
     </span>
   );
@@ -97,7 +97,7 @@ export function TransactionListTimeline({
   onDeleteClick,
 }: TransactionListTimelineProps) {
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] transition-all max-h-[600px] flex flex-col">
+    <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] transition-all max-h-[600px] flex flex-col">
       <div className="relative flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin flex flex-col">
         {groupedTx.length > 0 && (
           <div className="absolute left-[11px] md:left-[15px] top-6 bottom-6 w-[2px] bg-neutral-100 dark:bg-zinc-800/80" />
@@ -108,7 +108,7 @@ export function TransactionListTimeline({
             {}
             <div className="relative pl-8 pt-4 pb-2 select-none">
               <div className="absolute left-[8px] md:left-[12px] top-[21px] w-2.5 h-2.5 rounded-full bg-neutral-300 dark:bg-zinc-700 border-2 border-white dark:border-zinc-900" />
-              <span className="text-[10px] text-[var(--text-muted)] font-black uppercase tracking-wider">
+              <span className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider">
                 {group.date}
               </span>
             </div>
@@ -139,7 +139,7 @@ export function TransactionListTimeline({
                     {}
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
-                        className="p-2.5 rounded-xl text-white flex-shrink-0"
+                        className="p-2.5 rounded-xl text-white shrink-0"
                         style={{ backgroundColor: cat ? cat.color : "#8E8E93" }}
                       >
                         <CategoryIcon
@@ -149,14 +149,14 @@ export function TransactionListTimeline({
                       </div>
 
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-[var(--foreground)] truncate">
+                        <span className="text-xs font-bold text-foreground truncate">
                           {tx.description || "Transazione"}
                         </span>
-                        <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wide mt-0.5">
+                        <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wide mt-0.5">
                           {cat ? cat.name : "Generale"}
                         </span>
                         {tx.sharedInfo && (
-                          <span className="text-[9px] text-[var(--text-muted)] font-medium mt-0.5">
+                          <span className="text-[9px] text-(--text-muted) font-medium mt-0.5">
                             {tx.sharedInfo.isBorrowed
                               ? `Split da ${tx.payerName || "Amico"}`
                               : `Split con ${tx.sharedInfo.borrowerName}`}
@@ -172,7 +172,7 @@ export function TransactionListTimeline({
                           className={cn(
                             "text-xs font-black whitespace-nowrap",
                             isExpense
-                              ? "text-[var(--foreground)]"
+                              ? "text-foreground"
                               : "text-emerald-500",
                           )}
                         >
@@ -181,7 +181,7 @@ export function TransactionListTimeline({
                         </span>
 
                         {tx.sharedInfo ? (
-                          <span className="text-[8px] text-[var(--text-muted)] font-semibold mt-0.5">
+                          <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
                             {tx.sharedInfo.isBorrowed
                               ? "Tua quota"
                               : `Totale: ${formatCurrency(
@@ -219,7 +219,7 @@ export function TransactionListTimeline({
         ))}
 
         {groupedTx.length === 0 && (
-          <div className="text-center py-12 text-xs text-[var(--text-muted)] font-medium">
+          <div className="text-center py-12 text-xs text-(--text-muted) font-medium">
             Nessuna transazione corrisponde ai criteri impostati.
           </div>
         )}

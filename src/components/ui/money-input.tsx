@@ -52,7 +52,7 @@ export function MoneyInput({
   return (
     <div
       className={cn(
-        "bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-11 px-3 rounded-xl flex items-center w-full focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 transition-all duration-300 border border-[var(--card-border)]",
+        "bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-11 px-3 rounded-xl flex items-center w-full focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 transition-all duration-300 border border-(--card-border)",
         className,
       )}
     >
@@ -65,11 +65,11 @@ export function MoneyInput({
         onBlur={handleBlur}
         required={required}
         className={cn(
-          "text-xs text-[var(--foreground)] flex-1 bg-transparent border-0 outline-none w-full min-w-0",
+          "text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full min-w-0",
           inputClassName,
         )}
       />
-      <span className="flex items-center text-xs font-extrabold text-[var(--text-muted)] select-none ml-2 flex-shrink-0">
+      <span className="flex items-center text-xs font-extrabold text-(--text-muted) select-none ml-2 shrink-0">
         {currency}
       </span>
     </div>

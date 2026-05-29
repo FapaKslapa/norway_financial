@@ -67,17 +67,17 @@ export function AnalyticsHeader({
           <TrendingUp size={24} className="text-blue-500" />
           Analisi Finanziaria
         </h2>
-        <p className="text-[var(--text-muted)] text-xs">
+        <p className="text-(--text-muted) text-xs">
           Monitora l'andamento del tuo budget, risparmi e categorie di spesa
         </p>
       </div>
 
       <div className="relative z-40">
-        <div className="flex items-center bg-[var(--card)] border border-[var(--card-border)] rounded-2xl p-1 shadow-sm select-none">
+        <div className="flex items-center bg-(--card) border border-(--card-border) rounded-2xl p-1 shadow-sm select-none">
           <Button
             isIconOnly
             variant="ghost"
-            className="h-8 w-8 text-[var(--foreground)] hover:bg-neutral-500/10 rounded-xl border-0 cursor-pointer bg-transparent"
+            className="h-8 w-8 text-foreground hover:bg-neutral-500/10 rounded-xl border-0 cursor-pointer bg-transparent"
             onPress={onPrevMonth}
           >
             <ChevronLeft size={16} />
@@ -89,7 +89,7 @@ export function AnalyticsHeader({
               setPickerYear(currentYear);
               setIsMonthPickerOpen(!isMonthPickerOpen);
             }}
-            className="px-4 py-1.5 text-xs font-bold flex items-center gap-1.5 hover:bg-neutral-500/10 rounded-xl transition-all cursor-pointer border-0 bg-transparent text-[var(--foreground)] outline-none"
+            className="px-4 py-1.5 text-xs font-bold flex items-center gap-1.5 hover:bg-neutral-500/10 rounded-xl transition-all cursor-pointer border-0 bg-transparent text-foreground outline-none"
           >
             <CalendarIcon size={14} className="text-blue-500" />
             <span>
@@ -107,7 +107,7 @@ export function AnalyticsHeader({
           <Button
             isIconOnly
             variant="ghost"
-            className="h-8 w-8 text-[var(--foreground)] hover:bg-neutral-500/10 rounded-xl border-0 cursor-pointer bg-transparent"
+            className="h-8 w-8 text-foreground hover:bg-neutral-500/10 rounded-xl border-0 cursor-pointer bg-transparent"
             onPress={onNextMonth}
           >
             <ChevronRight size={16} />
@@ -128,17 +128,17 @@ export function AnalyticsHeader({
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                className="absolute left-0 md:left-auto md:right-0 mt-2 w-72 bg-[var(--card)]/90 backdrop-blur-xl border border-[var(--card-border)] p-4 rounded-3xl shadow-2xl z-50"
+                className="absolute left-0 md:left-auto md:right-0 mt-2 w-72 bg-(--card)/90 backdrop-blur-xl border border-(--card-border) p-4 rounded-3xl shadow-2xl z-50"
               >
-                <div className="flex justify-between items-center pb-3 border-b border-[var(--card-border)] mb-3">
-                  <span className="text-xs font-black uppercase tracking-wider text-[var(--text-muted)]">
+                <div className="flex justify-between items-center pb-3 border-b border-(--card-border) mb-3">
+                  <span className="text-xs font-black uppercase tracking-wider text-(--text-muted)">
                     Scegli Mese
                   </span>
                   <div className="flex items-center gap-1.5">
                     <Button
                       isIconOnly
                       variant="ghost"
-                      className="h-6 w-6 text-[var(--foreground)] hover:bg-neutral-500/10 rounded-lg border-0 cursor-pointer bg-transparent"
+                      className="h-6 w-6 text-foreground hover:bg-neutral-500/10 rounded-lg border-0 cursor-pointer bg-transparent"
                       onPress={() => setPickerYear((y) => y - 1)}
                     >
                       <ChevronLeft size={12} />
@@ -147,7 +147,7 @@ export function AnalyticsHeader({
                     <Button
                       isIconOnly
                       variant="ghost"
-                      className="h-6 w-6 text-[var(--foreground)] hover:bg-neutral-500/10 rounded-lg border-0 cursor-pointer bg-transparent"
+                      className="h-6 w-6 text-foreground hover:bg-neutral-500/10 rounded-lg border-0 cursor-pointer bg-transparent"
                       onPress={() => setPickerYear((y) => y + 1)}
                     >
                       <ChevronRight size={12} />
@@ -171,7 +171,7 @@ export function AnalyticsHeader({
                           "py-2.5 rounded-xl text-xs font-bold transition-all border-0 cursor-pointer",
                           isCurrent
                             ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
-                            : "bg-neutral-500/5 text-[var(--foreground)] hover:bg-neutral-500/15",
+                            : "bg-neutral-500/5 text-foreground hover:bg-neutral-500/15",
                         )}
                       >
                         {mShort}

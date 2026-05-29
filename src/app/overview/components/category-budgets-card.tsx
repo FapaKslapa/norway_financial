@@ -99,15 +99,15 @@ export function CategoryBudgetsCard({
   });
 
   return (
-    <Card className="border border-[var(--card-border)] bg-[var(--card)] shadow-[var(--card-shadow)] p-6 apple-widget h-full flex flex-col justify-between transition-all select-none relative overflow-hidden">
-      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-[var(--card-border)] mb-4 w-full">
+    <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 apple-widget h-full flex flex-col justify-between transition-all select-none relative overflow-hidden">
+      <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
         <div className="flex gap-2.5 items-center">
           <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
             <FolderHeart size={15} />
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-xs">Budget Categorie</span>
-            <span className="text-[9px] text-[var(--text-muted)]">
+            <span className="text-[9px] text-(--text-muted)">
               Limiti mensili per categoria
             </span>
           </div>
@@ -115,7 +115,7 @@ export function CategoryBudgetsCard({
         <Button
           isIconOnly
           variant="ghost"
-          className="text-[var(--text-muted)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-xl h-7 w-7 min-w-7 cursor-pointer flex items-center justify-center"
+          className="text-(--text-muted) border border-(--card-border) hover:bg-neutral-500/10 rounded-xl h-7 w-7 min-w-7 cursor-pointer flex items-center justify-center"
           onPress={onOpenSettings}
         >
           <Sliders size={12} />
@@ -128,17 +128,17 @@ export function CategoryBudgetsCard({
             <AlertTriangle size={24} />
           </div>
           <div className="flex flex-col gap-1 px-2">
-            <span className="font-extrabold text-sm text-[var(--foreground)]">
+            <span className="font-extrabold text-sm text-foreground">
               Nessun budget di categoria
             </span>
-            <span className="text-[10px] text-[var(--text-muted)] max-w-[200px] leading-normal mx-auto font-medium">
+            <span className="text-[10px] text-(--text-muted) max-w-[200px] leading-normal mx-auto font-medium">
               Imposta limiti di budget per singole categorie per monitorare al
               meglio le tue abitudini.
             </span>
           </div>
           <Button
             onPress={onOpenSettings}
-            className="bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
+            className="bg-foreground text-background hover:opacity-90 text-[10px] font-extrabold rounded-xl h-8 px-4 border-0 cursor-pointer flex items-center justify-center gap-1.5"
           >
             <Sliders size={11} />
             Imposta limiti
@@ -151,7 +151,7 @@ export function CategoryBudgetsCard({
               <div className="flex items-center justify-between text-xs font-semibold">
                 <div className="flex items-center gap-2">
                   <div
-                    className="w-5 h-5 rounded-md flex items-center justify-center text-white flex-shrink-0"
+                    className="w-5 h-5 rounded-md flex items-center justify-center text-white shrink-0"
                     style={{ backgroundColor: item.categoryColor || "#3b82f6" }}
                   >
                     <CategoryIcon
@@ -164,7 +164,7 @@ export function CategoryBudgetsCard({
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] text-[var(--text-muted)]">
+                  <span className="text-[10px] text-(--text-muted)">
                     {formatCurrency(item.spentVal, displayCurrency)} di
                   </span>
                   <span className="text-[10px] font-bold">
@@ -172,7 +172,7 @@ export function CategoryBudgetsCard({
                   </span>
                 </div>
               </div>
-              <div className="relative w-full h-2 bg-neutral-100 dark:bg-zinc-800/40 rounded-full overflow-hidden border border-[var(--card-border)]/20">
+              <div className="relative w-full h-2 bg-neutral-100 dark:bg-zinc-800/40 rounded-full overflow-hidden border border-(--card-border)/20">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${item.progressPercent}%` }}
@@ -180,7 +180,7 @@ export function CategoryBudgetsCard({
                   className={`h-full rounded-full ${item.barColor}`}
                 />
               </div>
-              <div className="flex justify-between items-center text-[9px] text-[var(--text-muted)]">
+              <div className="flex justify-between items-center text-[9px] text-(--text-muted)">
                 <span>{item.percentage.toFixed(0)}% del budget</span>
                 {item.percentage >= 100 && (
                   <span className="text-red-500 font-bold">
