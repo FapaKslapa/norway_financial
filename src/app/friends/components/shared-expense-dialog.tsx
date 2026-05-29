@@ -638,9 +638,7 @@ export function SharedExpenseDialog({
                                 <span className="text-blue-500">
                                   {myNok.toFixed(0)} NOK
                                 </span>
-                                <span className="text-(--text-muted)">
-                                  /
-                                </span>
+                                <span className="text-(--text-muted)">/</span>
                                 <span className="text-blue-500">
                                   {friendNok.toFixed(0)} NOK
                                 </span>

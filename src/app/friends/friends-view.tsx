@@ -3,30 +3,32 @@
 import { Button, Card, CardContent } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Activity,
-  ArrowDownRight,
-  ArrowUpRight,
-  Calendar,
-  Check,
-  ChevronLeft,
   DollarSign,
-  Folder,
-  FolderPlus,
-  Handshake,
-  Mail,
-  PieChart,
   Plus,
-  Sparkles,
   Trash2,
   TrendingDown,
   TrendingUp,
-  UserPlus,
   Users,
-  X,
 } from "lucide-react";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useState } from "react";
+import { useDashboard } from "@/components/dashboard-layout";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { LoadingState } from "@/components/ui/loading-state";
+import { StatCard } from "@/components/ui/stat-card";
+import { trpc } from "@/lib/trpc/client";
+import { cn, formatCurrency } from "@/lib/utils";
+
+import { AddFriendCard } from "./components/add-friend-card";
+import { AmountWithTooltip } from "./components/amount-with-tooltip";
+import { CreateGroupModal } from "./components/create-group-modal";
+import { FriendDetailCard } from "./components/friend-detail-card";
+import { GroupDetailCard } from "./components/group-detail-card";
+import { GroupListCard } from "./components/group-list-card";
+import { PendingRequestsCard } from "./components/pending-requests-card";
+import {
+  SharedExpenseDialog,
+  type SharedExpensePayload,
+} from "./components/shared-expense-dialog";
 
 type FriendItem = {
   friendshipId: string;
@@ -45,112 +47,6 @@ type GroupItem = {
   members: GroupMember[];
 };
 
-type GroupSettlementProposal = {
-  fromUser: { id: string; name: string; email: string; image: string | null };
-  toUser: { id: string; name: string; email: string; image: string | null };
-  amountNok: number;
-};
-
-import { useDashboard } from "@/components/dashboard-layout";
-import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
-import { LoadingState } from "@/components/ui/loading-state";
-import { StatCard } from "@/components/ui/stat-card";
-import { trpc } from "@/lib/trpc/client";
-import { cn, formatCurrency } from "@/lib/utils";
-import type { SharedExpensePayload } from "./components/shared-expense-dialog";
-import { SharedExpenseDialog } from "./components/shared-expense-dialog";
-
-function formatCompact(amount: number): string {
-  if (amount >= 1_000_000) return `${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 10_000) return `${(amount / 1_000).toFixed(0)}k`;
-  if (amount >= 1_000) return `${(amount / 1_000).toFixed(1)}k`;
-  return amount.toFixed(2);
-}
-
-function AmountWithTooltip({
-  amount,
-  currency,
-  prefix,
-  className,
-}: {
-  amount: number;
-  currency: string;
-  prefix: string;
-  className?: string;
-}) {
-  const [visible, setVisible] = useState(false);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!visible) return;
-    const close = () => setVisible(false);
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
-  }, [visible]);
-
-  const isRounded = amount >= 1000;
-  const full = formatCurrency(amount, currency);
-
-  if (!isRounded) {
-    return (
-      <span className={className}>
-        {prefix}
-        {full}
-      </span>
-    );
-  }
-
-  const compact = formatCompact(amount);
-
-  return (
-    <>
-      <button
-        type="button"
-        className={cn(
-          className,
-          "underline decoration-dotted underline-offset-2 cursor-help bg-transparent border-0 p-0 font-[inherit]",
-        )}
-        onMouseEnter={(e) => {
-          setPos({ x: e.clientX, y: e.clientY });
-          setVisible(true);
-        }}
-        onMouseMove={(e) => setPos({ x: e.clientX, y: e.clientY })}
-        onMouseLeave={() => setVisible(false)}
-        onClick={(e) => {
-          e.stopPropagation();
-          setPos({ x: e.clientX, y: e.clientY });
-          setVisible(true);
-        }}
-      >
-        {prefix}≈{compact} {currency}
-      </button>
-      {mounted &&
-        visible &&
-        createPortal(
-          <div
-            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-2 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap flex flex-col gap-0.5"
-            style={{
-              left: pos.x,
-              top: pos.y,
-              transform: "translate(-50%, calc(-100% - 8px))",
-            }}
-          >
-            <span className="opacity-50 uppercase text-[7px] tracking-wider font-extrabold">
-              Importo esatto
-            </span>
-            <span className="text-xs font-black">{full}</span>
-          </div>,
-          document.body,
-        )}
-    </>
-  );
-}
-
 export default function FriendsView() {
   const {
     displayCurrency,
@@ -166,21 +62,7 @@ export default function FriendsView() {
   const groupsQuery = trpc.group.list.useQuery();
   const transactionsQuery = trpc.transaction.list.useQuery();
 
-  const sendRequestMutation = trpc.friend.sendRequest.useMutation({
-    onSuccess: () => {
-      pendingQuery.refetch();
-      setEmailInput("");
-      setSuccessMsg("Richiesta inviata con successo!");
-      setErrorMsg("");
-      setTimeout(() => setSuccessMsg(""), 4000);
-    },
-    onError: (err) => {
-      setErrorMsg(err.message || "Impossibile inviare la richiesta.");
-      setSuccessMsg("");
-    },
-  });
-
-  const respondRequestMutation = trpc.friend.respondRequest.useMutation({
+  const _respondRequestMutation = trpc.friend.respondRequest.useMutation({
     onSuccess: () => {
       pendingQuery.refetch();
       friendsQuery.refetch();
@@ -206,15 +88,6 @@ export default function FriendsView() {
     },
   });
 
-  const createGroupMutation = trpc.group.create.useMutation({
-    onSuccess: () => {
-      groupsQuery.refetch();
-      setIsCreateGroupOpen(false);
-      setNewGroupName("");
-      setSelectedGroupMemberIds([]);
-    },
-  });
-
   const deleteGroupMutation = trpc.group.delete.useMutation({
     onSuccess: () => {
       groupsQuery.refetch();
@@ -229,20 +102,11 @@ export default function FriendsView() {
     },
   });
 
-  const [emailInput, setEmailInput] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
   const [activeMobileTab, setActiveMobileTab] = useState<
     "friends" | "groups" | "manage"
   >("friends");
-
   const [isSharedExpenseOpen, setIsSharedExpenseOpen] = useState(false);
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
-
-  const [newGroupName, setNewGroupName] = useState("");
-  const [selectedGroupMemberIds, setSelectedGroupMemberIds] = useState<
-    string[]
-  >([]);
 
   const [selectedFriend, setSelectedFriend] = useState<FriendItem | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<GroupItem | null>(null);
@@ -266,19 +130,10 @@ export default function FriendsView() {
     return formatCurrency(val, curr);
   };
 
-  const handleInviteSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!emailInput.trim()) return;
-    setErrorMsg("");
-    setSuccessMsg("");
-    await sendRequestMutation.mutateAsync({ email: emailInput.trim() });
-  };
-
-  const handleRespond = async (
-    requestId: string,
-    action: "accept" | "decline",
-  ) => {
-    await respondRequestMutation.mutateAsync({ requestId, action });
+  const handleRespondSuccess = () => {
+    pendingQuery.refetch();
+    friendsQuery.refetch();
+    balanceSummaryQuery.refetch();
   };
 
   const handleSettle = async (friendId: string) => {
@@ -287,23 +142,6 @@ export default function FriendsView() {
 
   const handleDeleteFriend = async (friendId: string) => {
     await deleteFriendMutation.mutateAsync({ friendId });
-  };
-
-  const handleCreateGroup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newGroupName.trim()) return;
-    await createGroupMutation.mutateAsync({
-      name: newGroupName.trim(),
-      memberUserIds: selectedGroupMemberIds,
-    });
-  };
-
-  const handleToggleMemberSelection = (friendId: string) => {
-    setSelectedGroupMemberIds((prev) =>
-      prev.includes(friendId)
-        ? prev.filter((id) => id !== friendId)
-        : [...prev, friendId],
-    );
   };
 
   const handleSharedExpense = async (payload: SharedExpensePayload) => {
@@ -384,7 +222,6 @@ export default function FriendsView() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 py-3 pb-24 md:pb-12 text-foreground select-none">
-      {}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -414,7 +251,7 @@ export default function FriendsView() {
           <span className="sm:hidden">Nuova Spesa</span>
         </Button>
       </motion.div>
-      {}
+
       <div className="flex md:grid md:grid-cols-3 gap-4 overflow-x-auto pb-1 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
         {[
           {
@@ -424,7 +261,7 @@ export default function FriendsView() {
               displayCurrency,
             ),
             color: "text-emerald-500",
-            icon: <ArrowDownRight className="rotate-90" size={16} />,
+            icon: <TrendingUp className="rotate-90" size={16} />,
             iconBg: "bg-emerald-500/10",
             iconColor: "text-emerald-500",
             delayIndex: 0,
@@ -433,7 +270,7 @@ export default function FriendsView() {
             label: "Devi dare in totale",
             value: formatVal(convertNokAmount(totalYouOweNok), displayCurrency),
             color: "text-rose-500",
-            icon: <ArrowUpRight size={16} />,
+            icon: <TrendingDown size={16} />,
             iconBg: "bg-rose-500/10",
             iconColor: "text-rose-500",
             delayIndex: 1,
@@ -463,10 +300,11 @@ export default function FriendsView() {
             iconBgColor={stat.iconBg}
             iconColor={stat.iconColor}
             delayIndex={stat.delayIndex}
-            className="w-[72vw] md:w-full shrink-0 snap-start scroll-ml-4 bg-(--card) border border-(--card-border) rounded-[2rem] p-5 shadow-(--card-shadow)"
+            className="w-[85vw] md:w-full shrink-0 snap-start scroll-ml-4 bg-(--card) border border-(--card-border) rounded-[2rem] p-5 shadow-(--card-shadow)"
           />
         ))}
       </div>
+
       <div
         className={cn(
           "flex md:hidden rounded-[1.25rem] bg-neutral-500/5 dark:bg-zinc-800/20 border border-(--card-border) p-1 w-full shrink-0 select-none",
@@ -515,276 +353,54 @@ export default function FriendsView() {
           )}
         </button>
       </div>
+
       <div className="flex flex-col md:grid md:grid-cols-3 gap-6">
-        {}
         <div
           className={cn(
             "order-2 md:order-1 md:col-span-1 flex flex-col gap-6",
             (selectedFriend || selectedGroup) && "hidden md:flex",
           )}
         >
-          {}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.26, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
-            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
-                <div className="flex gap-2.5 items-center">
-                  <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
-                    <UserPlus size={15} />
-                  </div>
-                  <span className="font-bold text-xs">Aggiungi Amico</span>
-                </div>
-              </div>
-
-              <CardContent className="p-0">
-                <form
-                  onSubmit={handleInviteSubmit}
-                  className="flex flex-col gap-3"
-                >
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
-                      Email dell&apos;Amico
-                    </span>
-                    <div className="flex gap-2 items-center">
-                      <div className="bg-neutral-100 dark:bg-zinc-800/40 border border-neutral-200 dark:border-zinc-800/50 focus-within:border-blue-500/50 h-11 px-3 rounded-2xl flex items-center gap-2 flex-1 transition-all duration-300">
-                        <Mail
-                          size={13}
-                          className="text-(--text-muted) shrink-0"
-                        />
-                        <input
-                          type="email"
-                          placeholder="email@esempio.com"
-                          value={emailInput}
-                          onChange={(e) => setEmailInput(e.target.value)}
-                          required
-                          className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted) min-w-0"
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        isIconOnly
-                        isDisabled={sendRequestMutation.isPending}
-                        className="bg-blue-500 hover:bg-blue-600 text-white h-11 w-11 rounded-2xl cursor-pointer shadow-sm border-0 disabled:opacity-50 transition-all flex items-center justify-center shrink-0"
-                      >
-                        <UserPlus size={15} />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {errorMsg && (
-                    <div className="text-[10px] font-bold text-rose-500 bg-rose-500/5 border border-rose-500/10 p-2.5 rounded-xl text-center">
-                      {errorMsg}
-                    </div>
-                  )}
-                  {successMsg && (
-                    <div className="text-[10px] font-bold text-emerald-500 bg-emerald-500/5 border border-emerald-500/10 p-2.5 rounded-xl text-center">
-                      {successMsg}
-                    </div>
-                  )}
-                </form>
-              </CardContent>
-            </Card>
+            <AddFriendCard onSuccess={() => pendingQuery.refetch()} />
           </motion.div>
 
-          {}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.33, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "manage" && "hidden md:block")}
           >
-            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
-                <div className="flex gap-2.5 items-center">
-                  <div className="p-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 rounded-xl">
-                    <Handshake size={15} />
-                  </div>
-                  <span className="font-bold text-xs">Richieste Pendenti</span>
-                </div>
-                {(pendingQuery.data?.incoming?.length ?? 0) +
-                  (pendingQuery.data?.outgoing?.length ?? 0) >
-                  0 && (
-                  <span className="text-[9px] font-black bg-indigo-500/10 text-indigo-500 px-2 py-0.5 rounded-full">
-                    {(pendingQuery.data?.incoming?.length ?? 0) +
-                      (pendingQuery.data?.outgoing?.length ?? 0)}
-                  </span>
-                )}
-              </div>
-
-              <CardContent className="p-0 flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider pl-1">
-                    Ricevute
-                  </span>
-                  <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1">
-                    {!pendingQuery.data?.incoming ||
-                    pendingQuery.data.incoming.length === 0 ? (
-                      <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
-                        Nessuna richiesta ricevuta
-                      </span>
-                    ) : (
-                      pendingQuery.data.incoming.map((req) => (
-                        <div
-                          key={req.id}
-                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-(--card-border) shrink-0"
-                        >
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold truncate text-foreground">
-                              {req.user.name}
-                            </span>
-                            <span className="text-[9px] text-(--text-muted) truncate">
-                              {req.user.email}
-                            </span>
-                          </div>
-                          <div className="flex gap-1 shrink-0">
-                            <Button
-                              isIconOnly
-                              variant="ghost"
-                              className="h-7 w-7 text-emerald-500 hover:bg-emerald-500/15 border-0 rounded-lg cursor-pointer"
-                              onPress={() => handleRespond(req.id, "accept")}
-                            >
-                              <Check size={14} />
-                            </Button>
-                            <Button
-                              isIconOnly
-                              variant="ghost"
-                              className="h-7 w-7 text-rose-500 hover:bg-rose-500/15 border-0 rounded-lg cursor-pointer"
-                              onPress={() => handleRespond(req.id, "decline")}
-                            >
-                              <X size={14} />
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 border-t border-(--card-border) pt-3">
-                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider pl-1">
-                    Inviate
-                  </span>
-                  <div className="flex flex-col gap-2 max-h-[150px] overflow-y-auto pr-1">
-                    {!pendingQuery.data?.outgoing ||
-                    pendingQuery.data.outgoing.length === 0 ? (
-                      <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
-                        Nessuna richiesta inviata
-                      </span>
-                    ) : (
-                      pendingQuery.data.outgoing.map((req) => (
-                        <div
-                          key={req.id}
-                          className="flex justify-between items-center p-2.5 rounded-2xl bg-neutral-500/5 border border-(--card-border) opacity-85 shrink-0"
-                        >
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold truncate text-foreground">
-                              {req.user.name}
-                            </span>
-                            <span className="text-[9px] text-(--text-muted) truncate">
-                              {req.user.email}
-                            </span>
-                          </div>
-                          <span className="text-[8px] font-black text-amber-500 bg-amber-500/5 border border-amber-500/10 px-1.5 py-0.5 rounded-lg shrink-0">
-                            Pendente
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <PendingRequestsCard
+              incomingRequests={pendingQuery.data?.incoming ?? []}
+              outgoingRequests={pendingQuery.data?.outgoing ?? []}
+              onActionSuccess={handleRespondSuccess}
+            />
           </motion.div>
 
-          {}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className={cn(activeMobileTab !== "groups" && "hidden md:block")}
           >
-            <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-5 rounded-[2rem]">
-              <div className="p-0 flex flex-row justify-between items-center pb-4 border-b border-(--card-border) mb-4 w-full">
-                <div className="flex gap-2.5 items-center">
-                  <div className="p-2 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-xl">
-                    <Folder size={15} />
-                  </div>
-                  <span className="font-bold text-xs">Le mie Cartelle</span>
-                </div>
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  className="h-7 w-7 text-blue-500 hover:bg-blue-500/10 border-0 rounded-xl cursor-pointer"
-                  onPress={() => setIsCreateGroupOpen(true)}
-                >
-                  <FolderPlus size={14} />
-                </Button>
-              </div>
-
-              <CardContent className="p-0 flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
-                {!groupsQuery.data || groupsQuery.data.length === 0 ? (
-                  <span className="text-[10px] text-(--text-muted) font-semibold pl-1 py-1">
-                    Nessuna cartella creata. Dividi le spese con più amici
-                    creando un gruppo.
-                  </span>
-                ) : (
-                  groupsQuery.data.map((group) => {
-                    const isSelected = selectedGroup?.id === group.id;
-                    return (
-                      <button
-                        type="button"
-                        key={group.id}
-                        onClick={() => {
-                          setSelectedGroup(group);
-                          setSelectedFriend(null);
-                        }}
-                        className={cn(
-                          "flex justify-between items-center px-3.5 py-3 rounded-2xl border transition-all cursor-pointer text-left w-full bg-transparent outline-none",
-                          isSelected
-                            ? "bg-blue-500 text-white border-transparent shadow-md shadow-blue-500/15"
-                            : "bg-neutral-500/5 border-(--card-border) hover:bg-neutral-500/10 text-foreground",
-                        )}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <Folder
-                            size={14}
-                            className={
-                              isSelected ? "text-white" : "text-blue-500"
-                            }
-                          />
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-bold truncate leading-none mb-0.5">
-                              {group.name}
-                            </span>
-                            <span
-                              className={cn(
-                                "text-[8px] font-semibold",
-                                isSelected
-                                  ? "text-white/85"
-                                  : "text-(--text-muted)",
-                              )}
-                            >
-                              {group.members.length} membri
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })
-                )}
-              </CardContent>
-            </Card>
+            <GroupListCard
+              groups={groupsQuery.data ?? []}
+              selectedGroupId={selectedGroup?.id}
+              onSelectGroup={setSelectedGroup}
+              onClearFriend={() => setSelectedFriend(null)}
+              onOpenCreateGroup={() => setIsCreateGroupOpen(true)}
+            />
           </motion.div>
         </div>
 
-        {}
         <div className="order-1 md:order-2 md:col-span-2 flex flex-col gap-6">
           <AnimatePresence mode="wait">
-            {}
             {selectedFriend && (
               <motion.div
                 key={`friend-detail-${selectedFriend.user.id}`}
@@ -793,250 +409,22 @@ export default function FriendsView() {
                 exit={{ opacity: 0, x: -15 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] flex flex-col">
-                  {}
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-(--card-border) mb-5 gap-3">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <Button
-                        isIconOnly
-                        variant="ghost"
-                        className="h-8 w-8 text-(--text-muted) hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
-                        onPress={() => setSelectedFriend(null)}
-                      >
-                        <ChevronLeft size={16} />
-                      </Button>
-                      <div className="h-12 w-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0 text-base font-extrabold">
-                        {selectedFriend.user.name.slice(0, 2).toUpperCase()}
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-black text-foreground truncate leading-tight">
-                          {selectedFriend.user.name}
-                        </span>
-                        <span className="text-[10px] text-(--text-muted) truncate mt-0.5">
-                          {selectedFriend.user.email}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 self-stretch sm:self-auto justify-end">
-                      <Button
-                        variant="outline"
-                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all shrink-0"
-                        onPress={() => setIsSharedExpenseOpen(true)}
-                      >
-                        <Plus size={11} />
-                        <span className="hidden sm:inline">Aggiungi Spesa</span>
-                        <span className="sm:hidden">Aggiungi</span>
-                      </Button>
-
-                      {balances.find(
-                        (b) => b.user.id === selectedFriend.user.id,
-                      ) &&
-                        Math.abs(
-                          balances.find(
-                            (b) => b.user.id === selectedFriend.user.id,
-                          )?.balanceNok ?? 0,
-                        ) >= 0.01 &&
-                        (balances.find(
-                          (b) => b.user.id === selectedFriend.user.id,
-                        )?.balanceNok ?? 0) < 0 && (
-                          <Button
-                            variant="outline"
-                            className="font-bold text-[10px] h-8 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all"
-                            onPress={() =>
-                              setSettleConfirmFriend(selectedFriend)
-                            }
-                          >
-                            <DollarSign size={11} />
-                            <span>Salda</span>
-                          </Button>
-                        )}
-                      <Button
-                        isIconOnly
-                        variant="ghost"
-                        className="h-8 w-8 text-(--text-muted) hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
-                        onPress={() => setFriendToDelete(selectedFriend)}
-                      >
-                        <Trash2 size={13} />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    {(() => {
-                      const balObj = balances.find(
-                        (b) => b.user.id === selectedFriend.user.id,
-                      );
-                      const balVal = balObj ? balObj.balanceNok : 0;
-                      const hasBal = Math.abs(balVal) >= 0.01;
-
-                      const title =
-                        balVal > 0
-                          ? "Ti deve"
-                          : balVal < 0
-                            ? "Gli devi"
-                            : "Bilancio con l'amico";
-                      const value = hasBal
-                        ? `${balVal > 0 ? "+" : "-"}${formatVal(convertNokAmount(Math.abs(balVal)), displayCurrency)}`
-                        : "In pari";
-                      const subtitle = hasBal
-                        ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(Math.abs(balVal))} NOK`
-                        : "Nessun debito o credito";
-                      const icon =
-                        balVal > 0 ? (
-                          <TrendingUp size={20} />
-                        ) : balVal < 0 ? (
-                          <TrendingDown size={20} />
-                        ) : (
-                          <Handshake size={20} />
-                        );
-                      const iconBgColor =
-                        balVal > 0
-                          ? "bg-emerald-500/10"
-                          : balVal < 0
-                            ? "bg-rose-500/10"
-                            : "bg-neutral-500/10";
-                      const iconColor =
-                        balVal > 0
-                          ? "text-emerald-500"
-                          : balVal < 0
-                            ? "text-rose-500"
-                            : "text-(--text-muted)";
-                      const valColor =
-                        balVal > 0
-                          ? "text-emerald-500"
-                          : balVal < 0
-                            ? "text-rose-500"
-                            : "text-(--text-muted)";
-
-                      return (
-                        <StatCard
-                          title={title}
-                          value={value}
-                          valueClassName={valColor}
-                          subtitle={subtitle}
-                          icon={icon}
-                          iconBgColor={iconBgColor}
-                          iconColor={iconColor}
-                          delayIndex={0}
-                        />
-                      );
-                    })()}
-
-                    <StatCard
-                      title="Spese Condivise"
-                      value={
-                        getFriendTransactions(selectedFriend.user.id).length
-                      }
-                      subtitle="Transazioni in comune"
-                      icon={<Activity size={20} />}
-                      iconBgColor="bg-blue-500/10"
-                      iconColor="text-blue-500"
-                      delayIndex={1}
-                    />
-                  </div>
-
-                  {}
-                  <div className="flex flex-col flex-1">
-                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Activity size={12} className="opacity-60" />
-                      Cronologia Spese in Comune
-                    </h4>
-
-                    <div className="flex-1 overflow-y-auto max-h-[250px] pr-1 flex flex-col gap-2.5">
-                      {getFriendTransactions(selectedFriend.user.id).length ===
-                      0 ? (
-                        <div className="text-center py-8 text-xs text-(--text-muted) font-semibold">
-                          Nessuna spesa condivisa registrata con questo amico.
-                        </div>
-                      ) : (
-                        getFriendTransactions(selectedFriend.user.id).map(
-                          (tx) => {
-                            const isPayer = tx.userId === currentUserId;
-
-                            const activeAmount = tx.sharedInfo
-                              ? tx.sharedInfo.isBorrowed
-                                ? convertCurrency(
-                                    parseFloat(tx.sharedInfo.splitAmountNok),
-                                    "NOK",
-                                    displayCurrency,
-                                  )
-                                : convertCurrency(
-                                    parseFloat(tx.amountNok) -
-                                      parseFloat(tx.sharedInfo.splitAmountNok),
-                                    "NOK",
-                                    displayCurrency,
-                                  )
-                              : 0;
-
-                            const originalAmount = convertCurrency(
-                              parseFloat(tx.amountEur),
-                              "EUR",
-                              displayCurrency,
-                            );
-
-                            return (
-                              <div
-                                key={tx.id}
-                                className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border)"
-                              >
-                                <div className="flex flex-col min-w-0">
-                                  <span className="text-xs font-bold text-foreground truncate leading-tight">
-                                    {tx.description || "Spesa condivisa"}
-                                  </span>
-                                  <span className="text-[8px] text-(--text-muted) font-semibold flex items-center gap-2 mt-1">
-                                    <span className="flex items-center gap-1">
-                                      <Calendar size={9} />
-                                      {new Date(tx.date).toLocaleDateString()}
-                                    </span>
-                                    <span>•</span>
-                                    <span>
-                                      {isPayer
-                                        ? "Hai pagato tu"
-                                        : `Ha pagato ${selectedFriend.user.name}`}
-                                    </span>
-                                    {tx.sharedInfo?.settled && (
-                                      <>
-                                        <span>•</span>
-                                        <span className="text-emerald-500 font-bold">
-                                          Saldata
-                                        </span>
-                                      </>
-                                    )}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col items-end shrink-0">
-                                  <span
-                                    className={cn(
-                                      "text-xs font-black",
-                                      tx.sharedInfo?.settled
-                                        ? "text-(--text-muted) line-through"
-                                        : isPayer
-                                          ? "text-emerald-500"
-                                          : "text-rose-500",
-                                    )}
-                                  >
-                                    {isPayer ? "+" : "-"}{" "}
-                                    {formatVal(activeAmount, displayCurrency)}
-                                  </span>
-                                  <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
-                                    Totale:{" "}
-                                    {formatVal(originalAmount, displayCurrency)}
-                                  </span>
-                                </div>
-                              </div>
-                            );
-                          },
-                        )
-                      )}
-                    </div>
-                  </div>
-                </Card>
+                <FriendDetailCard
+                  selectedFriend={selectedFriend}
+                  onClear={() => setSelectedFriend(null)}
+                  onOpenSharedExpense={() => setIsSharedExpenseOpen(true)}
+                  onOpenSettleDebt={setSettleConfirmFriend}
+                  onOpenDeleteFriend={setFriendToDelete}
+                  balances={balances}
+                  transactions={getFriendTransactions(selectedFriend.user.id)}
+                  currentUserId={currentUserId}
+                  displayCurrency={displayCurrency}
+                  convertNokAmount={convertNokAmount}
+                  convertCurrency={convertCurrency}
+                />
               </motion.div>
             )}
 
-            {}
             {selectedGroup && (
               <motion.div
                 key={`group-detail-${selectedGroup.id}`}
@@ -1045,318 +433,24 @@ export default function FriendsView() {
                 exit={{ opacity: 0, x: -15 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] flex flex-col">
-                  {}
-                  <div className="flex justify-between items-center pb-5 border-b border-(--card-border) mb-5">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <Button
-                        isIconOnly
-                        variant="ghost"
-                        className="h-8 w-8 text-(--text-muted) hover:bg-neutral-500/10 rounded-xl cursor-pointer border-0 shrink-0"
-                        onPress={() => setSelectedGroup(null)}
-                      >
-                        <ChevronLeft size={16} />
-                      </Button>
-                      <div className="h-12 w-12 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center shrink-0">
-                        <Folder size={20} />
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-black text-foreground truncate leading-tight">
-                          {selectedGroup.name}
-                        </span>
-                        <span className="text-[10px] text-(--text-muted) truncate mt-0.5">
-                          {selectedGroup.members.length} partecipanti
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="outline"
-                        className="font-bold text-[10px] h-8 bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-2.5 sm:px-3 flex items-center gap-1 cursor-pointer transition-all"
-                        onPress={() => setIsSharedExpenseOpen(true)}
-                      >
-                        <Plus size={11} />
-                        <span className="hidden sm:inline">Aggiungi Spesa</span>
-                        <span className="sm:hidden">Aggiungi</span>
-                      </Button>
-                      {selectedGroup.creatorId === currentUserId && (
-                        <Button
-                          isIconOnly
-                          variant="ghost"
-                          className="h-8 w-8 text-(--text-muted) hover:text-rose-500 hover:bg-rose-500/10 rounded-xl cursor-pointer border-0 shrink-0"
-                          onPress={() => setGroupToDelete(selectedGroup)}
-                        >
-                          <Trash2 size={13} />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {}
-                  <div className="mb-5">
-                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                      <Users size={12} className="opacity-60" />
-                      Membri del Gruppo
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedGroup.members.map((m: GroupMember) => (
-                        <div
-                          key={m.id}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-500/5 border border-(--card-border) text-xs font-semibold"
-                        >
-                          <div className="w-4 h-4 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-[8px] font-black shrink-0">
-                            {m.name.slice(0, 2).toUpperCase()}
-                          </div>
-                          <span>
-                            {m.name} {m.id === currentUserId && "(Tu)"}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mb-5 border-t border-(--card-border)/50 pt-4">
-                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-                      <Sparkles size={12} className="text-blue-500" />
-                      Debiti Semplificati (Algoritmo Splitwise)
-                    </h4>
-                    {proposalsQuery.isLoading ? (
-                      <div className="text-[10px] text-(--text-muted)">
-                        Calcolo liquidazioni ottimali...
-                      </div>
-                    ) : proposalsQuery.data &&
-                      proposalsQuery.data.length > 0 ? (
-                      <div className="flex flex-col gap-2">
-                        {proposalsQuery.data.map(
-                          (p: GroupSettlementProposal) => {
-                            const isFromMe = p.fromUser.id === currentUserId;
-                            const isToMe = p.toUser.id === currentUserId;
-                            const canSettle = isFromMe || isToMe;
-                            const targetFriendId = isFromMe
-                              ? p.toUser.id
-                              : p.fromUser.id;
-
-                            return (
-                              <div
-                                key={`${p.fromUser.id}-${p.toUser.id}-${p.amountNok}`}
-                                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-(--card-border)/40 rounded-2xl p-3"
-                              >
-                                <div className="flex items-center gap-2 text-xs">
-                                  <span
-                                    className={cn(
-                                      "font-bold",
-                                      isFromMe
-                                        ? "text-rose-500"
-                                        : "text-foreground",
-                                    )}
-                                  >
-                                    {p.fromUser.name} {isFromMe && "(Tu)"}
-                                  </span>
-                                  <span className="text-[10px] text-(--text-muted)">
-                                    deve dare
-                                  </span>
-                                  <span
-                                    className={cn(
-                                      "font-bold",
-                                      isToMe
-                                        ? "text-emerald-500"
-                                        : "text-foreground",
-                                    )}
-                                  >
-                                    {p.toUser.name} {isToMe && "(Tu)"}
-                                  </span>
-                                  <span className="text-xs font-black text-blue-500 ml-1">
-                                    {formatCurrency(
-                                      convertCurrency(
-                                        p.amountNok,
-                                        "NOK",
-                                        displayCurrency,
-                                      ),
-                                      displayCurrency,
-                                    )}
-                                  </span>
-                                </div>
-                                {canSettle && (
-                                  <Button
-                                    variant="outline"
-                                    className="h-7 text-[9px] font-bold bg-neutral-500/10 hover:bg-blue-500 hover:text-white rounded-lg px-3 shrink-0 cursor-pointer border-0 transition-all self-end sm:self-auto"
-                                    onPress={() => {
-                                      settleDebtMutation.mutate({
-                                        friendId: targetFriendId,
-                                      });
-                                    }}
-                                    isDisabled={settleDebtMutation.isPending}
-                                  >
-                                    {settleDebtMutation.isPending
-                                      ? "Salvataggio..."
-                                      : "Salda"}
-                                  </Button>
-                                )}
-                              </div>
-                            );
-                          },
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-[10px] text-(--text-muted) italic pl-1">
-                        Tutti i debiti in questo gruppo sono saldati!
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <StatCard
-                      title="Spese in Cartella"
-                      value={getGroupTransactions(selectedGroup.id).length}
-                      subtitle="Transazioni totali"
-                      icon={<Activity size={20} />}
-                      iconBgColor="bg-blue-500/10"
-                      iconColor="text-blue-500"
-                      delayIndex={0}
-                    />
-
-                    {(() => {
-                      const txs = getGroupTransactions(selectedGroup.id);
-                      const totalNok = txs.reduce(
-                        (sum, tx) => sum + parseFloat(tx.amountNok),
-                        0,
-                      );
-                      return (
-                        <StatCard
-                          title="Totale Speso nel Gruppo"
-                          value={formatVal(
-                            convertNokAmount(totalNok),
-                            displayCurrency,
-                          )}
-                          subtitle={`${totalNok.toFixed(0)} NOK`}
-                          icon={<PieChart size={20} />}
-                          iconBgColor="bg-blue-500/10"
-                          iconColor="text-blue-500"
-                          valueClassName="text-blue-500"
-                          delayIndex={1}
-                        />
-                      );
-                    })()}
-                  </div>
-
-                  {}
-                  <div className="flex flex-col flex-1">
-                    <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Activity size={12} className="opacity-60" />
-                      Cronologia Spese Gruppo
-                    </h4>
-
-                    <div className="flex-1 overflow-y-auto max-h-[200px] pr-1 flex flex-col gap-2.5">
-                      {getGroupTransactions(selectedGroup.id).length === 0 ? (
-                        <div className="text-center py-8 text-xs text-(--text-muted) font-semibold">
-                          Nessuna spesa inserita per questo gruppo.
-                        </div>
-                      ) : (
-                        getGroupTransactions(selectedGroup.id).map((tx) => {
-                          const isPayer = tx.userId === currentUserId;
-
-                          let activeAmount = 0;
-                          if (isPayer) {
-                            const totalNok = parseFloat(tx.amountNok);
-                            const totalOthersSplitsNok = (
-                              transactionsQuery.data || []
-                            )
-                              .filter(
-                                (t) =>
-                                  t.id === tx.id &&
-                                  t.sharedInfo &&
-                                  t.sharedInfo.payerId === currentUserId,
-                              )
-                              .reduce(
-                                (sum, t) =>
-                                  sum +
-                                  parseFloat(
-                                    t.sharedInfo?.splitAmountNok ?? "0",
-                                  ),
-                                0,
-                              );
-
-                            const myShareNok = totalNok - totalOthersSplitsNok;
-                            activeAmount = convertCurrency(
-                              myShareNok,
-                              "NOK",
-                              displayCurrency,
-                            );
-                          } else {
-                            const mySplit = (transactionsQuery.data || []).find(
-                              (t) =>
-                                t.id === tx.id &&
-                                t.sharedInfo &&
-                                t.sharedInfo.borrowerId === currentUserId,
-                            );
-
-                            const splitNok = mySplit?.sharedInfo
-                              ? parseFloat(mySplit.sharedInfo.splitAmountNok)
-                              : 0;
-                            activeAmount = convertCurrency(
-                              splitNok,
-                              "NOK",
-                              displayCurrency,
-                            );
-                          }
-
-                          const originalAmount = convertCurrency(
-                            parseFloat(tx.amountEur),
-                            "EUR",
-                            displayCurrency,
-                          );
-
-                          return (
-                            <div
-                              key={tx.id}
-                              className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border)"
-                            >
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-xs font-bold text-foreground truncate leading-tight">
-                                  {tx.description || "Spesa gruppo"}
-                                </span>
-                                <span className="text-[8px] text-(--text-muted) font-semibold flex items-center gap-2 mt-1">
-                                  <span className="flex items-center gap-1">
-                                    <Calendar size={9} />
-                                    {new Date(tx.date).toLocaleDateString()}
-                                  </span>
-                                  <span>•</span>
-                                  <span>
-                                    {isPayer
-                                      ? "Hai pagato tu"
-                                      : `Ha pagato ${tx.payerName || "Membro"}`}
-                                  </span>
-                                </span>
-                              </div>
-                              <div className="flex flex-col items-end shrink-0">
-                                <span
-                                  className={cn(
-                                    "text-xs font-black",
-                                    isPayer
-                                      ? "text-emerald-500"
-                                      : "text-rose-500",
-                                  )}
-                                >
-                                  {isPayer ? "+" : "-"}{" "}
-                                  {formatVal(activeAmount, displayCurrency)}
-                                </span>
-                                <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
-                                  Totale:{" "}
-                                  {formatVal(originalAmount, displayCurrency)}
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                </Card>
+                <GroupDetailCard
+                  selectedGroup={selectedGroup}
+                  onClear={() => setSelectedGroup(null)}
+                  onOpenSharedExpense={() => setIsSharedExpenseOpen(true)}
+                  onOpenDeleteGroup={setGroupToDelete}
+                  proposals={proposalsQuery.data ?? []}
+                  isProposalsLoading={proposalsQuery.isLoading}
+                  onSettle={handleSettle}
+                  transactions={getGroupTransactions(selectedGroup.id)}
+                  currentUserId={currentUserId}
+                  displayCurrency={displayCurrency}
+                  convertNokAmount={convertNokAmount}
+                  convertCurrency={convertCurrency}
+                  allTransactions={transactionsQuery.data ?? []}
+                />
               </motion.div>
             )}
 
-            {}
             {!selectedFriend && !selectedGroup && (
               <motion.div
                 key="friends-list-panel"
@@ -1496,7 +590,7 @@ export default function FriendsView() {
           </AnimatePresence>
         </div>
       </div>
-      {}
+
       <SharedExpenseDialog
         isOpen={isSharedExpenseOpen}
         onClose={() => setIsSharedExpenseOpen(false)}
@@ -1511,137 +605,14 @@ export default function FriendsView() {
         defaultGroupId={selectedGroup?.id}
         defaultFriendId={selectedFriend?.user.id}
       />
-      <AnimatePresence>
-        {isCreateGroupOpen && (
-          <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => setIsCreateGroupOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative bg-(--card-solid) border border-(--card-border) w-full max-w-[420px] rounded-3xl p-6 shadow-2xl text-foreground z-10 flex flex-col max-h-[85vh]"
-            >
-              <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4 shrink-0">
-                <h3 className="font-extrabold text-sm flex items-center gap-2">
-                  <FolderPlus size={16} className="text-blue-500" />
-                  Crea Nuova Cartella (Gruppo)
-                </h3>
-                <Button
-                  isIconOnly
-                  variant="ghost"
-                  className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer"
-                  onPress={() => setIsCreateGroupOpen(false)}
-                >
-                  <X size={15} />
-                </Button>
-              </div>
 
-              <form
-                onSubmit={handleCreateGroup}
-                className="flex flex-col gap-4 flex-1 overflow-hidden"
-              >
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1">
-                    Nome della Cartella
-                  </span>
-                  <div className="bg-neutral-100 dark:bg-zinc-800/40 border border-neutral-200 dark:border-zinc-800/50 focus-within:border-blue-500/50 h-11 px-3 rounded-2xl flex items-center w-full transition-all">
-                    <input
-                      type="text"
-                      placeholder="Es. Spese Convivenza, Festa Compleanno..."
-                      value={newGroupName}
-                      onChange={(e) => setNewGroupName(e.target.value)}
-                      required
-                      className="text-xs text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted) min-w-0"
-                    />
-                  </div>
-                </div>
+      <CreateGroupModal
+        isOpen={isCreateGroupOpen}
+        onClose={() => setIsCreateGroupOpen(false)}
+        friends={friendsQuery.data ?? []}
+        onSuccess={() => groupsQuery.refetch()}
+      />
 
-                <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
-                  <span className="text-[9px] text-(--text-muted) font-black uppercase tracking-wider ml-1 select-none">
-                    Seleziona Amici
-                  </span>
-                  <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-2 max-h-[200px]">
-                    {!friendsQuery.data || friendsQuery.data.length === 0 ? (
-                      <span className="text-[10px] text-(--text-muted) font-semibold p-1">
-                        Devi aggiungere amici prima di poter creare una
-                        cartella.
-                      </span>
-                    ) : (
-                      friendsQuery.data.map((friend) => {
-                        const checked = selectedGroupMemberIds.includes(
-                          friend.user.id,
-                        );
-                        return (
-                          <button
-                            key={friend.user.id}
-                            type="button"
-                            onClick={() =>
-                              handleToggleMemberSelection(friend.user.id)
-                            }
-                            className={cn(
-                              "flex items-center gap-3.5 p-2.5 rounded-2xl border transition-all cursor-pointer text-left bg-transparent",
-                              checked
-                                ? "border-blue-500/30 bg-blue-500/5 text-foreground"
-                                : "border-(--card-border) hover:bg-neutral-500/5 text-foreground",
-                            )}
-                          >
-                            <div
-                              className={cn(
-                                "h-5 w-5 rounded-md flex items-center justify-center border transition-all shrink-0",
-                                checked
-                                  ? "bg-blue-500 border-transparent text-white"
-                                  : "border-(--card-border) text-transparent",
-                              )}
-                            >
-                              <Check size={12} className="stroke-[3]" />
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-xs font-bold truncate leading-none mb-0.5">
-                                {friend.user.name}
-                              </span>
-                              <span className="text-[8px] text-(--text-muted) truncate">
-                                {friend.user.email}
-                              </span>
-                            </div>
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                </div>
-
-                <div className="border-t border-(--card-border) pt-4 mt-1 flex justify-end gap-2.5 shrink-0">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="h-10 text-xs font-bold text-foreground border border-(--card-border) hover:bg-neutral-500/10 rounded-xl cursor-pointer flex-1"
-                    onPress={() => setIsCreateGroupOpen(false)}
-                  >
-                    Annulla
-                  </Button>
-                  <Button
-                    type="submit"
-                    isDisabled={
-                      createGroupMutation.isPending || !newGroupName.trim()
-                    }
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs h-10 rounded-xl cursor-pointer shadow-sm border-0 flex-1 disabled:opacity-50"
-                  >
-                    {createGroupMutation.isPending
-                      ? "Creazione..."
-                      : "Crea Cartella"}
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
       <ConfirmationDialog
         isOpen={friendToDelete !== null}
         onClose={() => setFriendToDelete(null)}
@@ -1656,6 +627,7 @@ export default function FriendsView() {
         cancelLabel="Annulla"
         isDestructive={true}
       />
+
       <ConfirmationDialog
         isOpen={settleConfirmFriend !== null}
         onClose={() => setSettleConfirmFriend(null)}
@@ -1670,6 +642,7 @@ export default function FriendsView() {
         cancelLabel="Annulla"
         isDestructive={false}
       />
+
       <ConfirmationDialog
         isOpen={groupToDelete !== null}
         onClose={() => setGroupToDelete(null)}
