@@ -499,7 +499,9 @@ export const transactionRouter = router({
       const [owned] = await ctx.db
         .select({ id: transaction.id })
         .from(transaction)
-        .where(and(eq(transaction.id, input.id), eq(transaction.userId, userId)))
+        .where(
+          and(eq(transaction.id, input.id), eq(transaction.userId, userId)),
+        )
         .limit(1);
 
       if (owned) {
