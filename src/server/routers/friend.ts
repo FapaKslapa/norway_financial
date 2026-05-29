@@ -147,9 +147,15 @@ export const friendRouter = router({
 
     if (friendships.length === 0) return [];
 
-    const friendIds = friendships.map((f) =>
-      f.userId === userId ? f.friendId : f.userId,
+    const friendIds = Array.from(
+      new Set(
+        friendships
+          .map((f) => (f.userId === userId ? f.friendId : f.userId))
+          .filter((id): id is string => typeof id === "string" && !!id),
+      ),
     );
+
+    if (friendIds.length === 0) return [];
 
     const friendUsers = await ctx.db
       .select({
@@ -194,10 +200,14 @@ export const friendRouter = router({
         ),
     ]);
 
-    const allUserIds = [
-      ...incoming.map((r) => r.userId),
-      ...outgoing.map((r) => r.friendId),
-    ];
+    const allUserIds = Array.from(
+      new Set(
+        [
+          ...incoming.map((r) => r.userId),
+          ...outgoing.map((r) => r.friendId),
+        ].filter((id): id is string => typeof id === "string" && !!id),
+      ),
+    );
 
     const allUsers =
       allUserIds.length > 0
