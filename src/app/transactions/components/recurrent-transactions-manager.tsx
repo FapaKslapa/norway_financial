@@ -1,8 +1,18 @@
 "use client";
 
-import { Button } from "@heroui/react";
+import {
+  Button,
+  Drawer,
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerCloseTrigger,
+  DrawerContent,
+  DrawerDialog,
+  DrawerFooter,
+  DrawerHeader,
+} from "@heroui/react";
 import dayjs from "dayjs";
-import { AnimatePresence, motion } from "framer-motion";
+
 import {
   CalendarDays,
   Clock,
@@ -185,151 +195,191 @@ export function RecurrentTransactionsManager({
         <Button
           variant="outline"
           className="h-8 text-[10px] font-bold bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white border-0 rounded-xl px-3 flex items-center gap-1.5 cursor-pointer transition-all"
-          onPress={() => setIsFormOpen(!isFormOpen)}
+          onPress={() => setIsFormOpen(true)}
         >
           <Plus size={12} />
-          {isFormOpen ? "Annulla" : "Nuova Ricorrente"}
+          <span>Nuova Ricorrente</span>
         </Button>
       </div>
 
-      <AnimatePresence>
-        {isFormOpen && (
-          <motion.form
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            onSubmit={handleSubmit}
-            className="bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 flex flex-col gap-4 overflow-visible"
+      <Drawer
+        isOpen={isFormOpen}
+        onOpenChange={(open) => {
+          setIsFormOpen(open);
+          if (!open) resetForm();
+        }}
+      >
+        <DrawerBackdrop variant="blur">
+          <DrawerContent
+            placement="right"
+            className="bg-[var(--card-solid)] border-l border-[var(--card-border)] text-[var(--foreground)] w-full max-w-md h-full"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Descrizione
-                </span>
-                <input
-                  type="text"
-                  required
-                  placeholder="Es. Stipendio, Affitto, Netflix..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
-                />
-              </div>
+            <DrawerDialog>
+              <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                <DrawerCloseTrigger className="absolute right-4 top-4 hover:bg-neutral-500/10 text-[var(--text-muted)]" />
+                <DrawerHeader className="flex flex-col gap-1 border-b border-[var(--card-border)] p-5 flex-shrink-0">
+                  <h3 className="text-sm font-black">
+                    {editingId
+                      ? "Modifica Regola Ricorrente"
+                      : "Nuova Regola Ricorrente"}
+                  </h3>
+                  <p className="text-[10px] text-[var(--text-muted)] font-medium">
+                    {editingId
+                      ? "Aggiorna i dettagli della transazione ricorrente"
+                      : "Crea una nuova regola per entrate o spese ripetitive"}
+                  </p>
+                </DrawerHeader>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Frequenza
-                </span>
-                <CustomSelect
-                  value={frequency}
-                  onChange={(val) => setFrequency(val as typeof frequency)}
-                  options={[
-                    { value: "daily", label: "Giornaliero" },
-                    { value: "weekly", label: "Settimanale" },
-                    { value: "monthly", label: "Mensile" },
-                    { value: "yearly", label: "Annuale" },
-                  ]}
-                />
-              </div>
+                <DrawerBody className="p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar flex-1 min-h-0">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Descrizione
+                      </span>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Es. Stipendio, Affitto, Netflix..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-[var(--card-border)] outline-none text-xs font-bold text-[var(--foreground)] placeholder:text-[var(--text-muted)] focus-within:ring-2 focus-within:ring-blue-500/20"
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Tipo transazione
-                </span>
-                <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">
-                  <button
-                    type="button"
-                    onClick={() => setType("expense")}
-                    className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                      type === "expense"
-                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                        : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
-                    }`}
-                  >
-                    Spesa
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setType("income")}
-                    className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                      type === "income"
-                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
-                        : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
-                    }`}
-                  >
-                    Entrata
-                  </button>
-                </div>
-              </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Frequenza
+                      </span>
+                      <CustomSelect
+                        value={frequency}
+                        onChange={(val) =>
+                          setFrequency(val as typeof frequency)
+                        }
+                        options={[
+                          { value: "daily", label: "Giornaliero" },
+                          { value: "weekly", label: "Settimanale" },
+                          { value: "monthly", label: "Mensile" },
+                          { value: "yearly", label: "Annuale" },
+                        ]}
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Categoria
-                </span>
-                <CategorySelect
-                  value={categoryId}
-                  onChange={setCategoryId}
-                  categories={categories}
-                />
-              </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Tipo transazione
+                      </span>
+                      <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-[var(--card-border)] h-11 overflow-hidden select-none">
+                        <button
+                          type="button"
+                          onClick={() => setType("expense")}
+                          className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                            type === "expense"
+                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                              : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
+                          }`}
+                        >
+                          Spesa
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setType("income")}
+                          className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
+                            type === "income"
+                              ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                              : "text-[var(--text-muted)] bg-transparent hover:bg-neutral-500/10"
+                          }`}
+                        >
+                          Entrata
+                        </button>
+                      </div>
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Data inizio
-                </span>
-                <CustomDatePicker value={startDate} onChange={setStartDate} />
-              </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Categoria
+                      </span>
+                      <CategorySelect
+                        value={categoryId}
+                        onChange={setCategoryId}
+                        categories={categories}
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Data fine (Opzionale)
-                </span>
-                <CustomDatePicker
-                  value={endDate}
-                  onChange={setEndDate}
-                  placeholder="Nessuna data di fine"
-                />
-              </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Data inizio
+                      </span>
+                      <CustomDatePicker
+                        value={startDate}
+                        onChange={setStartDate}
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Importo
-                </span>
-                <MoneyInput
-                  value={amount}
-                  onChange={setAmount}
-                  currency={currency}
-                />
-              </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Data fine (Opzionale)
+                      </span>
+                      <CustomDatePicker
+                        value={endDate}
+                        onChange={setEndDate}
+                        placeholder="Nessuna data di fine"
+                      />
+                    </div>
 
-              <div className="flex flex-col gap-1.5">
-                <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
-                  Valuta
-                </span>
-                <CurrencySelect value={currency} onChange={setCurrency} />
-              </div>
-            </div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Importo
+                      </span>
+                      <MoneyInput
+                        value={amount}
+                        onChange={setAmount}
+                        currency={currency}
+                      />
+                    </div>
 
-            {validationError && (
-              <span className="text-[10px] text-red-500 font-bold ml-1">
-                {validationError}
-              </span>
-            )}
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider ml-1">
+                        Valuta
+                      </span>
+                      <CurrencySelect value={currency} onChange={setCurrency} />
+                    </div>
+                  </div>
+                </DrawerBody>
 
-            <Button
-              type="submit"
-              className="w-full bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 font-extrabold text-xs h-11 rounded-xl cursor-pointer border-0 mt-2"
-              isDisabled={createMutation.isPending || updateMutation.isPending}
-            >
-              {createMutation.isPending || updateMutation.isPending
-                ? "Salvataggio..."
-                : editingId
-                  ? "Salva Modifiche"
-                  : "Salva Regola Ricorrente"}
-            </Button>
-          </motion.form>
-        )}
-      </AnimatePresence>
+                <DrawerFooter className="border-t border-[var(--card-border)] p-5 flex flex-col gap-2 flex-shrink-0">
+                  {validationError && (
+                    <span className="text-[10px] text-red-500 font-bold self-start mb-1">
+                      {validationError}
+                    </span>
+                  )}
+                  <div className="flex gap-3 w-full">
+                    <Button
+                      variant="ghost"
+                      className="flex-1 bg-neutral-500/10 text-[var(--foreground)] h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
+                      onPress={resetForm}
+                    >
+                      Annulla
+                    </Button>
+                    <Button
+                      type="submit"
+                      className="flex-1 bg-[var(--foreground)] text-[var(--background)] h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
+                      isDisabled={
+                        createMutation.isPending || updateMutation.isPending
+                      }
+                    >
+                      {createMutation.isPending || updateMutation.isPending
+                        ? "Salvataggio..."
+                        : editingId
+                          ? "Salva"
+                          : "Crea"}
+                    </Button>
+                  </div>
+                </DrawerFooter>
+              </form>
+            </DrawerDialog>
+          </DrawerContent>
+        </DrawerBackdrop>
+      </Drawer>
 
       <div className="bg-[var(--card)] border border-[var(--card-border)] rounded-[2rem] p-5 shadow-sm">
         {listQuery.isLoading ? (
