@@ -87,7 +87,8 @@ export function RecentLogs({
                         {tx.description || "Nessuna descrizione"}
                       </span>
                       <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase mt-0.5">
-                        {dbCat?.name || "Altro"} · {dayjs(txDate).format("D MMM")}
+                        {dbCat?.name || "Altro"} ·{" "}
+                        {dayjs(txDate).format("D MMM")}
                       </span>
                     </div>
 
@@ -98,7 +99,10 @@ export function RecentLogs({
                       )}
                     >
                       {isExpense ? "-" : "+"}
-                      {formatCurrency(convertNokAmount(tx.amountNok), displayCurrency)}
+                      {formatCurrency(
+                        convertNokAmount(tx.amountNok),
+                        displayCurrency,
+                      )}
                     </span>
                   </div>
                 );
@@ -157,7 +161,10 @@ export function RecentLogs({
                           )}
                         >
                           {isExpense ? "-" : "+"}
-                          {formatCurrency(convertNokAmount(tx.amountNok), displayCurrency)}
+                          {formatCurrency(
+                            convertNokAmount(tx.amountNok),
+                            displayCurrency,
+                          )}
                         </span>
 
                         {tx.currency !== displayCurrency && (

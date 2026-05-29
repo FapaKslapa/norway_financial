@@ -55,13 +55,18 @@ export function StatCard({
           {icon}
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 w-full overflow-hidden">
         {typeof value === "string" || typeof value === "number" ? (
           <h3
             className={cn(
-              "text-2xl font-black tracking-tight text-[var(--foreground)]",
+              "text-2xl font-black tracking-tight text-[var(--foreground)] truncate w-full",
+              String(value).length > 15 && "text-base",
+              String(value).length > 11 &&
+                String(value).length <= 15 &&
+                "text-lg",
               valueClassName,
             )}
+            title={String(value)}
           >
             {value}
           </h3>

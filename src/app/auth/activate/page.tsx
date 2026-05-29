@@ -46,7 +46,13 @@ function ActivateContent() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-[380px] bg-[var(--card-solid)] border border-[var(--card-border)] rounded-3xl p-8 shadow-[var(--card-shadow)] text-[var(--foreground)] flex flex-col items-center text-center gap-5"
       >
-        <Image src="/logo.png" alt="Gravio" width={52} height={52} className="rounded-2xl" />
+        <Image
+          src="/logo.png"
+          alt="Gravio"
+          width={52}
+          height={52}
+          className="rounded-2xl"
+        />
         <h1 className="text-xl font-bold tracking-tight">Gravio</h1>
 
         {status === "loading" && (

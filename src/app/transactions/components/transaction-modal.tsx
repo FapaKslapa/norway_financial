@@ -151,7 +151,9 @@ export function TransactionModal({
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-4">
           <motion.div
-            initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            initial={
+              isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }
+            }
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
             transition={

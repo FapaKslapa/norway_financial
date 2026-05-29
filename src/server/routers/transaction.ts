@@ -360,16 +360,25 @@ export const transactionRouter = router({
         }));
         await ctx.db.insert(sharedExpense).values(splitsToInsert);
 
-          const borrowerIds = splitsToInsert.map((s) => s.borrowerId);
+        const borrowerIds = splitsToInsert.map((s) => s.borrowerId);
         const borrowerSettingsList = await ctx.db
-          .select({ userId: userSettings.userId, notifyFriendActions: userSettings.notifyFriendActions })
+          .select({
+            userId: userSettings.userId,
+            notifyFriendActions: userSettings.notifyFriendActions,
+          })
           .from(userSettings)
           .where(inArray(userSettings.userId, borrowerIds));
         const notifySet = new Set(
-          borrowerSettingsList.filter((s) => s.notifyFriendActions).map((s) => s.userId),
+          borrowerSettingsList
+            .filter((s) => s.notifyFriendActions)
+            .map((s) => s.userId),
         );
         const notificationsToInsert = splitsToInsert
-          .filter((s) => !borrowerSettingsList.find((bs) => bs.userId === s.borrowerId) || notifySet.has(s.borrowerId))
+          .filter(
+            (s) =>
+              !borrowerSettingsList.find((bs) => bs.userId === s.borrowerId) ||
+              notifySet.has(s.borrowerId),
+          )
           .map((s) => ({
             id: crypto.randomUUID(),
             userId: s.borrowerId,
@@ -402,7 +411,7 @@ export const transactionRouter = router({
           updatedAt: new Date(),
         });
 
-          const borrowerSettings = await ctx.db
+        const borrowerSettings = await ctx.db
           .select({ notifyFriendActions: userSettings.notifyFriendActions })
           .from(userSettings)
           .where(eq(userSettings.userId, input.sharedWithUserId))

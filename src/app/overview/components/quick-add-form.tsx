@@ -137,7 +137,9 @@ export function QuickAddForm({
             onClick={onClose}
           />
           <motion.div
-            initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            initial={
+              isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }
+            }
             animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
             exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
             transition={

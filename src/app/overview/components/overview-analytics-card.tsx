@@ -32,10 +32,14 @@ export function OverviewAnalyticsCard({
   convertCurrency,
 }: OverviewAnalyticsCardProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const months = Array.from({ length: 12 })
     .map((_, i) => dayjs().subtract(11 - i, "month"))
@@ -116,7 +120,10 @@ export function OverviewAnalyticsCard({
     let minDiff = Infinity;
     for (let i = 0; i < incomePoints.length; i++) {
       const diff = Math.abs(incomePoints[i].x - mouseX);
-      if (diff < minDiff) { minDiff = diff; closestIdx = i; }
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
     }
     return minDiff < 30 ? closestIdx : null;
   };
@@ -129,12 +136,18 @@ export function OverviewAnalyticsCard({
 
   const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
     const touch = e.touches[0];
-    const idx = findClosest(touch.clientX, e.currentTarget.getBoundingClientRect());
+    const idx = findClosest(
+      touch.clientX,
+      e.currentTarget.getBoundingClientRect(),
+    );
     setHoveredIndex(idx);
     setTooltipPos(idx !== null ? { x: touch.clientX, y: touch.clientY } : null);
   };
 
-  const handleLeave = () => { setHoveredIndex(null); setTooltipPos(null); };
+  const handleLeave = () => {
+    setHoveredIndex(null);
+    setTooltipPos(null);
+  };
 
   return (
     <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
@@ -299,42 +312,71 @@ export function OverviewAnalyticsCard({
           })}
         </svg>
 
-        {mounted && hoveredIndex !== null && tooltipPos && months[hoveredIndex] && createPortal(
-          <div
-            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-3 py-2 rounded-2xl text-[9px] font-bold shadow-xl flex flex-col gap-1 min-w-[150px]"
-            style={{ left: tooltipPos.x, top: tooltipPos.y, transform: "translate(-50%, calc(-100% - 10px))" }}
-          >
-            <span className="opacity-80 uppercase text-[8px] tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
-              {dayjs().subtract(11 - hoveredIndex, "month").format("MMMM YYYY")}
-            </span>
-            <div className="flex flex-col gap-1 text-[10px] font-bold mt-1">
-              <div className="flex justify-between items-center gap-4 text-emerald-500 dark:text-emerald-600">
-                <div className="flex items-center gap-1">
-                  <ArrowDownLeft size={10} />
-                  <span>Entrate</span>
+        {mounted &&
+          hoveredIndex !== null &&
+          tooltipPos &&
+          months[hoveredIndex] &&
+          createPortal(
+            <div
+              className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-3 py-2 rounded-2xl text-[9px] font-bold shadow-xl flex flex-col gap-1 min-w-[150px]"
+              style={{
+                left: tooltipPos.x,
+                top: tooltipPos.y,
+                transform: "translate(-50%, calc(-100% - 10px))",
+              }}
+            >
+              <span className="opacity-80 uppercase text-[8px] tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
+                {dayjs()
+                  .subtract(11 - hoveredIndex, "month")
+                  .format("MMMM YYYY")}
+              </span>
+              <div className="flex flex-col gap-1 text-[10px] font-bold mt-1">
+                <div className="flex justify-between items-center gap-4 text-emerald-500 dark:text-emerald-600">
+                  <div className="flex items-center gap-1">
+                    <ArrowDownLeft size={10} />
+                    <span>Entrate</span>
+                  </div>
+                  <span>
+                    {formatCurrency(
+                      months[hoveredIndex].income,
+                      displayCurrency,
+                    )}
+                  </span>
                 </div>
-                <span>{formatCurrency(months[hoveredIndex].income, displayCurrency)}</span>
-              </div>
-              <div className="flex justify-between items-center gap-4 text-rose-500 dark:text-rose-600">
-                <div className="flex items-center gap-1">
-                  <ArrowUpRight size={10} />
-                  <span>Spese</span>
+                <div className="flex justify-between items-center gap-4 text-rose-500 dark:text-rose-600">
+                  <div className="flex items-center gap-1">
+                    <ArrowUpRight size={10} />
+                    <span>Spese</span>
+                  </div>
+                  <span>
+                    {formatCurrency(
+                      months[hoveredIndex].expense,
+                      displayCurrency,
+                    )}
+                  </span>
                 </div>
-                <span>{formatCurrency(months[hoveredIndex].expense, displayCurrency)}</span>
-              </div>
-              <div className="border-t border-neutral-700 dark:border-neutral-200 pt-1 mt-1 flex justify-between items-center gap-4 text-white dark:text-neutral-900">
-                <div className="flex items-center gap-1">
-                  <TrendingUp size={10} className="text-blue-500" />
-                  <span>Risparmio</span>
+                <div className="border-t border-neutral-700 dark:border-neutral-200 pt-1 mt-1 flex justify-between items-center gap-4 text-white dark:text-neutral-900">
+                  <div className="flex items-center gap-1">
+                    <TrendingUp size={10} className="text-blue-500" />
+                    <span>Risparmio</span>
+                  </div>
+                  <span
+                    className={
+                      months[hoveredIndex].savings >= 0
+                        ? "text-emerald-500 dark:text-emerald-600"
+                        : "text-rose-500 dark:text-rose-600"
+                    }
+                  >
+                    {formatCurrency(
+                      months[hoveredIndex].savings,
+                      displayCurrency,
+                    )}
+                  </span>
                 </div>
-                <span className={months[hoveredIndex].savings >= 0 ? "text-emerald-500 dark:text-emerald-600" : "text-rose-500 dark:text-rose-600"}>
-                  {formatCurrency(months[hoveredIndex].savings, displayCurrency)}
-                </span>
               </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+            </div>,
+            document.body,
+          )}
       </CardContent>
     </Card>
   );

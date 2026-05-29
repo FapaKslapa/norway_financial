@@ -23,10 +23,14 @@ export function ExpenseTrendCard({
   displayCurrency,
 }: ExpenseTrendCardProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const maxVal = Math.max(...trendData.map((d) => d.expense), 1000);
 
@@ -62,7 +66,10 @@ export function ExpenseTrendCard({
     let minDiff = Infinity;
     for (let i = 0; i < points.length; i++) {
       const diff = Math.abs(points[i].x - mouseX);
-      if (diff < minDiff) { minDiff = diff; closestIdx = i; }
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
     }
     return minDiff < 50 ? closestIdx : null;
   };
@@ -75,12 +82,18 @@ export function ExpenseTrendCard({
 
   const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
     const touch = e.touches[0];
-    const idx = findClosest(touch.clientX, e.currentTarget.getBoundingClientRect());
+    const idx = findClosest(
+      touch.clientX,
+      e.currentTarget.getBoundingClientRect(),
+    );
     setHoveredIdx(idx);
     setTooltipPos(idx !== null ? { x: touch.clientX, y: touch.clientY } : null);
   };
 
-  const handleLeave = () => { setHoveredIdx(null); setTooltipPos(null); };
+  const handleLeave = () => {
+    setHoveredIdx(null);
+    setTooltipPos(null);
+  };
 
   return (
     <Card className="border border-[var(--card-border)] bg-[var(--card-solid)] shadow-xl p-6 rounded-[2rem] select-none w-full h-full flex flex-col">
@@ -116,52 +129,102 @@ export function ExpenseTrendCard({
             const val = maxVal * (1 - ratio);
             return (
               <g key={ratio} className="opacity-40 dark:opacity-20">
-                <line x1={paddingLeft} y1={y} x2={width - paddingRight} y2={y}
-                  stroke="currentColor" strokeWidth={0.5} strokeDasharray="4 4"
-                  className="text-neutral-300 dark:text-zinc-700" />
-                <text x={paddingLeft - 8} y={y + 3} textAnchor="end" fontSize={8}
-                  fontWeight="bold" className="fill-neutral-400 dark:fill-zinc-500 font-mono">
-                  {val >= 1000000 ? `${(val / 1000000).toFixed(1)}M` : val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val.toFixed(0)}
+                <line
+                  x1={paddingLeft}
+                  y1={y}
+                  x2={width - paddingRight}
+                  y2={y}
+                  stroke="currentColor"
+                  strokeWidth={0.5}
+                  strokeDasharray="4 4"
+                  className="text-neutral-300 dark:text-zinc-700"
+                />
+                <text
+                  x={paddingLeft - 8}
+                  y={y + 3}
+                  textAnchor="end"
+                  fontSize={8}
+                  fontWeight="bold"
+                  className="fill-neutral-400 dark:fill-zinc-500 font-mono"
+                >
+                  {val >= 1000000
+                    ? `${(val / 1000000).toFixed(1)}M`
+                    : val >= 1000
+                      ? `${(val / 1000).toFixed(0)}k`
+                      : val.toFixed(0)}
                 </text>
               </g>
             );
           })}
 
-          {areaD && <path d={areaD} fill="url(#expenseGradient)" stroke="none" />}
-          {lineD && <path d={lineD} fill="none" stroke="#ff3b30" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
+          {areaD && (
+            <path d={areaD} fill="url(#expenseGradient)" stroke="none" />
+          )}
+          {lineD && (
+            <path
+              d={lineD}
+              fill="none"
+              stroke="#ff3b30"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          )}
 
           {points.map((p, idx) => (
-            <circle key={p.label} cx={p.x} cy={p.y}
+            <circle
+              key={p.label}
+              cx={p.x}
+              cy={p.y}
               r={hoveredIdx === idx ? 5 : 3.5}
               fill="#ff3b30"
-              stroke={hoveredIdx === idx ? "rgba(255, 59, 48, 0.3)" : "rgba(255,255,255,1)"}
+              stroke={
+                hoveredIdx === idx
+                  ? "rgba(255, 59, 48, 0.3)"
+                  : "rgba(255,255,255,1)"
+              }
               strokeWidth={hoveredIdx === idx ? 6 : 1.5}
-              className="transition-all duration-150" />
+              className="transition-all duration-150"
+            />
           ))}
 
           {points.map((p) => (
-            <text key={p.label} x={p.x} y={height - 8} textAnchor="middle"
-              fontSize={9} fontWeight="bold" className="fill-neutral-500 dark:fill-zinc-400">
+            <text
+              key={p.label}
+              x={p.x}
+              y={height - 8}
+              textAnchor="middle"
+              fontSize={9}
+              fontWeight="bold"
+              className="fill-neutral-500 dark:fill-zinc-400"
+            >
               {p.label}
             </text>
           ))}
         </svg>
       </CardContent>
 
-      {mounted && hoveredIdx !== null && tooltipPos && createPortal(
-        <div
-          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg flex flex-col gap-0.5"
-          style={{ left: tooltipPos.x, top: tooltipPos.y, transform: "translate(-50%, calc(-100% - 10px))" }}
-        >
-          <span className="opacity-60 uppercase text-[7px] tracking-wider font-extrabold">
-            {points[hoveredIdx].label}
-          </span>
-          <span className="font-sans text-xs font-black">
-            {formatCurrency(points[hoveredIdx].value, displayCurrency)}
-          </span>
-        </div>,
-        document.body,
-      )}
+      {mounted &&
+        hoveredIdx !== null &&
+        tooltipPos &&
+        createPortal(
+          <div
+            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg flex flex-col gap-0.5"
+            style={{
+              left: tooltipPos.x,
+              top: tooltipPos.y,
+              transform: "translate(-50%, calc(-100% - 10px))",
+            }}
+          >
+            <span className="opacity-60 uppercase text-[7px] tracking-wider font-extrabold">
+              {points[hoveredIdx].label}
+            </span>
+            <span className="font-sans text-xs font-black">
+              {formatCurrency(points[hoveredIdx].value, displayCurrency)}
+            </span>
+          </div>,
+          document.body,
+        )}
     </Card>
   );
 }

@@ -1,7 +1,12 @@
 import crypto from "node:crypto";
 import { and, eq, lte } from "drizzle-orm";
 import { z } from "zod";
-import { notification, recurrentTransaction, transaction, userSettings } from "@/db/schema";
+import {
+  notification,
+  recurrentTransaction,
+  transaction,
+  userSettings,
+} from "@/db/schema";
 import {
   deleteRecurrentTransactionSchema,
   recurrentTransactionSchema,
@@ -155,7 +160,9 @@ export const recurrentTransactionRouter = router({
 
       const [settingsRow, due] = await Promise.all([
         ctx.db
-          .select({ notifyRecurrentApplied: userSettings.notifyRecurrentApplied })
+          .select({
+            notifyRecurrentApplied: userSettings.notifyRecurrentApplied,
+          })
           .from(userSettings)
           .where(eq(userSettings.userId, userId))
           .limit(1),
@@ -171,7 +178,8 @@ export const recurrentTransactionRouter = router({
           ),
       ]);
 
-      const notifyRecurrentApplied = settingsRow[0]?.notifyRecurrentApplied ?? true;
+      const notifyRecurrentApplied =
+        settingsRow[0]?.notifyRecurrentApplied ?? true;
       let processedCount = 0;
 
       for (const rt of due) {

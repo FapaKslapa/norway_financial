@@ -63,7 +63,13 @@ export default function LoginPage() {
       <div ref={cardRef} className="w-full max-w-[400px] z-10">
         <div className="w-full border border-[var(--card-border)] bg-[var(--card-solid)] shadow-[var(--card-shadow)] py-8 px-6 rounded-3xl text-[var(--foreground)] transition-all duration-300">
           <div className="flex flex-col gap-2 items-center justify-center pb-6">
-            <Image src="/logo.png" alt="Gravio" width={56} height={56} className="rounded-2xl mb-2" />
+            <Image
+              src="/logo.png"
+              alt="Gravio"
+              width={56}
+              height={56}
+              className="rounded-2xl mb-2"
+            />
             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
               Gravio
             </h1>

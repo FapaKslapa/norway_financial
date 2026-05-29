@@ -83,17 +83,23 @@ type DashboardProviderProps = {
 export function DashboardProvider({ children, user }: DashboardProviderProps) {
   const [displayCurrency, setDisplayCurrencyRaw] = useState<string>("EUR");
   const [exchangeRate, setExchangeRate] = useState<number>(11.85);
-  const [rates, setRates] = useState<Record<string, number>>({ EUR: 1, NOK: 11.85 });
+  const [rates, setRates] = useState<Record<string, number>>({
+    EUR: 1,
+    NOK: 11.85,
+  });
   const [isRateFetched, setIsRateFetched] = useState(false);
   const { theme, setTheme, accent, setAccent } = useTheme();
 
   const settingsQuery = trpc.settings.get.useQuery();
   const updateSettingsMutation = trpc.settings.update.useMutation({
-    onSuccess: () => { settingsQuery.refetch(); },
+    onSuccess: () => {
+      settingsQuery.refetch();
+    },
   });
 
   const [hasProcessed, setHasProcessed] = useState(false);
-  const processDueRecurrentMutation = trpc.recurrentTransaction.processDue.useMutation();
+  const processDueRecurrentMutation =
+    trpc.recurrentTransaction.processDue.useMutation();
 
   useEffect(() => {
     if (isRateFetched && !hasProcessed) {
@@ -123,14 +129,18 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     }
   }, [settingsQuery.data, setTheme, setAccent]);
 
-  const setDisplayCurrency = async (val: string | ((prev: string) => string)) => {
+  const setDisplayCurrency = async (
+    val: string | ((prev: string) => string),
+  ) => {
     const nextVal = typeof val === "function" ? val(displayCurrency) : val;
     setDisplayCurrencyRaw(nextVal);
     localStorage.setItem("preferred_currency", nextVal);
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
+          targetMonthlyBudget: parseFloat(
+            settingsQuery.data.targetMonthlyBudget,
+          ),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: nextVal,
           themeMode: theme,
@@ -147,7 +157,9 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
+          targetMonthlyBudget: parseFloat(
+            settingsQuery.data.targetMonthlyBudget,
+          ),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: displayCurrency,
           themeMode: newTheme,
@@ -164,7 +176,9 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
     if (settingsQuery.data) {
       try {
         await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(settingsQuery.data.targetMonthlyBudget),
+          targetMonthlyBudget: parseFloat(
+            settingsQuery.data.targetMonthlyBudget,
+          ),
           maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
           preferredCurrency: displayCurrency,
           themeMode: theme,
@@ -227,7 +241,9 @@ export function DashboardProvider({ children, user }: DashboardProviderProps) {
         isRateFetched,
         user,
         settings: settingsQuery.data || null,
-        refetchSettings: () => { settingsQuery.refetch(); },
+        refetchSettings: () => {
+          settingsQuery.refetch();
+        },
         theme,
         changeTheme,
         accent,
@@ -265,7 +281,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
       <header className="hidden md:block fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-7xl bg-[var(--card-solid)] border border-[var(--card-border)] rounded-full shadow-lg h-14 z-50 transition-colors duration-300">
         <div className="w-full px-6 h-full flex items-center justify-between">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <Image src="/logo.png" alt="Gravio" width={28} height={28} className="rounded-xl" />
+            <Image
+              src="/logo.png"
+              alt="Gravio"
+              width={28}
+              height={28}
+              className="rounded-xl"
+            />
             <span className="font-bold text-sm tracking-tight">Gravio</span>
           </div>
 
@@ -300,7 +322,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
               href="/settings"
               className={cn(
                 "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-9 w-9 flex items-center justify-center transition-all",
-                pathname === "/settings" && "bg-[var(--foreground)] text-[var(--background)]",
+                pathname === "/settings" &&
+                  "bg-[var(--foreground)] text-[var(--background)]",
               )}
             >
               <Settings size={15} />
@@ -311,7 +334,13 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 border-b border-[var(--card-border)] bg-[var(--card-solid)] flex items-center justify-between px-4 z-40 transition-colors duration-300">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Gravio" width={24} height={24} className="rounded-lg" />
+          <Image
+            src="/logo.png"
+            alt="Gravio"
+            width={24}
+            height={24}
+            className="rounded-lg"
+          />
           <span className="font-bold text-xs">Gravio</span>
         </div>
 
@@ -324,7 +353,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
             href="/settings"
             className={cn(
               "text-[var(--foreground)] border border-[var(--card-border)] hover:bg-neutral-500/10 rounded-full h-8 w-8 flex items-center justify-center transition-all",
-              pathname === "/settings" && "bg-[var(--foreground)] text-[var(--background)]",
+              pathname === "/settings" &&
+                "bg-[var(--foreground)] text-[var(--background)]",
             )}
           >
             <Settings size={14} />
@@ -349,10 +379,18 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                 href={link.href}
                 className={cn(
                   "flex flex-col items-center justify-center flex-1 h-11 rounded-full gap-0.5 text-[9px] font-bold transition-all",
-                  isActive ? "text-blue-500" : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                  isActive
+                    ? "text-blue-500"
+                    : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
                 )}
               >
-                <Icon size={15} className={cn("transition-transform", isActive && "scale-105")} />
+                <Icon
+                  size={15}
+                  className={cn(
+                    "transition-transform",
+                    isActive && "scale-105",
+                  )}
+                />
                 <span className="text-[8px] tracking-tight">{link.label}</span>
               </Link>
             );

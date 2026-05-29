@@ -278,8 +278,13 @@ export function SettingsDialog({
 
             <div className="flex md:hidden items-center justify-between px-6 pt-4 pb-3 border-b border-[var(--card-border)] shrink-0">
               <div className="flex items-center gap-2">
-                <Settings size={15} className="text-blue-500 animate-spin-slow" />
-                <span className="font-black text-sm tracking-tight">Impostazioni</span>
+                <Settings
+                  size={15}
+                  className="text-blue-500 animate-spin-slow"
+                />
+                <span className="font-black text-sm tracking-tight">
+                  Impostazioni
+                </span>
               </div>
               <button
                 type="button"
@@ -734,7 +739,9 @@ export function SettingsDialog({
                             <span
                               className={cn(
                                 "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all",
-                                checked ? "left-[calc(100%-1.375rem)]" : "left-0.5",
+                                checked
+                                  ? "left-[calc(100%-1.375rem)]"
+                                  : "left-0.5",
                               )}
                             />
                           </button>

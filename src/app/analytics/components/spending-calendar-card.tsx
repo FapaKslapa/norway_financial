@@ -55,10 +55,17 @@ export function SpendingCalendarCard({
   setSelectedDay,
   displayCurrency,
 }: SpendingCalendarCardProps) {
-  const [tooltip, setTooltip] = useState<{ x: number; y: number; day: number; amount: number } | null>(null);
+  const [tooltip, setTooltip] = useState<{
+    x: number;
+    y: number;
+    day: number;
+    amount: number;
+  } | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayIndex =
@@ -114,8 +121,21 @@ export function SpendingCalendarCard({
                 type="button"
                 key={`day-${day}`}
                 onClick={() => setSelectedDay(isSelected ? null : day)}
-                onMouseEnter={(e) => dailyExpense > 0 && setTooltip({ x: e.clientX, y: e.clientY, day, amount: dailyExpense })}
-                onMouseMove={(e) => dailyExpense > 0 && setTooltip((prev) => prev ? { ...prev, x: e.clientX, y: e.clientY } : null)}
+                onMouseEnter={(e) =>
+                  dailyExpense > 0 &&
+                  setTooltip({
+                    x: e.clientX,
+                    y: e.clientY,
+                    day,
+                    amount: dailyExpense,
+                  })
+                }
+                onMouseMove={(e) =>
+                  dailyExpense > 0 &&
+                  setTooltip((prev) =>
+                    prev ? { ...prev, x: e.clientX, y: e.clientY } : null,
+                  )
+                }
                 onMouseLeave={() => setTooltip(null)}
                 style={dayStyle}
                 className={cn(
@@ -131,7 +151,9 @@ export function SpendingCalendarCard({
                 <span
                   className={cn(
                     "text-[10px] leading-none",
-                    dailyExpense > 0 ? "text-white font-bold" : "text-[var(--text-muted)]",
+                    dailyExpense > 0
+                      ? "text-white font-bold"
+                      : "text-[var(--text-muted)]",
                   )}
                 >
                   {day}
@@ -165,15 +187,22 @@ export function SpendingCalendarCard({
         )}
       </CardContent>
 
-      {mounted && tooltip && createPortal(
-        <div
-          className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap"
-          style={{ left: tooltip.x, top: tooltip.y, transform: "translate(-50%, calc(-100% - 8px))" }}
-        >
-          {tooltip.day} {MONTH_SHORT[currentMonth]}: {formatCurrency(tooltip.amount, displayCurrency)}
-        </div>,
-        document.body,
-      )}
+      {mounted &&
+        tooltip &&
+        createPortal(
+          <div
+            className="fixed z-[9999] pointer-events-none bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 px-2.5 py-1.5 rounded-xl text-[9px] font-bold shadow-lg whitespace-nowrap"
+            style={{
+              left: tooltip.x,
+              top: tooltip.y,
+              transform: "translate(-50%, calc(-100% - 8px))",
+            }}
+          >
+            {tooltip.day} {MONTH_SHORT[currentMonth]}:{" "}
+            {formatCurrency(tooltip.amount, displayCurrency)}
+          </div>,
+          document.body,
+        )}
     </Card>
   );
 }

@@ -1,6 +1,6 @@
-import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { auth } from "@/lib/auth";
 import { SettingsPageClient } from "./settings-page-client";
