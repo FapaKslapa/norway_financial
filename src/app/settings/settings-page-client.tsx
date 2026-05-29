@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
   Camera,
@@ -16,7 +17,6 @@ import {
   Trash2,
   User,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import NextImage from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -69,15 +69,31 @@ export function SettingsPageClient() {
   const [activeTab, setActiveTab] = useState<Tab>(
     rawTab && VALID_TABS.includes(rawTab) ? rawTab : "general",
   );
-  const [preferredCurrency, setPreferredCurrency] = useState<string>(displayCurrency);
+  const [preferredCurrency, setPreferredCurrency] =
+    useState<string>(displayCurrency);
   const [isSaving, setIsSaving] = useState(false);
   const [notifyBudget80, setNotifyBudget80] = useState(true);
   const [notifyRecurrentApplied, setNotifyRecurrentApplied] = useState(true);
   const [notifyFriendActions, setNotifyFriendActions] = useState(true);
+  const [pushNotificationPermission, setPushNotificationPermission] = useState<
+    NotificationPermission | "unsupported" | "default"
+  >("default");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!("Notification" in window)) {
+        setPushNotificationPermission("unsupported");
+      } else {
+        setPushNotificationPermission(Notification.permission);
+      }
+    }
+  }, []);
 
   const updateProfileMutation = trpc.settings.updateProfile.useMutation();
   const [profileName, setProfileName] = useState(user.name || "");
-  const [profileImage, setProfileImage] = useState<string | null>(user.image || null);
+  const [profileImage, setProfileImage] = useState<string | null>(
+    user.image || null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +130,8 @@ export function SettingsPageClient() {
     [convertCurrency, displayCurrency],
   );
   const toNok = useCallback(
-    (displayVal: number): number => convertCurrency(displayVal, displayCurrency, "NOK"),
+    (displayVal: number): number =>
+      convertCurrency(displayVal, displayCurrency, "NOK"),
     [convertCurrency, displayCurrency],
   );
 
@@ -122,23 +139,33 @@ export function SettingsPageClient() {
     if (categoryBudgetsQuery.data) {
       const budgetMap: Record<string, string> = {};
       for (const cb of categoryBudgetsQuery.data) {
-        budgetMap[cb.categoryId] = toDisplayCurrency(parseFloat(cb.amount)).toFixed(2);
+        budgetMap[cb.categoryId] = toDisplayCurrency(
+          parseFloat(cb.amount),
+        ).toFixed(2);
       }
       setCatBudgets(budgetMap);
     }
   }, [categoryBudgetsQuery.data, toDisplayCurrency]);
 
   const [targetBudget, setTargetBudget] = useState(() =>
-    settings ? toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(2) : "0.00",
+    settings
+      ? toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(2)
+      : "0.00",
   );
   const [maxBudget, setMaxBudget] = useState(() =>
-    settings ? toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2) : "0.00",
+    settings
+      ? toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2)
+      : "0.00",
   );
 
   useEffect(() => {
     if (settings) {
-      setTargetBudget(toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(2));
-      setMaxBudget(toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2));
+      setTargetBudget(
+        toDisplayCurrency(parseFloat(settings.targetMonthlyBudget)).toFixed(2),
+      );
+      setMaxBudget(
+        toDisplayCurrency(parseFloat(settings.maxMonthlyBudget)).toFixed(2),
+      );
       setPreferredCurrency(settings.preferredCurrency);
       setNotifyBudget80(settings.notifyBudget80 ?? true);
       setNotifyRecurrentApplied(settings.notifyRecurrentApplied ?? true);
@@ -155,7 +182,11 @@ export function SettingsPageClient() {
 
   const handleLogout = async () => {
     await authClient.signOut({
-      fetchOptions: { onSuccess: () => { window.location.href = "/login"; } },
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/login";
+        },
+      },
     });
   };
 
@@ -185,7 +216,10 @@ export function SettingsPageClient() {
       }
 
       if (profileName !== user.name || profileImage !== user.image) {
-        await updateProfileMutation.mutateAsync({ name: profileName, image: profileImage });
+        await updateProfileMutation.mutateAsync({
+          name: profileName,
+          image: profileImage,
+        });
       }
 
       refetchSettings();
@@ -232,7 +266,11 @@ export function SettingsPageClient() {
           whileTap={{ scale: 0.97 }}
           className="bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 text-xs font-black rounded-2xl h-10 px-5 cursor-pointer flex items-center gap-2 border-0 disabled:opacity-50 transition-opacity shadow-sm shrink-0"
         >
-          {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
+          {isSaving ? (
+            <Loader2 size={13} className="animate-spin" />
+          ) : (
+            <Save size={13} />
+          )}
           <span className="hidden sm:inline">Salva Impostazioni</span>
           <span className="sm:hidden">Salva</span>
         </motion.button>
@@ -282,10 +320,16 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Valuta Preferita</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Usata in tutta l'app</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Usata in tutta l'app
+                    </p>
                   </div>
                 </div>
-                <CurrencySelect value={preferredCurrency} onChange={setPreferredCurrency} triggerClassName="h-11 text-xs rounded-xl" />
+                <CurrencySelect
+                  value={preferredCurrency}
+                  onChange={setPreferredCurrency}
+                  triggerClassName="h-11 text-xs rounded-xl"
+                />
               </div>
 
               {/* Theme */}
@@ -296,7 +340,9 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Modalità Tema</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Chiaro o scuro</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Chiaro o scuro
+                    </p>
                   </div>
                 </div>
                 <div className="flex rounded-xl bg-neutral-100 dark:bg-zinc-800/30 p-1 border border-[var(--card-border)]/40">
@@ -305,7 +351,9 @@ export function SettingsPageClient() {
                     onClick={() => changeTheme("light")}
                     className={cn(
                       "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent",
-                      theme === "light" ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                      theme === "light"
+                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
                     )}
                   >
                     <Sun size={13} /> Chiaro
@@ -315,7 +363,9 @@ export function SettingsPageClient() {
                     onClick={() => changeTheme("dark")}
                     className={cn(
                       "flex-1 py-2.5 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer flex items-center justify-center gap-2 bg-transparent",
-                      theme === "dark" ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
+                      theme === "dark"
+                        ? "bg-[var(--foreground)] text-[var(--background)] shadow-sm"
+                        : "text-[var(--text-muted)] hover:text-[var(--foreground)]",
                     )}
                   >
                     <Moon size={13} /> Scuro
@@ -331,7 +381,9 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Colore Accento</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Colore principale dell'interfaccia</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Colore principale dell'interfaccia
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-4 flex-wrap">
@@ -347,10 +399,20 @@ export function SettingsPageClient() {
                         style={{ backgroundColor: col.primary }}
                       >
                         {accent === col.id && (
-                          <Check size={16} className="text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.4)]" />
+                          <Check
+                            size={16}
+                            className="text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.4)]"
+                          />
                         )}
                       </div>
-                      <span className={cn("text-[9px] font-bold transition-colors", accent === col.id ? "text-[var(--foreground)]" : "text-[var(--text-muted)]")}>
+                      <span
+                        className={cn(
+                          "text-[9px] font-bold transition-colors",
+                          accent === col.id
+                            ? "text-[var(--foreground)]"
+                            : "text-[var(--text-muted)]",
+                        )}
+                      >
                         {col.name.split(" ")[0]}
                       </span>
                     </button>
@@ -372,7 +434,9 @@ export function SettingsPageClient() {
                     <p className="text-xs font-black">Budget Mensile Globale</p>
                     <p className="text-[10px] text-[var(--text-muted)]">
                       Obiettivi di spesa in{" "}
-                      <span className="font-extrabold text-blue-500">{displayCurrency}</span>
+                      <span className="font-extrabold text-blue-500">
+                        {displayCurrency}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -381,20 +445,34 @@ export function SettingsPageClient() {
                     <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
                       Budget Target (Obiettivo)
                     </span>
-                    <MoneyInput value={targetBudget} onChange={setTargetBudget} currency={displayCurrency} className="h-11" />
+                    <MoneyInput
+                      value={targetBudget}
+                      onChange={setTargetBudget}
+                      currency={displayCurrency}
+                      className="h-11"
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <span className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-wider ml-1">
                       Budget Massimo (Limite)
                     </span>
-                    <MoneyInput value={maxBudget} onChange={setMaxBudget} currency={displayCurrency} className="h-11" />
+                    <MoneyInput
+                      value={maxBudget}
+                      onChange={setMaxBudget}
+                      currency={displayCurrency}
+                      className="h-11"
+                    />
                   </div>
                 </div>
                 {displayCurrency === "EUR" && (
                   <div className="flex items-start gap-2.5 text-[10px] text-[var(--text-muted)] bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
-                    <Info size={13} className="flex-shrink-0 mt-0.5 text-blue-500" />
+                    <Info
+                      size={13}
+                      className="flex-shrink-0 mt-0.5 text-blue-500"
+                    />
                     <span>
-                      I valori vengono convertiti in NOK al salvataggio al tasso corrente ({exchangeRate.toFixed(2)} NOK/EUR)
+                      I valori vengono convertiti in NOK al salvataggio al tasso
+                      corrente ({exchangeRate.toFixed(2)} NOK/EUR)
                     </span>
                   </div>
                 )}
@@ -408,7 +486,9 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Budget per Categoria</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Limiti di spesa per ogni categoria</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Limiti di spesa per ogni categoria
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -416,7 +496,8 @@ export function SettingsPageClient() {
                     <div className="text-xs text-[var(--text-muted)] py-6 text-center font-bold col-span-2">
                       Caricamento...
                     </div>
-                  ) : categoriesQuery.data && categoriesQuery.data.length > 0 ? (
+                  ) : categoriesQuery.data &&
+                    categoriesQuery.data.length > 0 ? (
                     categoriesQuery.data.map((cat) => (
                       <div
                         key={cat.id}
@@ -436,7 +517,12 @@ export function SettingsPageClient() {
                         <div className="w-[110px] flex-shrink-0">
                           <MoneyInput
                             value={catBudgets[cat.id] || "0.00"}
-                            onChange={(newVal) => setCatBudgets((prev) => ({ ...prev, [cat.id]: newVal }))}
+                            onChange={(newVal) =>
+                              setCatBudgets((prev) => ({
+                                ...prev,
+                                [cat.id]: newVal,
+                              }))
+                            }
                             currency={displayCurrency}
                             className="h-9 text-[11px]"
                           />
@@ -463,7 +549,9 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Informazioni Personali</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Nome e foto profilo</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Nome e foto profilo
+                    </p>
                   </div>
                 </div>
 
@@ -475,7 +563,13 @@ export function SettingsPageClient() {
                   >
                     <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-blue-500/30 bg-blue-500/10 text-blue-500 flex items-center justify-center font-black text-2xl uppercase shadow-md transition-all group-hover:border-blue-500/60">
                       {profileImage ? (
-                        <NextImage src={profileImage} alt={profileName} width={80} height={80} className="w-full h-full object-cover" />
+                        <NextImage
+                          src={profileImage}
+                          alt={profileName}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <span>{profileName ? profileName[0] : "S"}</span>
                       )}
@@ -485,7 +579,13 @@ export function SettingsPageClient() {
                       <span>Cambia</span>
                     </div>
                   </button>
-                  <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
                   {profileImage && (
                     <button
                       type="button"
@@ -532,7 +632,9 @@ export function SettingsPageClient() {
                   </div>
                   <div>
                     <p className="text-xs font-black">Account</p>
-                    <p className="text-[10px] text-[var(--text-muted)]">Azioni sull'account</p>
+                    <p className="text-[10px] text-[var(--text-muted)]">
+                      Azioni sull'account
+                    </p>
                   </div>
                 </div>
 
@@ -540,13 +642,21 @@ export function SettingsPageClient() {
                   <div className="flex items-center justify-between gap-4 p-4 bg-neutral-500/5 rounded-2xl border border-[var(--card-border)]/40">
                     <div>
                       <p className="text-xs font-bold">{user.name}</p>
-                      <p className="text-[10px] text-[var(--text-muted)] truncate">{user.email}</p>
+                      <p className="text-[10px] text-[var(--text-muted)] truncate">
+                        {user.email}
+                      </p>
                     </div>
                     <div className="h-9 w-9 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 flex items-center justify-center font-black text-sm uppercase shrink-0">
                       {profileImage ? (
-                        <NextImage src={profileImage} alt={user.name} width={36} height={36} className="w-full h-full object-cover rounded-full" />
+                        <NextImage
+                          src={profileImage}
+                          alt={user.name}
+                          width={36}
+                          height={36}
+                          className="w-full h-full object-cover rounded-full"
+                        />
                       ) : (
-                        user.name?.[0] ?? "U"
+                        (user.name?.[0] ?? "U")
                       )}
                     </div>
                   </div>
@@ -572,7 +682,9 @@ export function SettingsPageClient() {
                 </div>
                 <div>
                   <p className="text-xs font-black">Preferenze Notifiche</p>
-                  <p className="text-[10px] text-[var(--text-muted)]">Scegli quando ricevere notifiche in-app</p>
+                  <p className="text-[10px] text-[var(--text-muted)]">
+                    Scegli quando ricevere notifiche in-app
+                  </p>
                 </div>
               </div>
 
@@ -580,35 +692,87 @@ export function SettingsPageClient() {
                 [
                   {
                     label: "Avvisi Budget",
-                    description: "Notifica quando raggiungi l'80%, il 100% o il massimo del budget mensile",
+                    description:
+                      "Notifica quando raggiungi l'80%, il 100% o il massimo del budget mensile",
                     checked: notifyBudget80,
                     onChange: setNotifyBudget80,
                   },
                   {
                     label: "Transazioni Ricorrenti",
-                    description: "Notifica quando le transazioni ricorrenti vengono elaborate automaticamente",
+                    description:
+                      "Notifica quando le transazioni ricorrenti vengono elaborate automaticamente",
                     checked: notifyRecurrentApplied,
                     onChange: setNotifyRecurrentApplied,
                   },
                   {
                     label: "Azioni Amici",
-                    description: "Notifica quando un amico aggiunge una spesa condivisa con te",
+                    description:
+                      "Notifica quando un amico aggiunge una spesa condivisa con te",
                     checked: notifyFriendActions,
                     onChange: setNotifyFriendActions,
                   },
-                ] as { label: string; description: string; checked: boolean; onChange: (v: boolean) => void }[]
+                  ...(pushNotificationPermission !== "unsupported"
+                    ? [
+                        {
+                          label: "Notifiche Native Browser",
+                          description:
+                            pushNotificationPermission === "granted"
+                              ? "Le notifiche native sul tuo dispositivo sono attive"
+                              : "Abilita le notifiche push direttamente sul tuo dispositivo",
+                          checked: pushNotificationPermission === "granted",
+                          onChange: async (checked: boolean) => {
+                            if (checked) {
+                              const permission =
+                                await Notification.requestPermission();
+                              setPushNotificationPermission(permission);
+                              if (
+                                permission === "granted" &&
+                                "serviceWorker" in navigator
+                              ) {
+                                navigator.serviceWorker.ready.then((reg) => {
+                                  reg.showNotification("Notifiche Attivate", {
+                                    body: "Riceverai le notifiche push di Gravio direttamente su questo dispositivo.",
+                                    icon: "/icon-192.png",
+                                    badge: "/favicon-32.png",
+                                  });
+                                });
+                              }
+                            } else {
+                              alert(
+                                "Per disabilitare del tutto le notifiche, gestisci i permessi del sito dal lucchetto nella barra degli indirizzi del browser.",
+                              );
+                            }
+                          },
+                        },
+                      ]
+                    : []),
+                ] as {
+                  label: string;
+                  description: string;
+                  checked: boolean;
+                  onChange: (v: boolean) => void;
+                }[]
               ).map(({ label, description, checked, onChange }) => (
-                <div key={label} className="flex items-center justify-between gap-6 py-4 border-b border-[var(--card-border)]/40 last:border-0">
+                <div
+                  key={label}
+                  className="flex items-center justify-between gap-6 py-4 border-b border-[var(--card-border)]/40 last:border-0"
+                >
                   <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-xs font-bold text-[var(--foreground)]">{label}</span>
-                    <span className="text-[10px] text-[var(--text-muted)] leading-relaxed">{description}</span>
+                    <span className="text-xs font-bold text-[var(--foreground)]">
+                      {label}
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)] leading-relaxed">
+                      {description}
+                    </span>
                   </div>
                   <button
                     type="button"
                     onClick={() => onChange(!checked)}
                     className={cn(
                       "relative h-7 w-12 rounded-full transition-colors shrink-0 border-0 cursor-pointer",
-                      checked ? "bg-blue-500" : "bg-neutral-300 dark:bg-zinc-700",
+                      checked
+                        ? "bg-blue-500"
+                        : "bg-neutral-300 dark:bg-zinc-700",
                     )}
                   >
                     <span

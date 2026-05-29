@@ -23,17 +23,83 @@ export function NotificationBell({ className }: NotificationBellProps) {
 
   const refetch = () => notificationsQuery.refetch();
 
-  const markReadMutation = trpc.notification.markRead.useMutation({ onSuccess: refetch });
-  const markAllReadMutation = trpc.notification.markAllRead.useMutation({ onSuccess: refetch });
-  const deleteMutation = trpc.notification.delete.useMutation({ onSuccess: refetch });
-  const deleteAllMutation = trpc.notification.deleteAll.useMutation({ onSuccess: refetch });
+  const markReadMutation = trpc.notification.markRead.useMutation({
+    onSuccess: refetch,
+  });
+  const markAllReadMutation = trpc.notification.markAllRead.useMutation({
+    onSuccess: refetch,
+  });
+  const deleteMutation = trpc.notification.delete.useMutation({
+    onSuccess: refetch,
+  });
+  const deleteAllMutation = trpc.notification.deleteAll.useMutation({
+    onSuccess: refetch,
+  });
 
   const notifications = notificationsQuery.data || [];
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  const [prevIds, setPrevIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (notificationsQuery.isSuccess && notificationsQuery.data) {
+      const currentIds = notificationsQuery.data.map((n) => n.id);
+      const isDifferent =
+        currentIds.length !== prevIds.length ||
+        currentIds.some((id, index) => id !== prevIds[index]);
+
+      if (isDifferent) {
+        if (prevIds.length > 0) {
+          const newUnread = notificationsQuery.data.filter(
+            (n) => !n.read && !prevIds.includes(n.id),
+          );
+
+          if (
+            newUnread.length > 0 &&
+            typeof window !== "undefined" &&
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            for (const n of newUnread) {
+              if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.ready
+                  .then((reg) => {
+                    reg.showNotification(n.title, {
+                      body: n.message,
+                      icon: "/icon-192.png",
+                      badge: "/favicon-32.png",
+                      data: { link: n.link || "/" },
+                      vibrate: [100, 50, 100],
+                    } as unknown as NotificationOptions & {
+                      vibrate?: number[];
+                    });
+                  })
+                  .catch(() => {
+                    new Notification(n.title, {
+                      body: n.message,
+                      icon: "/icon-192.png",
+                    });
+                  });
+              } else {
+                new Notification(n.title, {
+                  body: n.message,
+                  icon: "/icon-192.png",
+                });
+              }
+            }
+          }
+        }
+        setPrevIds(currentIds);
+      }
+    }
+  }, [notificationsQuery.data, notificationsQuery.isSuccess, prevIds]);
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -67,7 +133,9 @@ export function NotificationBell({ className }: NotificationBellProps) {
             className="absolute right-0 mt-2 w-80 bg-[var(--card-solid)] border border-[var(--card-border)] shadow-2xl rounded-2xl overflow-hidden z-[100] flex flex-col text-[var(--foreground)]"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--card-border)] bg-neutral-500/5">
-              <span className="text-xs font-black uppercase tracking-wider">Notifiche</span>
+              <span className="text-xs font-black uppercase tracking-wider">
+                Notifiche
+              </span>
               <div className="flex items-center gap-3">
                 {unreadCount > 0 && (
                   <button
@@ -94,7 +162,9 @@ export function NotificationBell({ className }: NotificationBellProps) {
               {notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-4 text-center text-[var(--text-muted)]">
                   <BellOff size={20} className="mb-2 opacity-40" />
-                  <span className="text-[10px] font-medium">Nessuna notifica</span>
+                  <span className="text-[10px] font-medium">
+                    Nessuna notifica
+                  </span>
                 </div>
               ) : (
                 notifications.map((n) => (
@@ -117,15 +187,25 @@ export function NotificationBell({ className }: NotificationBellProps) {
                       }}
                       className="flex-1 flex flex-col gap-1 text-left outline-none bg-transparent border-0 cursor-pointer min-w-0"
                     >
-                      <span className="text-[10px] font-extrabold leading-tight">{n.title}</span>
-                      <p className="text-[9px] text-[var(--text-muted)] leading-relaxed">{n.message}</p>
+                      <span className="text-[10px] font-extrabold leading-tight">
+                        {n.title}
+                      </span>
+                      <p className="text-[9px] text-[var(--text-muted)] leading-relaxed">
+                        {n.message}
+                      </p>
                       <div className="flex items-center justify-between mt-1 text-[8px] text-[var(--text-muted)] font-medium w-full">
-                        <span>{dayjs(n.createdAt).format("DD MMM, HH:mm")}</span>
-                        {n.link && <span className="text-blue-500">Visualizza</span>}
+                        <span>
+                          {dayjs(n.createdAt).format("DD MMM, HH:mm")}
+                        </span>
+                        {n.link && (
+                          <span className="text-blue-500">Visualizza</span>
+                        )}
                       </div>
                     </button>
                     <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
-                      {!n.read && <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />}
+                      {!n.read && (
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      )}
                       <button
                         type="button"
                         onClick={() => deleteMutation.mutate({ id: n.id })}
