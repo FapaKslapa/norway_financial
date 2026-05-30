@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { category } from "@/db/schema";
 import {
   createCategorySchema,
@@ -23,15 +23,16 @@ export const categoryRouter = router({
   list: protectedProcedure.query(async ({ ctx }) => {
     const userId = ctx.session.user.id;
 
-    let list = await ctx.db
+    // Check if shared categories exist
+    const sharedCategories = await ctx.db
       .select()
       .from(category)
-      .where(eq(category.userId, userId));
+      .where(isNull(category.userId));
 
-    if (list.length === 0) {
+    if (sharedCategories.length === 0) {
       const seedData = DEFAULT_CATEGORIES.map((cat) => ({
         id: crypto.randomUUID(),
-        userId,
+        userId: null,
         name: cat.name,
         icon: cat.icon,
         color: cat.color,
@@ -40,12 +41,12 @@ export const categoryRouter = router({
       }));
 
       await ctx.db.insert(category).values(seedData);
-
-      list = await ctx.db
-        .select()
-        .from(category)
-        .where(eq(category.userId, userId));
     }
+
+    const list = await ctx.db
+      .select()
+      .from(category)
+      .where(or(eq(category.userId, userId), isNull(category.userId)));
 
     return list;
   }),
@@ -55,10 +56,16 @@ export const categoryRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
 
+      // Check if user already has a category with this name or if there is a shared one
       const existing = await ctx.db
         .select()
         .from(category)
-        .where(and(eq(category.userId, userId), eq(category.name, input.name)))
+        .where(
+          and(
+            or(eq(category.userId, userId), isNull(category.userId)),
+            eq(category.name, input.name)
+          )
+        )
         .limit(1);
 
       if (existing.length > 0) {

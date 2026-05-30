@@ -119,7 +119,6 @@ export const groupMember = mysqlTable("group_member", {
 export const category = mysqlTable("category", {
   id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 })
-    .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }).notNull(),
   icon: varchar("icon", { length: 100 }).notNull(),
