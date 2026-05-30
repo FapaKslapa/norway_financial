@@ -65,10 +65,12 @@ export function CustomDatePicker({
 
       setValign(newValign);
       setCoords({
-        top: newValign === "bottom" ? "100%" : undefined,
-        bottom: newValign === "top" ? "100%" : undefined,
-        left: newAlign === "left" ? 0 : undefined,
-        right: newAlign === "right" ? 0 : undefined,
+        top: newValign === "bottom" ? rect.bottom + 6 : undefined,
+        bottom:
+          newValign === "top" ? window.innerHeight - rect.top + 6 : undefined,
+        left: newAlign === "left" ? rect.left : undefined,
+        right:
+          newAlign === "right" ? window.innerWidth - rect.right : undefined,
       });
     }
   }, [isOpen]);
@@ -123,11 +125,9 @@ export function CustomDatePicker({
           exit={{ opacity: 0, y: valign === "bottom" ? -4 : 4, scale: 0.98 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           style={{
-            position: "absolute",
-            zIndex: 50,
+            position: "fixed",
+            zIndex: 9999,
             width: 256,
-            marginTop: valign === "bottom" ? 6 : undefined,
-            marginBottom: valign === "top" ? 6 : undefined,
             ...coords,
           }}
           className={cn(
@@ -234,7 +234,7 @@ export function CustomDatePicker({
         )}
       </div>
 
-      {calendar}
+      {mounted && createPortal(calendar, document.body)}
     </div>
   );
 }
