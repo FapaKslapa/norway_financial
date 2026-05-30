@@ -121,7 +121,7 @@ export function magicLinkEmail(url: string): { html: string; text: string } {
         <!-- Icon Badge -->
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
           <tr><td style="background:#f1f5f9;border-radius:9999px;width:48px;height:48px;text-align:center;vertical-align:middle">
-            <span style="font-size:20px;line-height:48px;display:block">🔑</span>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48Y2lyY2xlIGN4PSI3LjUiIGN5PSIxNS41IiByPSI1LjUiLz48cGF0aCBkPSJtMjEgMi05LjYgOS42Ii8+PHBhdGggZD0ibTE1LjUgNy41IDMgMyIvPjwvc3ZnPg==" width="22" height="22" style="display:block;margin:0 auto;vertical-align:middle" alt="Key" />
           </td></tr>
         </table>
 
@@ -161,7 +161,7 @@ export function activationEmail(
         <!-- Icon Badge -->
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
           <tr><td style="background:#f1f5f9;border-radius:9999px;width:48px;height:48px;text-align:center;vertical-align:middle">
-            <span style="font-size:20px;line-height:48px;display:block">👋</span>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMTkgMjF2LTJhNCA0IDAgMCAwLTQtNEg5YTQgNCA0IDAgMC00IDR2MiIvPjxjaXJjbGUgY3g9IjEyIiBjeT0iNyIgcj0iNCIvPjwvc3ZnPg==" width="22" height="22" style="display:block;margin:0 auto;vertical-align:middle" alt="User" />
           </td></tr>
         </table>
 
@@ -212,7 +212,7 @@ export function verifyEmailTemplate(url: string): {
         <!-- Icon Badge -->
         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-bottom:24px">
           <tr><td style="background:#f1f5f9;border-radius:9999px;width:48px;height:48px;text-align:center;vertical-align:middle">
-            <span style="font-size:20px;line-height:48px;display:block">✉️</span>
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZjE3MmEiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cmVjdCB3aWR0aD0iMjAiIGhlaWdodD0iMTYiIHg9IjIiIHk9IjQiIHJ4PSIyIi8+PHBhdGggZD0ibTIyIDctOC45NyA1LjdhMS45NCAxLjk0IDAgMCAxLTIuMDYgMEwyIDciLz48L3N2Zz4=" width="22" height="22" style="display:block;margin:0 auto;vertical-align:middle" alt="Mail" />
           </td></tr>
         </table>
 
