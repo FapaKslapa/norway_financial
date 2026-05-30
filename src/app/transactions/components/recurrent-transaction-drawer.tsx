@@ -1,18 +1,17 @@
 "use client";
 
-import {
-  Button,
-  Drawer,
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseTrigger,
-  DrawerContent,
-  DrawerDialog,
-  DrawerFooter,
-  DrawerHeader,
-} from "@heroui/react";
 import dayjs from "dayjs";
-import { X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeftRight,
+  CalendarDays,
+  Tag,
+  TrendingDown,
+  TrendingUp,
+  Type,
+  Wallet,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { CategorySelect } from "@/components/ui/category-select";
 import { CurrencySelect } from "@/components/ui/currency-select";
@@ -21,6 +20,7 @@ import { CustomSelect } from "@/components/ui/custom-select";
 import { MoneyInput } from "@/components/ui/money-input";
 import { recurrentTransactionSchema } from "@/lib/schemas/recurrent-transaction";
 import { trpc } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 
 type CategoryOption = {
   id: string;
@@ -50,6 +50,21 @@ type RecurrentTransactionDrawerProps = {
   onSubmitSuccess: () => void;
 };
 
+function FieldLabel({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <span className="flex items-center gap-1.5 text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-1.5">
+      <Icon size={11} className="opacity-60" />
+      {children}
+    </span>
+  );
+}
+
 export function RecurrentTransactionDrawer({
   isOpen,
   onClose,
@@ -68,6 +83,16 @@ export function RecurrentTransactionDrawer({
   const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [endDate, setEndDate] = useState("");
   const [validationError, setValidationError] = useState("");
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const createMutation = trpc.recurrentTransaction.create.useMutation({
     onSuccess: () => {
@@ -76,6 +101,7 @@ export function RecurrentTransactionDrawer({
     },
     onError: (err) => {
       setValidationError(err.message || "Errore nella creazione.");
+      setIsSubmitting(false);
     },
   });
 
@@ -86,6 +112,7 @@ export function RecurrentTransactionDrawer({
     },
     onError: (err) => {
       setValidationError(err.message || "Errore nell'aggiornamento.");
+      setIsSubmitting(false);
     },
   });
 
@@ -119,6 +146,7 @@ export function RecurrentTransactionDrawer({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
     const parsedAmount = parseFloat(amount);
     if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -147,69 +175,112 @@ export function RecurrentTransactionDrawer({
       return;
     }
 
-    if (editingTx) {
-      await updateMutation.mutateAsync({
-        id: editingTx.id,
-        ...payload,
-      });
-    } else {
-      await createMutation.mutateAsync(payload);
+    setIsSubmitting(true);
+    try {
+      if (editingTx) {
+        await updateMutation.mutateAsync({
+          id: editingTx.id,
+          ...payload,
+        });
+      } else {
+        await createMutation.mutateAsync(payload);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <DrawerBackdrop variant="blur">
-        <DrawerContent
-          placement="right"
-          className="bg-(--card-solid) border-l border-(--card-border) text-foreground w-full max-w-md h-full"
-        >
-          <DrawerDialog>
-            <form onSubmit={handleSubmit} className="flex flex-col h-full">
-              <DrawerCloseTrigger
-                className="absolute right-4 top-4 p-1.5 rounded-lg hover:bg-neutral-500/10 text-(--text-muted)"
-                aria-label="Close"
-              >
-                <X size={16} />
-              </DrawerCloseTrigger>
-              <DrawerHeader className="flex flex-col gap-1 border-b border-(--card-border) p-5 shrink-0">
-                <h3 className="text-sm font-black">
-                  {editingTx
-                    ? "Modifica Regola Ricorrente"
-                    : "Nuova Regola Ricorrente"}
-                </h3>
-                <p className="text-[10px] text-(--text-muted) font-medium">
-                  {editingTx
-                    ? "Aggiorna i dettagli della transazione ricorrente"
-                    : "Crea una nuova regola per entrate o spese ripetitive"}
-                </p>
-              </DrawerHeader>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-4">
+          <motion.div
+            initial={
+              isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }
+            }
+            animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
+            exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }}
+            transition={
+              isMobile
+                ? { duration: 0.35, ease: [0.32, 0.72, 0, 1] }
+                : { duration: 0.25, ease: [0.16, 1, 0.3, 1] }
+            }
+            drag={isMobile ? "y" : false}
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.4 }}
+            onDragEnd={(_, info) => {
+              if (isMobile && (info.offset.y > 120 || info.velocity.y > 500)) {
+                onClose();
+              }
+            }}
+            className="bg-(--card-solid) border border-(--card-border) w-full md:max-w-[460px] rounded-t-[2rem] md:rounded-3xl shadow-2xl text-foreground max-h-[92dvh] md:max-h-[90vh] flex flex-col"
+          >
+            <div className="flex md:hidden justify-center pt-3 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-(--card-border)" />
+            </div>
 
-              <DrawerBody className="p-5 flex flex-col gap-4 overflow-y-auto custom-scrollbar flex-1 min-h-0">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Descrizione
-                    </span>
+            <div className="flex items-center justify-between px-6 pt-3 md:pt-5 pb-4 border-b border-(--card-border) shrink-0">
+              <div className="flex items-center gap-3">
+                <div
+                  className={cn(
+                    "h-9 w-9 rounded-2xl flex items-center justify-center border shrink-0 transition-all duration-300",
+                    type === "expense"
+                      ? "bg-rose-500/10 border-rose-500/20 text-rose-500"
+                      : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500",
+                  )}
+                >
+                  {type === "expense" ? (
+                    <TrendingDown size={16} />
+                  ) : (
+                    <TrendingUp size={16} />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm leading-tight">
+                    {editingTx ? "Modifica Regola" : "Nuova Regola Ricorrente"}
+                  </h3>
+                  <p className="text-[10px] text-(--text-muted)">
+                    {editingTx
+                      ? "Aggiorna i dettagli della regola ricorrente"
+                      : "Imposta una spesa o entrata ripetitiva"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                onClick={onClose}
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col flex-1 overflow-hidden md:rounded-b-3xl"
+            >
+              <div className="flex-1 overflow-y-auto px-6 pt-5 pb-5 flex flex-col gap-4">
+                {/* Descrizione */}
+                <div>
+                  <FieldLabel icon={Type}>Descrizione</FieldLabel>
+                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
                     <input
                       type="text"
                       required
                       placeholder="Es. Stipendio, Affitto, Netflix..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="h-11 px-3 bg-neutral-500/5 dark:bg-zinc-800/30 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-foreground placeholder:text-(--text-muted) focus-within:ring-2 focus-within:ring-blue-500/20"
+                      className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted)"
                     />
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Frequenza
-                    </span>
+                {/* Frequenza e Tipo in Grid */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <FieldLabel icon={CalendarDays}>Frequenza</FieldLabel>
                     <CustomSelect
                       value={frequency}
                       onChange={(val) => setFrequency(val as typeof frequency)}
@@ -222,121 +293,120 @@ export function RecurrentTransactionDrawer({
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Tipo transazione
-                    </span>
-                    <div className="flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
+                  <div>
+                    <FieldLabel icon={Tag}>Tipo regola</FieldLabel>
+                    <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
+                      <div
+                        className={cn(
+                          "absolute top-1 bottom-1 w-[calc(50%-6px)] rounded-lg transition-all duration-300 shadow-sm",
+                          type === "expense"
+                            ? "left-1 bg-rose-500"
+                            : "left-[calc(50%+2px)] bg-emerald-500",
+                        )}
+                      />
                       <button
                         type="button"
                         onClick={() => setType("expense")}
-                        className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                          type === "expense"
-                            ? "bg-foreground text-background shadow-sm"
-                            : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10"
-                        }`}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-1 text-[11px] font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
+                          type === "expense" ? "text-white" : "text-(--text-muted)",
+                        )}
                       >
-                        Spesa
+                        <TrendingDown size={11} /> Spesa
                       </button>
                       <button
                         type="button"
                         onClick={() => setType("income")}
-                        className={`flex-1 text-xs font-bold rounded-lg transition-all border-0 cursor-pointer ${
-                          type === "income"
-                            ? "bg-foreground text-background shadow-sm"
-                            : "text-(--text-muted) bg-transparent hover:bg-neutral-500/10"
-                        }`}
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-1 text-[11px] font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
+                          type === "income" ? "text-white" : "text-(--text-muted)",
+                        )}
                       >
-                        Entrata
+                        <TrendingUp size={11} /> Entrata
                       </button>
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Categoria
-                    </span>
-                    <CategorySelect
-                      value={categoryId}
-                      onChange={setCategoryId}
-                      categories={categories}
-                    />
-                  </div>
+                {/* Categoria */}
+                <div>
+                  <FieldLabel icon={Tag}>Categoria</FieldLabel>
+                  <CategorySelect
+                    value={categoryId}
+                    onChange={setCategoryId}
+                    categories={categories}
+                  />
+                </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Data inizio
-                    </span>
+                {/* Date Inizio e Fine in Grid */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <FieldLabel icon={CalendarDays}>Data Inizio</FieldLabel>
                     <CustomDatePicker
                       value={startDate}
                       onChange={setStartDate}
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Data fine (Opzionale)
-                    </span>
+                  <div>
+                    <FieldLabel icon={CalendarDays}>Data Fine (Opzionale)</FieldLabel>
                     <CustomDatePicker
                       value={endDate}
                       onChange={setEndDate}
-                      placeholder="Nessuna data di fine"
+                      placeholder="Senza fine"
                     />
                   </div>
+                </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Importo
-                    </span>
+                {/* Importo e Valuta in Grid */}
+                <div className="grid grid-cols-3 gap-2.5">
+                  <div className="col-span-2">
+                    <FieldLabel icon={Wallet}>Importo</FieldLabel>
                     <MoneyInput
                       value={amount}
                       onChange={setAmount}
                       currency={currency}
+                      required
                     />
                   </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider ml-1">
-                      Valuta
-                    </span>
+                  <div>
+                    <FieldLabel icon={ArrowLeftRight}>Valuta</FieldLabel>
                     <CurrencySelect value={currency} onChange={setCurrency} />
                   </div>
                 </div>
-              </DrawerBody>
+              </div>
 
-              <DrawerFooter className="border-t border-(--card-border) p-5 flex flex-col gap-2 shrink-0">
+              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0 bg-(--card-solid) flex flex-col gap-3 md:rounded-b-3xl">
                 {validationError && (
-                  <span className="text-[10px] text-red-500 font-bold self-start mb-1">
+                  <span className="text-[10px] text-red-500 font-bold self-start">
                     {validationError}
                   </span>
                 )}
                 <div className="flex gap-3 w-full">
-                  <Button
-                    variant="ghost"
-                    className="flex-1 bg-neutral-500/10 text-foreground h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
-                    onPress={onClose}
+                  <button
+                    type="button"
+                    className="flex-1 bg-neutral-500/10 hover:bg-neutral-500/15 text-foreground h-11 rounded-xl text-xs font-black transition-colors border-0 cursor-pointer flex items-center justify-center"
+                    onClick={onClose}
                   >
                     Annulla
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="submit"
-                    className="flex-1 bg-foreground text-background h-11 rounded-xl text-xs font-bold border-0 cursor-pointer flex items-center justify-center"
-                    isDisabled={
-                      createMutation.isPending || updateMutation.isPending
-                    }
+                    disabled={isSubmitting}
+                    className="flex-1 bg-foreground text-background h-11 rounded-xl text-xs font-black transition-all border-0 cursor-pointer flex items-center justify-center disabled:opacity-50"
                   >
-                    {createMutation.isPending || updateMutation.isPending
+                    {isSubmitting
                       ? "Salvataggio..."
                       : editingTx
-                        ? "Salva"
-                        : "Crea"}
-                  </Button>
+                        ? "Salva Regola"
+                        : "Crea Regola"}
+                  </button>
                 </div>
-              </DrawerFooter>
+              </div>
             </form>
-          </DrawerDialog>
-        </DrawerContent>
-      </DrawerBackdrop>
-    </Drawer>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
