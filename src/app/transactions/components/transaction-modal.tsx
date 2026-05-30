@@ -211,10 +211,10 @@ export function TransactionModal({
 
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col flex-1 overflow-hidden"
+              className="flex flex-col flex-1 overflow-hidden md:rounded-b-3xl"
             >
               <div className="flex-1 overflow-y-auto px-6 pt-5 pb-5 flex flex-col gap-4">
-                {}
+                {/* Tipo operazione */}
                 <div>
                   <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
                   <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
@@ -253,7 +253,7 @@ export function TransactionModal({
                   </div>
                 </div>
 
-                {}
+                {/* Descrizione */}
                 <div>
                   <FieldLabel icon={Type}>Descrizione</FieldLabel>
                   <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
@@ -268,7 +268,7 @@ export function TransactionModal({
                   </div>
                 </div>
 
-                {}
+                {/* Importo */}
                 <div className="grid grid-cols-3 gap-2.5">
                   <div className="col-span-2">
                     <FieldLabel icon={Wallet}>Importo</FieldLabel>
@@ -288,7 +288,7 @@ export function TransactionModal({
                   </div>
                 </div>
 
-                {}
+                {/* Conversione */}
                 {convertedAmount !== null && (
                   <div className="flex items-center justify-between px-3 py-2.5 bg-blue-500/5 border border-blue-500/10 rounded-xl">
                     <div className="flex items-center gap-2 text-[11px] font-semibold text-(--text-muted)">
@@ -307,7 +307,7 @@ export function TransactionModal({
                   </div>
                 )}
 
-                {}
+                {/* Categoria */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <FieldLabel icon={Tag}>Categoria</FieldLabel>
@@ -398,14 +398,14 @@ export function TransactionModal({
                   </AnimatePresence>
                 </div>
 
-                {}
+                {/* Data */}
                 <div>
                   <FieldLabel icon={CalendarDays}>Data</FieldLabel>
                   <CustomDatePicker value={txDate} onChange={setTxDate} />
                 </div>
               </div>
 
-              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0 bg-(--card-solid)">
+              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0 bg-(--card-solid) md:rounded-b-3xl">
                 <button
                   type="submit"
                   disabled={isSubmitting}

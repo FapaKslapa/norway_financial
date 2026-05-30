@@ -13,6 +13,7 @@ type Category = {
   name: string;
   icon: string;
   color: string;
+  userId?: string | null;
 };
 
 type CategoriesModalProps = {
@@ -208,20 +209,24 @@ export function CategoriesModal({
                       </div>
 
                       <div className="flex items-center gap-1">
-                        <button
-                          type="button"
-                          className="text-blue-500 hover:bg-blue-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
-                          onClick={() => handleStartEdit(cat)}
-                        >
-                          <Edit2 size={13} />
-                        </button>
-                        <button
-                          type="button"
-                          className="text-rose-500 hover:bg-rose-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
-                          onClick={() => onDeleteCategory(cat.id)}
-                        >
-                          <Trash2 size={13} />
-                        </button>
+                        {cat.userId && (
+                          <>
+                            <button
+                              type="button"
+                              className="text-blue-500 hover:bg-blue-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                              onClick={() => handleStartEdit(cat)}
+                            >
+                              <Edit2 size={13} />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-rose-500 hover:bg-rose-500/10 rounded-xl h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
+                              onClick={() => onDeleteCategory(cat.id)}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   ))}
