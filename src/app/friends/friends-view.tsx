@@ -3,8 +3,11 @@
 import { Button, Card, CardContent } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowUpRight,
+  Coins,
   DollarSign,
   Plus,
+  Scale,
   Trash2,
   TrendingDown,
   TrendingUp,
@@ -261,7 +264,7 @@ export default function FriendsView() {
               displayCurrency,
             ),
             color: "text-emerald-500",
-            icon: <TrendingUp className="rotate-90" size={16} />,
+            icon: <Coins size={16} />,
             iconBg: "bg-emerald-500/10",
             iconColor: "text-emerald-500",
             delayIndex: 0,
@@ -270,7 +273,7 @@ export default function FriendsView() {
             label: "Devi dare in totale",
             value: formatVal(convertNokAmount(totalYouOweNok), displayCurrency),
             color: "text-rose-500",
-            icon: <TrendingDown size={16} />,
+            icon: <ArrowUpRight size={16} />,
             iconBg: "bg-rose-500/10",
             iconColor: "text-rose-500",
             delayIndex: 1,
@@ -279,12 +282,7 @@ export default function FriendsView() {
             label: "Bilancio Netto Amici",
             value: formatVal(convertNokAmount(netBalanceNok), displayCurrency),
             color: netBalanceNok >= 0 ? "text-emerald-500" : "text-rose-500",
-            icon:
-              netBalanceNok >= 0 ? (
-                <TrendingUp size={16} />
-              ) : (
-                <TrendingDown size={16} />
-              ),
+            icon: <Scale size={16} />,
             iconBg: netBalanceNok >= 0 ? "bg-emerald-500/10" : "bg-rose-500/10",
             iconColor:
               netBalanceNok >= 0 ? "text-emerald-500" : "text-rose-500",
