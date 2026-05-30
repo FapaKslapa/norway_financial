@@ -34,10 +34,10 @@ export function CustomDatePicker({
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [coords, setCoords] = useState<{
-    top?: number;
-    bottom?: number;
-    left?: number;
-    right?: number;
+    top?: number | string;
+    bottom?: number | string;
+    left?: number | string;
+    right?: number | string;
   }>({});
   const [valign, setValign] = useState<"top" | "bottom">("bottom");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,12 +65,10 @@ export function CustomDatePicker({
 
       setValign(newValign);
       setCoords({
-        top: newValign === "bottom" ? rect.bottom + 6 : undefined,
-        bottom:
-          newValign === "top" ? window.innerHeight - rect.top + 6 : undefined,
-        left: newAlign === "left" ? rect.left : undefined,
-        right:
-          newAlign === "right" ? window.innerWidth - rect.right : undefined,
+        top: newValign === "bottom" ? "100%" : undefined,
+        bottom: newValign === "top" ? "100%" : undefined,
+        left: newAlign === "left" ? 0 : undefined,
+        right: newAlign === "right" ? 0 : undefined,
       });
     }
   }, [isOpen]);
@@ -125,9 +123,11 @@ export function CustomDatePicker({
           exit={{ opacity: 0, y: valign === "bottom" ? -4 : 4, scale: 0.98 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           style={{
-            position: "fixed",
-            zIndex: 9999,
+            position: "absolute",
+            zIndex: 50,
             width: 256,
+            marginTop: valign === "bottom" ? 6 : undefined,
+            marginBottom: valign === "top" ? 6 : undefined,
             ...coords,
           }}
           className={cn(
@@ -234,7 +234,7 @@ export function CustomDatePicker({
         )}
       </div>
 
-      {mounted && createPortal(calendar, document.body)}
+      {calendar}
     </div>
   );
 }
