@@ -1,5 +1,11 @@
 # norway_financial
 
+## 1.0.26
+
+### Patch Changes
+
+- Use pnpm run build instead of turbo in Dockerfile.
+
 ## 1.0.25
 
 ### Patch Changes
