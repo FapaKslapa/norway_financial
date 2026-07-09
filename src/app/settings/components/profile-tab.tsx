@@ -68,12 +68,13 @@ export function ProfileTab({
               <span>Cambia</span>
             </div>
           </button>
-          <input
+            <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept="image/*"
             className="hidden"
+            aria-label="Carica immagine profilo"
           />
           {profileImage && (
             <button
@@ -93,6 +94,7 @@ export function ProfileTab({
             </span>
             <input
               type="text"
+              aria-label="Nome profilo"
               placeholder="Il tuo nome"
               value={profileName}
               onChange={(e) => setProfileName(e.target.value)}
@@ -105,8 +107,10 @@ export function ProfileTab({
             </span>
             <input
               type="email"
+              aria-label="Email account"
               value={user.email}
               disabled
+              readOnly
               className="h-11 w-full px-3.5 bg-neutral-500/10 dark:bg-zinc-800/50 rounded-xl border border-(--card-border) outline-none text-xs font-bold text-(--text-muted) cursor-not-allowed"
             />
           </div>
