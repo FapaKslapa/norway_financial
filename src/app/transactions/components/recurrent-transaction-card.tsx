@@ -67,8 +67,11 @@ export function RecurrentTransactionCard({
               />
             </div>
           ) : (
-            <div className="w-7 h-7 rounded-xl bg-neutral-500/10 text-neutral-500 flex items-center justify-center shrink-0">
-              <span className="text-xs">⏰</span>
+            <div
+              className="w-7 h-7 rounded-xl flex items-center justify-center text-white shrink-0"
+              style={{ backgroundColor: "#8E8E93" }}
+            >
+              <CategoryIcon name="Sparkles" size={12} className="text-white" />
             </div>
           )}
           <div>

@@ -1,9 +1,10 @@
 "use client";
 
 import { Button } from "@heroui/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CalendarDays, Plus } from "lucide-react";
 import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 import { RecurrentTransactionCard } from "./recurrent-transaction-card";
 import { RecurrentTransactionDrawer } from "./recurrent-transaction-drawer";
 import { RecurrentTransactionRow } from "./recurrent-transaction-row";
@@ -39,20 +40,28 @@ export function RecurrentTransactionsManager({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTx, setEditingTx] = useState<RecurrentTx | null>(null);
 
-  const listQuery = trpc.recurrentTransaction.list.useQuery();
+  const trpc = useTRPC();
+  const {
+    data: listData,
+    isLoading: isListLoading,
+    refetch: refetchList,
+  } = useQuery(trpc.recurrentTransaction.list.queryOptions());
 
-  const toggleStatusMutation =
-    trpc.recurrentTransaction.toggleStatus.useMutation({
+  const toggleStatusMutation = useMutation(
+    trpc.recurrentTransaction.toggleStatus.mutationOptions({
       onSuccess: () => {
-        listQuery.refetch();
+        refetchList();
       },
-    });
+    }),
+  );
 
-  const deleteMutation = trpc.recurrentTransaction.delete.useMutation({
-    onSuccess: () => {
-      listQuery.refetch();
-    },
-  });
+  const deleteMutation = useMutation(
+    trpc.recurrentTransaction.delete.mutationOptions({
+      onSuccess: () => {
+        refetchList();
+      },
+    }),
+  );
 
   const handleEdit = (rt: RecurrentTx) => {
     setEditingTx(rt);
@@ -97,15 +106,15 @@ export function RecurrentTransactionsManager({
         }}
         categories={categories}
         editingTx={editingTx}
-        onSubmitSuccess={() => listQuery.refetch()}
+        onSubmitSuccess={() => refetchList()}
       />
 
       <div className="bg-(--card) border border-(--card-border) rounded-[2rem] p-5 shadow-sm">
-        {listQuery.isLoading ? (
+        {isListLoading ? (
           <div className="text-center py-8 text-(--text-muted) text-xs font-bold">
             Caricamento pianificatore...
           </div>
-        ) : listQuery.data && listQuery.data.length > 0 ? (
+        ) : listData && listData.length > 0 ? (
           <>
             <div className="hidden md:block overflow-x-auto scrollbar-none">
               <table className="w-full text-left border-collapse">
@@ -122,7 +131,7 @@ export function RecurrentTransactionsManager({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-(--card-border)/50 text-xs">
-                  {listQuery.data.map((rt) => {
+                  {listData.map((rt) => {
                     const category = categories.find(
                       (c) => c.id === rt.categoryId,
                     );
@@ -143,7 +152,7 @@ export function RecurrentTransactionsManager({
             </div>
 
             <div className="block md:hidden flex flex-col gap-4">
-              {listQuery.data.map((rt) => {
+              {listData.map((rt) => {
                 const category = categories.find((c) => c.id === rt.categoryId);
                 return (
                   <RecurrentTransactionCard

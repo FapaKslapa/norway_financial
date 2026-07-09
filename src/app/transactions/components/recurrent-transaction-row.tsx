@@ -66,8 +66,11 @@ export function RecurrentTransactionRow({
             />
           </div>
         ) : (
-          <div className="w-5 h-5 rounded-md bg-neutral-500/10 text-neutral-500 flex items-center justify-center">
-            <span className="text-[10px]">⏰</span>
+          <div
+            className="w-5 h-5 rounded-md flex items-center justify-center text-white"
+            style={{ backgroundColor: "#8E8E93" }}
+          >
+            <CategoryIcon name="Sparkles" size={11} className="text-white" />
           </div>
         )}
         <span>{rt.description}</span>
