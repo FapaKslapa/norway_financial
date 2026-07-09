@@ -75,6 +75,7 @@ export function TodoLists({
                   <button
                     type="button"
                     onClick={() => onDeleteList(list.id)}
+                    aria-label="Elimina lista"
                     className={cn(
                       "p-1 rounded-lg transition-all border-0 bg-transparent cursor-pointer opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 flex items-center justify-center h-6 w-6",
                       isActive

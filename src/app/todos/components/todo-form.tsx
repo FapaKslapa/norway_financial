@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useReducer } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
 import { CategorySelect } from "@/components/ui/category-select";
 import { CurrencySelect } from "@/components/ui/currency-select";
@@ -28,6 +28,29 @@ type TodoFormProps = {
   }) => Promise<void>;
 };
 
+type FormState = {
+  todoTitle: string;
+  todoCategoryId: string;
+  todoEstAmount: string;
+  todoEstCurrency: string;
+  isSubmitting: boolean;
+};
+
+type FormAction =
+  | { type: "SET_FIELD"; field: keyof FormState; value: any }
+  | { type: "RESET"; payload: FormState };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "SET_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "RESET":
+      return action.payload;
+    default:
+      return state;
+  }
+}
+
 export function TodoForm({
   activeListId,
   listName,
@@ -35,19 +58,27 @@ export function TodoForm({
   onAddTodo,
 }: TodoFormProps) {
   const { displayCurrency } = useDashboard();
-  const [todoTitle, setTodoTitle] = useState("");
-  const [todoNotes] = useState("");
-  const [todoCategoryId, setTodoCategoryId] = useState("");
-  const [todoEstAmount, setTodoEstAmount] = useState("");
-  const [todoEstCurrency, setTodoEstCurrency] =
-    useState<string>(displayCurrency);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [state, dispatch] = useReducer(formReducer, null, () => ({
+    todoTitle: "",
+    todoCategoryId: "",
+    todoEstAmount: "",
+    todoEstCurrency: displayCurrency,
+    isSubmitting: false,
+  }));
+
+  const { todoTitle, todoCategoryId, todoEstAmount, todoEstCurrency, isSubmitting } = state;
+  const todoNotes = "";
+
+  const setTodoTitle = (val: string) => dispatch({ type: "SET_FIELD", field: "todoTitle", value: val });
+  const setTodoCategoryId = (val: string) => dispatch({ type: "SET_FIELD", field: "todoCategoryId", value: val });
+  const setTodoEstAmount = (val: string) => dispatch({ type: "SET_FIELD", field: "todoEstAmount", value: val });
+  const setTodoEstCurrency = (val: string) => dispatch({ type: "SET_FIELD", field: "todoEstCurrency", value: val });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!todoTitle || !activeListId || isSubmitting) return;
 
-    setIsSubmitting(true);
+    dispatch({ type: "SET_FIELD", field: "isSubmitting", value: true });
     try {
       await onAddTodo({
         title: todoTitle,
@@ -57,13 +88,20 @@ export function TodoForm({
         estimatedCurrency: todoEstAmount ? todoEstCurrency : undefined,
       });
 
-      setTodoTitle("");
-      setTodoEstAmount("");
-      setTodoCategoryId("");
+      dispatch({
+        type: "RESET",
+        payload: {
+          todoTitle: "",
+          todoCategoryId: "",
+          todoEstAmount: "",
+          todoEstCurrency: displayCurrency,
+          isSubmitting: false,
+        },
+      });
     } catch (err) {
       console.error(err);
     } finally {
-      setIsSubmitting(false);
+      dispatch({ type: "SET_FIELD", field: "isSubmitting", value: false });
     }
   };
 
@@ -75,6 +113,7 @@ export function TodoForm({
       <div className="flex items-center gap-2 flex-1">
         <input
           type="text"
+          aria-label="Articolo da aggiungere"
           placeholder={`Aggiungi articolo a "${listName}"...`}
           value={todoTitle}
           onChange={(e) => setTodoTitle(e.target.value)}
@@ -83,6 +122,7 @@ export function TodoForm({
         />
         <button
           type="submit"
+          aria-label="Aggiungi articolo"
           disabled={isSubmitting || !todoTitle.trim()}
           className="flex sm:hidden bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white h-10 w-10 rounded-xl cursor-pointer transition-all border-0 shadow-sm shrink-0 items-center justify-center"
         >

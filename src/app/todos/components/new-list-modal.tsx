@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { X } from "lucide-react";
 import type React from "react";
 
@@ -23,7 +23,7 @@ export function NewListModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -33,6 +33,7 @@ export function NewListModal({
               <h3 className="font-extrabold text-base">Crea Nuova Lista</h3>
               <button
                 type="button"
+                aria-label="Chiudi"
                 className="text-(--text-muted) rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
@@ -48,6 +49,7 @@ export function NewListModal({
                 <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 dark:focus-within:bg-zinc-800/50 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 transition-all duration-300">
                   <input
                     type="text"
+                    aria-label="Nome lista"
                     placeholder="es. Regali di Natale, Spesa Rema"
                     value={name}
                     onChange={(e) => onChangeName(e.target.value)}
@@ -64,7 +66,7 @@ export function NewListModal({
                 Crea Lista
               </button>
             </form>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>
