@@ -1,5 +1,11 @@
 # norway_financial
 
+## 1.0.24
+
+### Patch Changes
+
+- Fix React Doctor warnings and clean up unused dependencies.
+
 ## 0.2.0
 
 ### Minor Changes
