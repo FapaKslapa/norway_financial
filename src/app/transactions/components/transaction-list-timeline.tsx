@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card } from "@heroui/react";
-import { Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import { CategoryIcon } from "@/components/icon-helper";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -51,6 +51,7 @@ type TransactionListTimelineProps = {
   displayCurrency: string;
   convertCurrency: (amount: number, from: string, to: string) => number;
   onDeleteClick: (id: string) => void;
+  onEditClick: (tx: Transaction) => void;
 };
 
 function resolveDisplayAmount(
@@ -95,6 +96,7 @@ export function TransactionListTimeline({
   displayCurrency,
   convertCurrency,
   onDeleteClick,
+  onEditClick,
 }: TransactionListTimelineProps) {
   return (
     <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] transition-all max-h-[600px] flex flex-col">
@@ -203,7 +205,15 @@ export function TransactionListTimeline({
                       <Button
                         isIconOnly
                         variant="ghost"
-                        className="text-rose-500 hover:bg-rose-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-blue-500 hover:bg-blue-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                        onPress={() => onEditClick(tx)}
+                      >
+                        <Edit3 size={12} />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        className="text-rose-500 hover:bg-rose-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                         onPress={() => onDeleteClick(tx.id)}
                       >
                         <Trash2 size={12} />

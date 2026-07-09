@@ -66,6 +66,7 @@ export function TransactionFilters({
             <Search size={13} className="text-neutral-500 shrink-0" />
             <input
               type="text"
+              aria-label="Cerca transazione"
               placeholder="Cerca descrizione o importo..."
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
@@ -75,6 +76,7 @@ export function TransactionFilters({
               <button
                 type="button"
                 onClick={() => setFilterText("")}
+                aria-label="Cancella testo"
                 className="flex items-center bg-transparent border-0 cursor-pointer p-0.5 text-neutral-500 hover:text-foreground transition-colors shrink-0"
               >
                 <X size={12} />

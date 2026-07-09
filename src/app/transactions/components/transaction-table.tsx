@@ -2,7 +2,13 @@
 
 import { Button, Card } from "@heroui/react";
 import dayjs from "dayjs";
-import { ArrowUpDown, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  ChevronUp,
+  Edit3,
+  Trash2,
+} from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type Category = {
@@ -54,6 +60,7 @@ type TransactionTableProps = {
   sortDirection: "asc" | "desc";
   onSortChange: (field: SortFieldType) => void;
   onDeleteClick: (id: string) => void;
+  onEditClick: (tx: Transaction) => void;
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -140,6 +147,7 @@ export function TransactionTable({
   sortDirection,
   onSortChange,
   onDeleteClick,
+  onEditClick,
 }: TransactionTableProps) {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
   const startItem =
@@ -261,14 +269,24 @@ export function TransactionTable({
 
                   {}
                   <td className="p-3 text-right">
-                    <Button
-                      isIconOnly
-                      variant="ghost"
-                      className="text-rose-500 hover:bg-rose-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer"
-                      onPress={() => onDeleteClick(tx.id)}
-                    >
-                      <Trash2 size={12} />
-                    </Button>
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        className="text-blue-500 hover:bg-blue-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer"
+                        onPress={() => onEditClick(tx)}
+                      >
+                        <Edit3 size={12} />
+                      </Button>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        className="text-rose-500 hover:bg-rose-500/15 rounded-lg border-0 h-8 w-8 cursor-pointer"
+                        onPress={() => onDeleteClick(tx.id)}
+                      >
+                        <Trash2 size={12} />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               );

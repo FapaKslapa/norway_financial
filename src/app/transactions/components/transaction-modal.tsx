@@ -1,34 +1,43 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  ArrowLeftRight,
-  CalendarDays,
-  Tag,
-  TrendingDown,
-  TrendingUp,
-  Type,
-  Wallet,
-  X,
-} from "lucide-react";
+import { AnimatePresence, m } from "framer-motion";
+import { TrendingDown, TrendingUp, X } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useReducer } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
-import { CategoryIcon, CURATED_ICONS } from "@/components/icon-helper";
-import { CategorySelect } from "@/components/ui/category-select";
-import { CurrencySelect } from "@/components/ui/currency-select";
-import { CustomDatePicker } from "@/components/ui/custom-datepicker";
-import { MoneyInput } from "@/components/ui/money-input";
-import { APPLE_COLORS } from "@/lib/constants";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
+import {
+  AmountCurrencyRow,
+  CategorySection,
+  ConversionBadge,
+  DateField,
+  DescriptionField,
+  SubmitButton,
+  TransactionTypeToggle,
+} from "./transaction-modal-fields";
+import { todayISO, useTransactionForm } from "./use-transaction-form";
 
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 type Category = { id: string; name: string; icon: string; color: string };
 
 type TransactionModalProps = {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
+  editingTx?: {
+    id: string;
+    description: string | null;
+    type: "expense" | "income";
+    amount: string;
+    currency: string;
+    categoryId: string | null;
+    date: string | Date;
+  } | null;
   onSave: (tx: {
+    id?: string;
     description: string;
     type: "expense" | "income";
     amount: number;
@@ -43,106 +52,89 @@ type TransactionModalProps = {
   }) => Promise<{ id: string }>;
 };
 
-function FieldLabel({
-  icon: Icon,
-  children,
-}: {
-  icon: React.ElementType;
-  children: React.ReactNode;
-}) {
-  return (
-    <span className="flex items-center gap-1.5 text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-1.5">
-      <Icon size={11} className="opacity-60" />
-      {children}
-    </span>
-  );
-}
-
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 export function TransactionModal({
   isOpen,
   onClose,
   categories,
+  editingTx,
   onSave,
   onCreateCategory,
 }: TransactionModalProps) {
   const { convertCurrency, displayCurrency } = useDashboard();
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
+  const { form, set, reset } = useTransactionForm(displayCurrency);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-
-  const [txDesc, setTxDesc] = useState("");
-  const [txType, setTxType] = useState<"expense" | "income">("expense");
-  const [txAmount, setTxAmount] = useState("");
-  const [txCurrency, setTxCurrency] = useState<string>(displayCurrency);
-  const [txDate, setTxDate] = useState(
-    new Date().toISOString().substring(0, 10),
+  // Sync editingTx → form when the prop changes (derived-state-on-render)
+  const [prevTx, dispatchPrev] = useReducer(
+    (_: typeof editingTx, next: typeof editingTx) => next,
+    editingTx,
   );
-  const [txCategoryId, setTxCategoryId] = useState("");
+  if (editingTx !== prevTx) {
+    dispatchPrev(editingTx);
+    if (editingTx) {
+      const parsedDate = new Date(editingTx.date);
+      set({
+        txDesc: editingTx.description ?? "",
+        txType: editingTx.type,
+        txAmount: parseFloat(editingTx.amount).toString(),
+        txCurrency: editingTx.currency,
+        txDate: !Number.isNaN(parsedDate.getTime())
+          ? parsedDate.toISOString().substring(0, 10)
+          : todayISO(),
+        txCategoryId: editingTx.categoryId ?? "",
+      });
+    } else {
+      reset();
+    }
+  }
 
-  const [isInlineCatOpen, setIsInlineCatOpen] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatIcon, setNewCatIcon] = useState("Home");
-  const [newCatColor, setNewCatColor] = useState("#007AFF");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const parsedAmount = parseFloat(txAmount);
+  // Derived
+  const parsedAmount = parseFloat(form.txAmount);
   const hasAmount = !Number.isNaN(parsedAmount) && parsedAmount > 0;
-
-  const showConversion = hasAmount && txCurrency !== displayCurrency;
+  const showConversion = hasAmount && form.txCurrency !== displayCurrency;
   const convertedAmount = showConversion
-    ? convertCurrency(parsedAmount, txCurrency, displayCurrency)
+    ? convertCurrency(parsedAmount, form.txCurrency, displayCurrency)
     : null;
-  const targetCurrency = displayCurrency;
 
+  // Handlers
   const handleCreateCategoryInline = async () => {
-    if (!newCatName) return;
+    if (!form.newCatName) return;
     try {
       const cat = await onCreateCategory({
-        name: newCatName,
-        icon: newCatIcon,
-        color: newCatColor,
+        name: form.newCatName,
+        icon: form.newCatIcon,
+        color: form.newCatColor,
       });
-      setTxCategoryId(cat.id);
-      setNewCatName("");
-      setIsInlineCatOpen(false);
+      set({ txCategoryId: cat.id, newCatName: "", isInlineCatOpen: false });
     } catch (err) {
       console.error(err);
     }
   };
 
-  const resetForm = () => {
-    setTxDesc("");
-    setTxAmount("");
-    setTxCategoryId("");
-    setIsInlineCatOpen(false);
-    setNewCatName("");
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!txAmount || Number.isNaN(parsedAmount) || isSubmitting) return;
-    setIsSubmitting(true);
+    if (!form.txAmount || Number.isNaN(parsedAmount) || form.isSubmitting)
+      return;
+    set({ isSubmitting: true });
     try {
       await onSave({
-        description: txDesc,
-        type: txType,
+        id: editingTx?.id,
+        description: form.txDesc,
+        type: form.txType,
         amount: parsedAmount,
-        currency: txCurrency,
-        categoryId: txCategoryId || null,
-        date: new Date(txDate).toISOString(),
+        currency: form.txCurrency,
+        categoryId: form.txCategoryId || null,
+        date: new Date(form.txDate).toISOString(),
       });
-      resetForm();
+      reset();
       onClose();
     } catch (err) {
       console.error(err);
     } finally {
-      setIsSubmitting(false);
+      set({ isSubmitting: false });
     }
   };
 
@@ -150,7 +142,7 @@ export function TransactionModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center md:p-4">
-          <motion.div
+          <m.div
             initial={
               isMobile ? { y: "100%" } : { opacity: 0, scale: 0.97, y: 16 }
             }
@@ -165,27 +157,28 @@ export function TransactionModal({
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={{ top: 0, bottom: 0.4 }}
             onDragEnd={(_, info) => {
-              if (isMobile && (info.offset.y > 120 || info.velocity.y > 500)) {
+              if (isMobile && (info.offset.y > 120 || info.velocity.y > 500))
                 onClose();
-              }
             }}
             className="bg-(--card-solid) border border-(--card-border) w-full md:max-w-[460px] rounded-t-[2rem] md:rounded-3xl shadow-2xl text-foreground max-h-[92dvh] md:max-h-[90vh] flex flex-col"
           >
+            {/* Drag handle (mobile only) */}
             <div className="flex md:hidden justify-center pt-3 shrink-0">
               <div className="w-10 h-1 rounded-full bg-(--card-border)" />
             </div>
 
+            {/* Header */}
             <div className="flex items-center justify-between px-6 pt-3 md:pt-5 pb-4 border-b border-(--card-border) shrink-0">
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
                     "h-9 w-9 rounded-2xl flex items-center justify-center border shrink-0 transition-all duration-300",
-                    txType === "expense"
+                    form.txType === "expense"
                       ? "bg-rose-500/10 border-rose-500/20 text-rose-500"
                       : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500",
                   )}
                 >
-                  {txType === "expense" ? (
+                  {form.txType === "expense" ? (
                     <TrendingDown size={16} />
                   ) : (
                     <TrendingUp size={16} />
@@ -193,15 +186,20 @@ export function TransactionModal({
                 </div>
                 <div>
                   <h3 className="font-extrabold text-sm leading-tight">
-                    Registra Transazione
+                    {editingTx
+                      ? "Modifica Transazione"
+                      : "Registra Transazione"}
                   </h3>
                   <p className="text-[10px] text-(--text-muted)">
-                    Nuova spesa o guadagno
+                    {editingTx
+                      ? "Modifica i dettagli della transazione"
+                      : "Nuova spesa o guadagno"}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
+                aria-label="Chiudi"
                 className="text-(--text-muted) rounded-xl hover:bg-neutral-500/10 h-8 w-8 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
@@ -209,213 +207,58 @@ export function TransactionModal({
               </button>
             </div>
 
+            {/* Form */}
             <form
               onSubmit={handleSubmit}
               className="flex flex-col flex-1 overflow-hidden md:rounded-b-3xl"
             >
               <div className="flex-1 overflow-y-auto px-6 pt-5 pb-5 flex flex-col gap-4">
-                {/* Tipo operazione */}
-                <div>
-                  <FieldLabel icon={Tag}>Tipo operazione</FieldLabel>
-                  <div className="relative flex p-1 bg-neutral-500/5 rounded-xl border border-(--card-border) h-11 overflow-hidden select-none">
-                    <div
-                      className={cn(
-                        "absolute top-1 bottom-1 w-[calc(50%-6px)] rounded-lg transition-all duration-300 shadow-sm",
-                        txType === "expense"
-                          ? "left-1 bg-rose-500"
-                          : "left-[calc(50%+2px)] bg-emerald-500",
-                      )}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setTxType("expense")}
-                      className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
-                        txType === "expense"
-                          ? "text-white"
-                          : "text-(--text-muted)",
-                      )}
-                    >
-                      <TrendingDown size={12} /> Spesa
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTxType("income")}
-                      className={cn(
-                        "flex-1 flex items-center justify-center gap-1.5 text-xs font-bold z-10 transition-colors cursor-pointer border-0 bg-transparent",
-                        txType === "income"
-                          ? "text-white"
-                          : "text-(--text-muted)",
-                      )}
-                    >
-                      <TrendingUp size={12} /> Guadagno
-                    </button>
-                  </div>
-                </div>
-
-                {/* Descrizione */}
-                <div>
-                  <FieldLabel icon={Type}>Descrizione</FieldLabel>
-                  <div className="bg-neutral-500/5 dark:bg-zinc-800/30 focus-within:bg-neutral-500/10 h-11 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-                    <input
-                      type="text"
-                      placeholder="Es. Cena, Stipendio, Affitto, Supermercato..."
-                      value={txDesc}
-                      onChange={(e) => setTxDesc(e.target.value)}
-                      required
-                      className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full font-semibold placeholder:font-normal placeholder:text-(--text-muted)"
-                    />
-                  </div>
-                </div>
-
-                {/* Importo */}
-                <div className="grid grid-cols-3 gap-2.5">
-                  <div className="col-span-2">
-                    <FieldLabel icon={Wallet}>Importo</FieldLabel>
-                    <MoneyInput
-                      value={txAmount}
-                      onChange={setTxAmount}
-                      currency={txCurrency}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <FieldLabel icon={ArrowLeftRight}>Valuta</FieldLabel>
-                    <CurrencySelect
-                      value={txCurrency}
-                      onChange={setTxCurrency}
-                    />
-                  </div>
-                </div>
-
-                {/* Conversione */}
+                <TransactionTypeToggle
+                  value={form.txType}
+                  onChange={(v) => set({ txType: v })}
+                />
+                <DescriptionField
+                  value={form.txDesc}
+                  onChange={(v) => set({ txDesc: v })}
+                />
+                <AmountCurrencyRow
+                  amount={form.txAmount}
+                  currency={form.txCurrency}
+                  onAmountChange={(v) => set({ txAmount: v })}
+                  onCurrencyChange={(v) => set({ txCurrency: v })}
+                />
                 {convertedAmount !== null && (
-                  <div className="flex items-center justify-between px-3 py-2.5 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-                    <div className="flex items-center gap-2 text-[11px] font-semibold text-(--text-muted)">
-                      <ArrowLeftRight size={11} className="text-blue-500" />
-                      Conversione stimata
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-black">
-                      <span className="text-(--text-muted)">
-                        {parsedAmount.toFixed(2)} {txCurrency}
-                      </span>
-                      <span className="text-neutral-400">→</span>
-                      <span className="text-blue-500">
-                        {convertedAmount.toFixed(2)} {targetCurrency}
-                      </span>
-                    </div>
-                  </div>
+                  <ConversionBadge
+                    parsedAmount={parsedAmount}
+                    convertedAmount={convertedAmount}
+                    sourceCurrency={form.txCurrency}
+                    targetCurrency={displayCurrency}
+                  />
                 )}
-
-                {/* Categoria */}
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <FieldLabel icon={Tag}>Categoria</FieldLabel>
-                    <button
-                      type="button"
-                      className="text-[10px] text-blue-500 font-bold hover:underline cursor-pointer border-0 bg-transparent -mt-1.5"
-                      onClick={() => setIsInlineCatOpen(!isInlineCatOpen)}
-                    >
-                      {isInlineCatOpen ? "Indietro" : "Crea nuova"}
-                    </button>
-                  </div>
-                  <AnimatePresence mode="wait">
-                    {isInlineCatOpen ? (
-                      <motion.div
-                        key="cat-creator"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="flex flex-col gap-3 p-3.5 bg-neutral-500/5 border border-(--card-border) rounded-2xl overflow-hidden"
-                      >
-                        <div className="bg-(--card-solid) h-10 px-3 rounded-xl flex items-center border border-(--card-border) w-full focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
-                          <input
-                            type="text"
-                            placeholder="Nome categoria"
-                            value={newCatName}
-                            onChange={(e) => setNewCatName(e.target.value)}
-                            className="text-sm text-foreground flex-1 bg-transparent border-0 outline-none w-full placeholder:text-(--text-muted)"
-                          />
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider block mb-1.5">
-                            Colore
-                          </span>
-                          <div className="flex flex-wrap gap-1.5">
-                            {APPLE_COLORS.map((col) => (
-                              <button
-                                type="button"
-                                key={col}
-                                className={cn(
-                                  "w-5 h-5 rounded-full cursor-pointer transition-all border-2",
-                                  newCatColor === col
-                                    ? "border-foreground scale-110 shadow"
-                                    : "border-transparent",
-                                )}
-                                style={{ backgroundColor: col }}
-                                onClick={() => setNewCatColor(col)}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider block mb-1.5">
-                            Icona
-                          </span>
-                          <div className="flex flex-wrap gap-1.5 bg-(--card-solid) p-2 rounded-xl border border-(--card-border) max-h-[72px] overflow-y-auto">
-                            {CURATED_ICONS.map((ico) => (
-                              <button
-                                type="button"
-                                key={ico}
-                                className={cn(
-                                  "p-1 rounded-lg cursor-pointer transition-all",
-                                  newCatIcon === ico
-                                    ? "bg-blue-500 text-white"
-                                    : "text-foreground hover:bg-neutral-500/10",
-                                )}
-                                onClick={() => setNewCatIcon(ico)}
-                              >
-                                <CategoryIcon name={ico} size={14} />
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          className="bg-blue-500 text-white text-[10px] font-bold border-0 h-8 rounded-xl cursor-pointer hover:opacity-90 w-full flex items-center justify-center transition-all"
-                          onClick={handleCreateCategoryInline}
-                        >
-                          Crea Categoria
-                        </button>
-                      </motion.div>
-                    ) : (
-                      <CategorySelect
-                        value={txCategoryId}
-                        onChange={setTxCategoryId}
-                        categories={categories}
-                      />
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Data */}
-                <div>
-                  <FieldLabel icon={CalendarDays}>Data</FieldLabel>
-                  <CustomDatePicker value={txDate} onChange={setTxDate} />
-                </div>
+                <CategorySection
+                  categoryId={form.txCategoryId}
+                  categories={categories}
+                  onCategoryChange={(v) => set({ txCategoryId: v })}
+                  isInlineCatOpen={form.isInlineCatOpen}
+                  onToggleInlineCat={() =>
+                    set({ isInlineCatOpen: !form.isInlineCatOpen })
+                  }
+                  newCatName={form.newCatName}
+                  onNewCatNameChange={(v) => set({ newCatName: v })}
+                  newCatColor={form.newCatColor}
+                  onNewCatColorChange={(v) => set({ newCatColor: v })}
+                  newCatIcon={form.newCatIcon}
+                  onNewCatIconChange={(v) => set({ newCatIcon: v })}
+                  onCreateCategory={handleCreateCategoryInline}
+                />
+                <DateField
+                  value={form.txDate}
+                  onChange={(v) => set({ txDate: v })}
+                />
               </div>
-
-              <div className="px-6 pb-5 pt-3 border-t border-(--card-border) shrink-0 bg-(--card-solid) md:rounded-b-3xl">
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-foreground text-background font-bold text-sm h-12 rounded-xl cursor-pointer hover:opacity-90 shadow-sm w-full border-0 disabled:opacity-50 flex items-center justify-center transition-all"
-                >
-                  {isSubmitting ? "Salvataggio..." : "Salva Transazione"}
-                </button>
-              </div>
+              <SubmitButton isSubmitting={form.isSubmitting} />
             </form>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>
