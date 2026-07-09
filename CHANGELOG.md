@@ -1,5 +1,11 @@
 # norway_financial
 
+## 1.0.27
+
+### Patch Changes
+
+- Restore turbo devDependency and update react doctor config.
+
 ## 1.0.26
 
 ### Patch Changes
