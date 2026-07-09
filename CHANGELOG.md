@@ -1,5 +1,11 @@
 # norway_financial
 
+## 1.0.25
+
+### Patch Changes
+
+- Update pnpm-lock.yaml to reflect dependency removals.
+
 ## 1.0.24
 
 ### Patch Changes
