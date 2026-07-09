@@ -1,13 +1,13 @@
 "use client";
 
 import dayjs from "dayjs";
-import { AnimatePresence, motion } from "framer-motion";
-import { FileSpreadsheet, X } from "lucide-react";
+import { AnimatePresence, m } from "framer-motion";
+import { X } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useMemo, useReducer, useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
-import { CustomSelect } from "@/components/ui/custom-select";
-import { formatCurrency } from "@/lib/utils";
+import { CsvMappingPreview } from "./csv-import/csv-mapping-preview";
+import { CsvUploadZone } from "./csv-import/csv-upload-zone";
 
 type Category = {
   id: string;
@@ -32,23 +32,6 @@ type CsvImportModalProps = {
   onClose: () => void;
   categories: Category[];
   onImport: (rows: ImportRow[]) => Promise<void>;
-};
-
-type PreviewRow = {
-  date: string;
-  description: string;
-  amount: number;
-  type: "expense" | "income";
-  currency: string;
-  categoryId: string | null;
-};
-
-const CSV_FIELD_LABELS: Record<string, string> = {
-  date: "Data",
-  description: "Descrizione",
-  amount: "Importo",
-  currency: "Valuta",
-  category: "Categoria",
 };
 
 function parseCSVLine(line: string): string[] {
@@ -79,6 +62,41 @@ function parseCurrencyCode(raw: string, fallback = "EUR"): string {
   return match ? match[0] : fallback;
 }
 
+type CsvImportState = {
+  csvFile: File | null;
+  csvHeaders: string[];
+  csvRows: Record<string, string>[];
+  csvMapping: Record<string, string>;
+  isImporting: boolean;
+};
+
+type CsvImportAction =
+  | { type: "SET_FIELD"; field: keyof CsvImportState; value: any }
+  | { type: "RESET" };
+
+function csvImportReducer(state: CsvImportState, action: CsvImportAction): CsvImportState {
+  switch (action.type) {
+    case "SET_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "RESET":
+      return {
+        csvFile: null,
+        csvHeaders: [],
+        csvRows: [],
+        csvMapping: {
+          date: "",
+          description: "",
+          amount: "",
+          currency: "",
+          category: "",
+        },
+        isImporting: false,
+      };
+    default:
+      return state;
+  }
+}
+
 export function CsvImportModal({
   isOpen,
   onClose,
@@ -87,18 +105,33 @@ export function CsvImportModal({
 }: CsvImportModalProps) {
   const { rates } = useDashboard();
 
-  const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [csvRows, setCsvRows] = useState<Record<string, string>[]>([]);
-  const [csvMapping, setCsvMapping] = useState<Record<string, string>>({
-    date: "",
-    description: "",
-    amount: "",
-    currency: "",
-    category: "",
+  const [state, dispatch] = useReducer(csvImportReducer, {
+    csvFile: null,
+    csvHeaders: [],
+    csvRows: [],
+    csvMapping: {
+      date: "",
+      description: "",
+      amount: "",
+      currency: "",
+      category: "",
+    },
+    isImporting: false,
   });
-  const [csvPreviewRows, setCsvPreviewRows] = useState<PreviewRow[]>([]);
-  const [isImporting, setIsImporting] = useState(false);
+
+  const { csvFile, csvHeaders, csvRows, csvMapping, isImporting } = state;
+
+  const setCsvFile = (val: File | null) => dispatch({ type: "SET_FIELD", field: "csvFile", value: val });
+  const setCsvHeaders = (val: string[]) => dispatch({ type: "SET_FIELD", field: "csvHeaders", value: val });
+  const setCsvRows = (val: Record<string, string>[]) => dispatch({ type: "SET_FIELD", field: "csvRows", value: val });
+  const setCsvMapping = (val: Record<string, string> | ((prev: Record<string, string>) => Record<string, string>)) => {
+    if (typeof val === "function") {
+      dispatch({ type: "SET_FIELD", field: "csvMapping", value: val(csvMapping) });
+    } else {
+      dispatch({ type: "SET_FIELD", field: "csvMapping", value: val });
+    }
+  };
+  const setIsImporting = (val: boolean) => dispatch({ type: "SET_FIELD", field: "isImporting", value: val });
 
   const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -156,13 +189,12 @@ export function CsvImportModal({
     reader.readAsText(file);
   };
 
-  useEffect(() => {
+  const csvPreviewRows = useMemo(() => {
     if (csvRows.length === 0 || !csvMapping.amount) {
-      setCsvPreviewRows([]);
-      return;
+      return [];
     }
 
-    const preview: PreviewRow[] = csvRows.map((row) => {
+    return csvRows.map((row) => {
       const parsedDate = csvMapping.date
         ? dayjs(row[csvMapping.date])
         : dayjs();
@@ -192,8 +224,6 @@ export function CsvImportModal({
         categoryId,
       };
     });
-
-    setCsvPreviewRows(preview);
   }, [csvRows, csvMapping, categories]);
 
   const handleCsvImportSubmit = async () => {
@@ -214,10 +244,7 @@ export function CsvImportModal({
       }));
 
       await onImport(dataToImport);
-      setCsvFile(null);
-      setCsvHeaders([]);
-      setCsvRows([]);
-      setCsvPreviewRows([]);
+      dispatch({ type: "RESET" });
       onClose();
     } catch (err) {
       console.error(err);
@@ -230,17 +257,18 @@ export function CsvImportModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             className="bg-(--card-solid) border border-(--card-border) w-full max-w-[620px] rounded-3xl p-6 shadow-2xl text-foreground flex flex-col max-h-[85vh]"
           >
-            {}
+            {/* Header */}
             <div className="flex justify-between items-center pb-4 border-b border-(--card-border) mb-4">
               <h3 className="font-extrabold text-base">Importazione da CSV</h3>
               <button
                 type="button"
+                aria-label="Chiudi"
                 className="text-(--text-muted) rounded-lg hover:bg-neutral-500/10 h-7 w-7 border-0 cursor-pointer bg-transparent flex items-center justify-center transition-all"
                 onClick={onClose}
               >
@@ -249,129 +277,24 @@ export function CsvImportModal({
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-4">
-              {}
-              <div className="border-2 border-dashed border-(--card-border) rounded-2xl p-6 flex flex-col items-center justify-center gap-2 bg-neutral-500/5 text-center relative">
-                <FileSpreadsheet size={32} className="text-emerald-500 mb-1" />
-                {csvFile ? (
-                  <span className="text-xs font-bold truncate max-w-full text-emerald-500">
-                    {csvFile.name} ({(csvFile.size / 1024).toFixed(1)} KB)
-                  </span>
-                ) : (
-                  <>
-                    <span className="text-xs font-bold">
-                      Trascina qui il file CSV o clicca per caricarlo
-                    </span>
-                    <span className="text-[10px] text-(--text-muted)">
-                      Usa separatore virgola (,) o punto e virgola (;)
-                    </span>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept=".csv"
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  onChange={handleCsvChange}
-                />
-              </div>
+              {/* Upload zone */}
+              <CsvUploadZone csvFile={csvFile} onChange={handleCsvChange} />
 
-              {}
+              {/* Mapping + preview */}
               {csvRows.length > 0 && (
-                <div className="flex flex-col gap-3">
-                  <h4 className="text-xs font-bold uppercase tracking-wide">
-                    Mappa Colonne CSV
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-neutral-500/5 p-3 rounded-xl border border-(--card-border) overflow-visible">
-                    {Object.keys(csvMapping).map((field) => (
-                      <div
-                        key={field}
-                        className="flex flex-col gap-1 overflow-visible relative z-30"
-                      >
-                        <span className="text-[9px] text-(--text-muted) font-bold uppercase tracking-wider">
-                          {CSV_FIELD_LABELS[field] ?? field}
-                        </span>
-                        <CustomSelect
-                          value={csvMapping[field]}
-                          onChange={(val) =>
-                            setCsvMapping((prev) => ({ ...prev, [field]: val }))
-                          }
-                          placeholder="(Ignora/Default)"
-                          triggerClassName="h-9"
-                          options={[
-                            { value: "", label: "(Ignora/Default)" },
-                            ...csvHeaders.map((header) => ({
-                              value: header,
-                              label: header,
-                            })),
-                          ]}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  {}
-                  <div className="flex justify-between items-center mt-2 px-1">
-                    <span className="text-xs font-bold font-sans">
-                      Anteprima ({csvPreviewRows.length} righe)
-                    </span>
-                  </div>
-
-                  <div className="border border-(--card-border) rounded-xl overflow-hidden max-h-40 overflow-y-auto">
-                    <table className="w-full text-left border-collapse text-xs">
-                      <thead>
-                        <tr className="bg-neutral-500/5 border-b border-(--card-border) text-[9px] text-(--text-muted) font-bold uppercase">
-                          <th className="p-2">Data</th>
-                          <th className="p-2">Descrizione</th>
-                          <th className="p-2">Importo</th>
-                          <th className="p-2">Categoria</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {csvPreviewRows.slice(0, 5).map((row) => {
-                          const matchedCat = categories.find(
-                            (c) => c.id === row.categoryId,
-                          );
-                          return (
-                            <tr
-                              key={`${row.date}-${row.amount}-${row.description}`}
-                              className="border-b border-(--card-border) last:border-0"
-                            >
-                              <td className="p-2">
-                                {new Date(row.date).toLocaleDateString("it-IT")}
-                              </td>
-                              <td className="p-2 font-semibold truncate max-w-[120px]">
-                                {row.description}
-                              </td>
-                              <td className="p-2 font-bold font-mono">
-                                {row.type === "expense" ? "-" : "+"}{" "}
-                                {formatCurrency(row.amount, row.currency)}
-                              </td>
-                              <td className="p-2">
-                                {matchedCat ? (
-                                  <span
-                                    className="px-1.5 py-0.5 rounded text-[10px] font-bold text-white"
-                                    style={{
-                                      backgroundColor: matchedCat.color,
-                                    }}
-                                  >
-                                    {matchedCat.name}
-                                  </span>
-                                ) : (
-                                  <span className="text-(--text-muted) font-medium">
-                                    Generale
-                                  </span>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <CsvMappingPreview
+                  csvHeaders={csvHeaders}
+                  csvMapping={csvMapping}
+                  onMappingChange={(field, val) =>
+                    setCsvMapping((prev) => ({ ...prev, [field]: val }))
+                  }
+                  csvPreviewRows={csvPreviewRows}
+                  categories={categories}
+                />
               )}
             </div>
 
-            {}
+            {/* Footer actions */}
             <div className="pt-4 border-t border-(--card-border) mt-4 flex gap-3">
               <button
                 type="button"
@@ -391,7 +314,7 @@ export function CsvImportModal({
                   : `Importa ${csvPreviewRows.length} elementi`}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>
