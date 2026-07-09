@@ -1,7 +1,7 @@
 "use client";
 
 import dayjs from "dayjs";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { cn } from "@/lib/utils";
 import "dayjs/locale/it";
 
@@ -33,38 +34,39 @@ export function CustomDatePicker({
   placeholder,
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [coords, setCoords] = useState<{
-    top?: number | string;
-    bottom?: number | string;
-    left?: number | string;
-    right?: number | string;
-  }>({});
-  const [valign, setValign] = useState<"top" | "bottom">("bottom");
+  const [popoverPlacement, setPopoverPlacement] = useState<{
+    valign: "top" | "bottom";
+    top?: number;
+    bottom?: number;
+    left?: number;
+    right?: number;
+  }>({ valign: "bottom" });
   const containerRef = useRef<HTMLDivElement>(null);
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsMounted();
 
   const selectedDate = value ? dayjs(value) : dayjs();
-  const [navDate, setNavDate] = useState(dayjs(selectedDate));
+  const [navDate, setNavDate] = useState(() => dayjs(selectedDate));
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const prevValueRef = useRef<string | null>(null);
+  if (value !== prevValueRef.current) {
+    prevValueRef.current = value;
+    if (value) {
+      setNavDate(dayjs(value));
+    }
+  }
 
-  useEffect(() => {
-    if (isOpen && containerRef.current) {
+  const updatePlacement = () => {
+    if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-
       const spaceOnRight = window.innerWidth - rect.left;
       const spaceOnBottom = window.innerHeight - rect.bottom;
       const spaceOnTop = rect.top;
-
       const newAlign = spaceOnRight < 260 ? "right" : "left";
       const newValign =
         spaceOnBottom < 280 && spaceOnTop > spaceOnBottom ? "top" : "bottom";
-
-      setValign(newValign);
-      setCoords({
+      setPopoverPlacement({
+        valign: newValign,
         top: newValign === "bottom" ? rect.bottom + 6 : undefined,
         bottom:
           newValign === "top" ? window.innerHeight - rect.top + 6 : undefined,
@@ -73,13 +75,15 @@ export function CustomDatePicker({
           newAlign === "right" ? window.innerWidth - rect.right : undefined,
       });
     }
-  }, [isOpen]);
+  };
 
-  useEffect(() => {
-    if (value) {
-      setNavDate(dayjs(value));
+  const handleToggleOpen = () => {
+    const nextOpen = !isOpen;
+    if (nextOpen) {
+      updatePlacement();
     }
-  }, [value]);
+    setIsOpen(nextOpen);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -118,17 +122,28 @@ export function CustomDatePicker({
   const calendar = (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
+        <m.div
           ref={calendarRef}
-          initial={{ opacity: 0, y: valign === "bottom" ? -4 : 4, scale: 0.98 }}
+          initial={{
+            opacity: 0,
+            y: popoverPlacement.valign === "bottom" ? -4 : 4,
+            scale: 0.98,
+          }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: valign === "bottom" ? -4 : 4, scale: 0.98 }}
+          exit={{
+            opacity: 0,
+            y: popoverPlacement.valign === "bottom" ? -4 : 4,
+            scale: 0.98,
+          }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           style={{
             position: "fixed",
             zIndex: 9999,
             width: 256,
-            ...coords,
+            top: popoverPlacement.top,
+            bottom: popoverPlacement.bottom,
+            left: popoverPlacement.left,
+            right: popoverPlacement.right,
           }}
           className={cn(
             "p-4 rounded-2xl border border-(--card-border) bg-(--card-solid) shadow-xl flex flex-col",
@@ -139,6 +154,7 @@ export function CustomDatePicker({
             <button
               type="button"
               onClick={handlePrevMonth}
+              aria-label="Mese precedente"
               className="p-1 rounded-lg hover:bg-neutral-500/10 text-foreground cursor-pointer"
             >
               <ChevronLeft size={14} />
@@ -149,6 +165,7 @@ export function CustomDatePicker({
             <button
               type="button"
               onClick={handleNextMonth}
+              aria-label="Mese successivo"
               className="p-1 rounded-lg hover:bg-neutral-500/10 text-foreground cursor-pointer"
             >
               <ChevronRight size={14} />
@@ -192,32 +209,28 @@ export function CustomDatePicker({
               );
             })}
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
   );
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
-      {/* biome-ignore lint/a11y/useSemanticElements: nesting buttons is invalid HTML, so we use a div with role=button */}
-      <div
-        className={cn(
-          "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-transparent focus-within:ring-2 focus-within:ring-blue-500/30 dark:focus-within:ring-blue-500/20 select-none",
-          triggerClassName,
-        )}
-        onClick={() => setIsOpen(!isOpen)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            setIsOpen(!isOpen);
-          }
-        }}
-        role="button"
-        tabIndex={0}
-      >
-        <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
-          <CalendarIcon size={14} className="text-neutral-500 shrink-0" />
-          <span className="truncate">{formattedValue}</span>
-        </div>
+      <div className="relative w-full flex items-center">
+        <button
+          type="button"
+          className={cn(
+            "w-full h-11 pl-3 pr-10 rounded-xl flex items-center justify-between gap-2 text-xs bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-transparent focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:focus-visible:ring-blue-500/20 select-none text-left",
+            triggerClassName,
+          )}
+          onClick={handleToggleOpen}
+          aria-label="Apri calendario"
+        >
+          <div className="flex items-center gap-2.5 min-w-0 pointer-events-none">
+            <CalendarIcon size={14} className="text-neutral-500 shrink-0" />
+            <span className="truncate">{formattedValue}</span>
+          </div>
+        </button>
 
         {value && (
           <button
@@ -226,7 +239,7 @@ export function CustomDatePicker({
               e.stopPropagation();
               onChange("");
             }}
-            className="text-neutral-400 hover:text-foreground hover:bg-neutral-500/10 rounded-full h-6 w-6 flex items-center justify-center transition-colors cursor-pointer border-0 bg-transparent shrink-0"
+            className="absolute right-2 text-neutral-400 hover:text-foreground hover:bg-neutral-500/10 rounded-full h-6 w-6 flex items-center justify-center transition-colors cursor-pointer border-0 bg-transparent shrink-0"
             aria-label="Resetta data"
           >
             <X size={12} />

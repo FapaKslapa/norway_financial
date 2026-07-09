@@ -1,12 +1,19 @@
 "use client";
 
-import { useServerInsertedHTML } from "next/navigation";
+import Script from "next/script";
 import type * as React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 type Theme = "light" | "dark";
 
-export const ACCENTS = [
+const ACCENTS = [
   {
     id: "blue",
     name: "Apple Blue",
@@ -94,69 +101,69 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("theme-accent", accent);
   }, [accent]);
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      theme,
+      setTheme,
+      toggleTheme,
+      accent,
+      setAccent,
+    }),
+    [theme, accent, toggleTheme],
+  );
 
   return (
-    <ThemeContext.Provider
-      value={{ theme, setTheme, toggleTheme, accent, setAccent }}
-    >
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
 }
 
 export function useTheme() {
-  const context = useContext(ThemeContext);
+  const context = use(ThemeContext);
   if (!context) throw new Error("useTheme must be used within ThemeProvider");
   return context;
 }
 
 export function ThemeScript() {
-  useServerInsertedHTML(() => {
-    return (
-      <script
-        id="theme-initializer"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: inline blocking script to prevent theme flashing
-        dangerouslySetInnerHTML={{
-          __html: `
-            try {
-              var theme = localStorage.getItem('theme');
-              var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-              var activeTheme = theme || systemTheme;
-              if (activeTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-                document.documentElement.classList.remove('light');
-                document.documentElement.style.colorScheme = 'dark';
-              } else {
-                document.documentElement.classList.add('light');
-                document.documentElement.classList.remove('dark');
-                document.documentElement.style.colorScheme = 'light';
-              }
-              
-              var accent = localStorage.getItem('theme-accent') || 'blue';
-              var primaryColor = '#007aff';
-              var hoverColor = '#0066d6';
-              var lightColor = '#3395ff';
-              if (accent === 'green') {
-                primaryColor = '#34c759'; hoverColor = '#28a745'; lightColor = '#5cd67d';
-              } else if (accent === 'purple') {
-                primaryColor = '#af52de'; hoverColor = '#9333ea'; lightColor = '#c084fc';
-              } else if (accent === 'orange') {
-                primaryColor = '#ff9500'; hoverColor = '#e07b00'; lightColor = '#ffb033';
-              } else if (accent === 'red') {
-                primaryColor = '#ff3b30'; hoverColor = '#d62828'; lightColor = '#ff6659';
-              }
-              document.documentElement.style.setProperty('--color-blue-500', primaryColor);
-              document.documentElement.style.setProperty('--color-blue-600', hoverColor);
-              document.documentElement.style.setProperty('--color-blue-400', lightColor);
-              document.documentElement.style.setProperty('--apple-blue', primaryColor);
-            } catch (e) {}
-          `,
-        }}
-      />
-    );
-  });
-  return null;
+  return (
+    <Script id="theme-initializer" strategy="beforeInteractive">
+      {`
+        try {
+          var theme = localStorage.getItem('theme');
+          var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          var activeTheme = theme || systemTheme;
+          if (activeTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+          
+          var accent = localStorage.getItem('theme-accent') || 'blue';
+          var primaryColor = '#007aff';
+          var hoverColor = '#0066d6';
+          var lightColor = '#3395ff';
+          if (accent === 'green') {
+            primaryColor = '#34c759'; hoverColor = '#28a745'; lightColor = '#5cd67d';
+          } else if (accent === 'purple') {
+            primaryColor = '#af52de'; hoverColor = '#9333ea'; lightColor = '#c084fc';
+          } else if (accent === 'orange') {
+            primaryColor = '#ff9500'; hoverColor = '#e07b00'; lightColor = '#ffb033';
+          } else if (accent === 'red') {
+            primaryColor = '#ff3b30'; hoverColor = '#d62828'; lightColor = '#ff6659';
+          }
+          document.documentElement.style.setProperty('--color-blue-500', primaryColor);
+          document.documentElement.style.setProperty('--color-blue-600', hoverColor);
+          document.documentElement.style.setProperty('--color-blue-400', lightColor);
+          document.documentElement.style.setProperty('--apple-blue', primaryColor);
+        } catch (e) {}
+      `}
+    </Script>
+  );
 }

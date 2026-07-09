@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import {
   Calendar as CalendarIcon,
   ChevronDown,
@@ -9,7 +9,7 @@ import {
   ChevronRight,
   TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const MONTH_NAMES = [
@@ -58,7 +58,13 @@ export function AnalyticsHeader({
   onSelectMonth,
 }: AnalyticsHeaderProps) {
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
-  const [pickerYear, setPickerYear] = useState(currentYear);
+  const [pickerYear, setPickerYear] = useState(() => currentYear);
+
+  const prevCurrentYearRef = useRef(currentYear);
+  if (currentYear !== prevCurrentYearRef.current) {
+    prevCurrentYearRef.current = currentYear;
+    setPickerYear(currentYear);
+  }
 
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative w-full">
@@ -124,7 +130,7 @@ export function AnalyticsHeader({
                 aria-label="Chiudi selettore mese"
               />
 
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -179,7 +185,7 @@ export function AnalyticsHeader({
                     );
                   })}
                 </div>
-              </motion.div>
+              </m.div>
             </>
           )}
         </AnimatePresence>
