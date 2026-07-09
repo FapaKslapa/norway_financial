@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { AlertTriangle, HelpCircle, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -44,7 +44,7 @@ export function ConfirmationDialog({
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           {}
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export function ConfirmationDialog({
           />
 
           {}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.94, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 12 }}
@@ -107,7 +107,7 @@ export function ConfirmationDialog({
                 {isPending ? "Attendi..." : confirmLabel}
               </button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const listTransactionsSchema = z
   .object({
-    categoryId: z.string().uuid().nullable().optional(),
+    categoryId: z.uuid().nullable().optional(),
     type: z.enum(["expense", "income"]).nullable().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
@@ -24,7 +24,7 @@ export const createTransactionSchema = z.object({
   exchangeRate: z.number(),
   exchangeRateNok: z.number().optional(),
   description: z.string().optional(),
-  categoryId: z.string().uuid().nullable().optional(),
+  categoryId: z.uuid().nullable().optional(),
   date: z.string(),
   sharedWithUserId: z.string().nullable().optional(),
   groupId: z.string().nullable().optional(),
@@ -53,11 +53,23 @@ export const createManyTransactionsSchema = z.array(
     exchangeRate: z.number(),
     exchangeRateNok: z.number().optional(),
     description: z.string().optional(),
-    categoryId: z.string().uuid().nullable().optional(),
+    categoryId: z.uuid().nullable().optional(),
     date: z.string(),
   }),
 );
 
 export const deleteTransactionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
+});
+
+export const updateTransactionSchema = z.object({
+  id: z.uuid(),
+  type: z.enum(["expense", "income"]),
+  amount: z.number(),
+  currency: z.string().length(3),
+  exchangeRate: z.number(),
+  exchangeRateNok: z.number().optional(),
+  description: z.string().optional(),
+  categoryId: z.uuid().nullable().optional(),
+  date: z.string(),
 });

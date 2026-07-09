@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { CategoryIcon } from "@/components/icon-helper";
@@ -54,39 +54,31 @@ export function CategorySelect({
 
   const selected = allOptions.find((c) => c.id === value) ?? generalOption;
 
+  const onChangeRef = useRef(onChange);
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActiveIndex(0);
-      requestAnimationFrame(() => searchRef.current?.focus());
-    }
-  }, [open]);
+    onChangeRef.current = onChange;
+  });
 
-  useEffect(() => {
-    if (!open) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const opt = filtered[activeIndex];
+      if (opt) {
+        onChangeRef.current(opt.id);
         setOpen(false);
-        return;
       }
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setActiveIndex((i) => Math.min(i + 1, filtered.length - 1));
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setActiveIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        const opt = filtered[activeIndex];
-        if (opt) {
-          onChange(opt.id);
-          setOpen(false);
-        }
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [open, filtered, activeIndex, onChange]);
+    }
+  };
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -100,7 +92,12 @@ export function CategorySelect({
     <div className={cn("relative", className)}>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          setQuery("");
+          setActiveIndex(0);
+          requestAnimationFrame(() => searchRef.current?.focus());
+        }}
         className={cn(
           "w-full h-11 px-3 rounded-xl flex items-center justify-between gap-2 text-xs font-bold bg-neutral-500/5 dark:bg-zinc-800/30 text-foreground hover:bg-neutral-500/10 dark:hover:bg-zinc-800/50 transition-all outline-none cursor-pointer border border-(--card-border) focus-visible:ring-2 focus-visible:ring-blue-500/30 select-none",
           triggerClassName,
@@ -123,7 +120,7 @@ export function CategorySelect({
       <AnimatePresence>
         {open && (
           <>
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -132,7 +129,7 @@ export function CategorySelect({
               onClick={() => setOpen(false)}
             />
 
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.96, y: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: -8 }}
@@ -145,8 +142,10 @@ export function CategorySelect({
                 <input
                   ref={searchRef}
                   type="text"
+                  aria-label="Cerca categoria"
                   placeholder="Cerca categoria…"
                   value={query}
+                  onKeyDown={handleKeyDown}
                   onChange={(e) => {
                     setQuery(e.target.value);
                     setActiveIndex(0);
@@ -218,7 +217,7 @@ export function CategorySelect({
                   );
                 })}
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>

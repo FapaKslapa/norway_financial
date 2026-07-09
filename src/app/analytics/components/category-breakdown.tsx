@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { PieChart } from "lucide-react";
 import { useState } from "react";
 import { CategoryIcon } from "@/components/icon-helper";
@@ -64,7 +64,7 @@ export function CategoryBreakdown({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center h-full">
-            <div className="relative flex justify-center items-center h-44 w-full">
+            <div className="relative flex justify-center items-center h-36 sm:h-44 w-full">
               <svg
                 width="140"
                 height="140"
@@ -84,7 +84,7 @@ export function CategoryBreakdown({
                   const isHovered = hoveredCategoryIndex === idx;
 
                   return (
-                    <motion.circle
+                    <m.circle
                       key={cat.id}
                       cx="70"
                       cy="70"
@@ -120,7 +120,7 @@ export function CategoryBreakdown({
               </div>
             </div>
 
-            <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
+            <div className="flex flex-col gap-1.5 max-h-[110px] sm:max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
               {categoryExpenses.map((cat) => {
                 return (
                   <div

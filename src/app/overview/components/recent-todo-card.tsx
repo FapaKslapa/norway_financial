@@ -55,7 +55,7 @@ export function RecentTodoCard({
                 <span className="text-xs font-bold truncate text-foreground">
                   {todoItem.title}
                 </span>
-                {estAmountNum && (
+                {!!estAmountNum && (
                   <span className="text-[9px] text-(--text-muted) font-medium">
                     Stima:{" "}
                     {formatCurrency(

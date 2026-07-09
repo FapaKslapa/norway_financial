@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Card, CardContent } from "@heroui/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { AlertTriangle, FolderHeart, Sliders } from "lucide-react";
 import { CategoryIcon } from "@/components/icon-helper";
 import { formatCurrency } from "@/lib/utils";
@@ -173,7 +173,7 @@ export function CategoryBudgetsCard({
                 </div>
               </div>
               <div className="relative w-full h-2 bg-neutral-100 dark:bg-zinc-800/40 rounded-full overflow-hidden border border-(--card-border)/20">
-                <motion.div
+                <m.div
                   initial={{ width: 0 }}
                   animate={{ width: `${item.progressPercent}%` }}
                   transition={{ duration: 0.8, ease: "easeOut" }}

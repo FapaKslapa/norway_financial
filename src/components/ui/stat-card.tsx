@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +28,7 @@ export function StatCard({
   delayIndex = 0,
 }: StatCardProps) {
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
@@ -77,6 +77,6 @@ export function StatCard({
           <div className="text-[10px] text-(--text-muted) mt-1">{subtitle}</div>
         )}
       </div>
-    </motion.div>
+    </m.div>
   );
 }

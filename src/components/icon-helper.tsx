@@ -41,7 +41,7 @@ import {
   X,
 } from "lucide-react";
 
-export const iconMap: Record<string, LucideIcon> = {
+const iconMap: Record<string, LucideIcon> = {
   Home,
   Utensils,
   Coffee,
@@ -81,27 +81,6 @@ export const iconMap: Record<string, LucideIcon> = {
   ChevronRight,
   AlertTriangle,
 };
-
-export const CURATED_ICONS = [
-  "Home",
-  "Utensils",
-  "Coffee",
-  "Train",
-  "ShoppingBag",
-  "Sparkles",
-  "Gamepad2",
-  "BookOpen",
-  "Plane",
-  "Activity",
-  "DollarSign",
-  "Tv",
-  "Wifi",
-  "Briefcase",
-  "Heart",
-  "Gift",
-  "Cpu",
-  "Shield",
-] as const;
 
 type CategoryIconProps = {
   name: string;

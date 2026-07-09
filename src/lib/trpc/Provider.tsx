@@ -1,10 +1,12 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { domAnimation, LazyMotion } from "framer-motion";
 import { useState } from "react";
 import superjson from "superjson";
-import { trpc } from "./client";
+import type { AppRouter } from "@/server/routers/_app";
+import { TRPCProvider as TRPCContextProvider } from "./client";
 
 function getBaseUrl() {
   if (typeof window !== "undefined") return "";
@@ -25,7 +27,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
   );
 
   const [trpcClient] = useState(() =>
-    trpc.createClient({
+    createTRPCClient<AppRouter>({
       links: [
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
@@ -36,8 +38,12 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </trpc.Provider>
+    <QueryClientProvider client={queryClient}>
+      <TRPCContextProvider trpcClient={trpcClient} queryClient={queryClient}>
+        <LazyMotion features={domAnimation} strict>
+          {children}
+        </LazyMotion>
+      </TRPCContextProvider>
+    </QueryClientProvider>
   );
 }

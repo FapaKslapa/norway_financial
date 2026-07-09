@@ -3,17 +3,17 @@
 import { Button, Card } from "@heroui/react";
 import {
   Activity,
-  Calendar,
   ChevronLeft,
   PieChart,
   Plus,
-  Sparkles,
   Trash2,
   Users,
 } from "lucide-react";
 import { useState } from "react";
 import { StatCard } from "@/components/ui/stat-card";
-import { cn, formatCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
+import { GroupExpenseList } from "./group-expense-list";
+import { GroupMemberList, GroupSettlementProposals } from "./group-member-list";
 
 type GroupMember = {
   id: string;
@@ -103,7 +103,7 @@ export function GroupDetailCard({
 
   return (
     <Card className="border border-(--card-border) bg-(--card) shadow-(--card-shadow) p-6 rounded-[2rem] flex flex-col">
-      {}
+      {/* Header */}
       <div className="flex justify-between items-center pb-5 border-b border-(--card-border) mb-5">
         <div className="flex items-center gap-3.5 min-w-0">
           <Button
@@ -150,101 +150,24 @@ export function GroupDetailCard({
         </div>
       </div>
 
-      {}
-      <div className="mb-5">
-        <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <Users size={12} className="opacity-60" />
-          Membri del Gruppo
-        </h4>
-        <div className="flex flex-wrap gap-2">
-          {selectedGroup.members.map((m: GroupMember) => (
-            <div
-              key={m.id}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-500/5 border border-(--card-border) text-xs font-semibold"
-            >
-              <div className="w-4 h-4 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center text-[8px] font-black shrink-0">
-                {m.name.slice(0, 2).toUpperCase()}
-              </div>
-              <span>
-                {m.name} {m.id === currentUserId && "(Tu)"}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Membri del Gruppo */}
+      <GroupMemberList
+        members={selectedGroup.members}
+        currentUserId={currentUserId}
+      />
 
-      <div className="mb-5 border-t border-(--card-border)/50 pt-4">
-        <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-          <Sparkles size={12} className="text-blue-500" />
-          Debiti Semplificati (Algoritmo Splitwise)
-        </h4>
-        {isProposalsLoading ? (
-          <div className="text-[10px] text-(--text-muted)">
-            Calcolo liquidazioni ottimali...
-          </div>
-        ) : proposals && proposals.length > 0 ? (
-          <div className="flex flex-col gap-2">
-            {proposals.map((p: GroupSettlementProposal) => {
-              const isFromMe = p.fromUser.id === currentUserId;
-              const isToMe = p.toUser.id === currentUserId;
-              const canSettle = isFromMe || isToMe;
-              const targetFriendId = isFromMe ? p.toUser.id : p.fromUser.id;
+      {/* Debiti Semplificati */}
+      <GroupSettlementProposals
+        proposals={proposals}
+        isProposalsLoading={isProposalsLoading}
+        currentUserId={currentUserId}
+        displayCurrency={displayCurrency}
+        convertCurrency={convertCurrency}
+        isSettlingId={isSettlingId}
+        onSettle={handleSettlePress}
+      />
 
-              return (
-                <div
-                  key={`${p.fromUser.id}-${p.toUser.id}-${p.amountNok}`}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-neutral-100/5 dark:bg-zinc-800/10 border border-(--card-border)/40 rounded-2xl p-3"
-                >
-                  <div className="flex items-center gap-2 text-xs flex-wrap">
-                    <span
-                      className={cn(
-                        "font-bold",
-                        isFromMe ? "text-rose-500" : "text-foreground",
-                      )}
-                    >
-                      {p.fromUser.name} {isFromMe && "(Tu)"}
-                    </span>
-                    <span className="text-[10px] text-(--text-muted)">
-                      deve dare a
-                    </span>
-                    <span
-                      className={cn(
-                        "font-bold",
-                        isToMe ? "text-emerald-500" : "text-foreground",
-                      )}
-                    >
-                      {p.toUser.name} {isToMe && "(Tu)"}
-                    </span>
-                    <span className="text-xs font-black text-blue-500 ml-1">
-                      {formatCurrency(
-                        convertCurrency(p.amountNok, "NOK", displayCurrency),
-                        displayCurrency,
-                      )}
-                    </span>
-                  </div>
-                  {canSettle && (
-                    <Button
-                      variant="outline"
-                      className="h-7 text-[9px] font-bold bg-neutral-500/10 hover:bg-blue-500 hover:text-white rounded-lg px-3 shrink-0 cursor-pointer border-0 transition-all self-end sm:self-auto"
-                      onPress={() => handleSettlePress(targetFriendId)}
-                      isDisabled={isSettlingId !== null}
-                    >
-                      {isSettlingId === targetFriendId
-                        ? "Salvataggio..."
-                        : "Salda"}
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-[10px] text-(--text-muted) italic pl-1">
-            Tutti i debiti in questo gruppo sono saldati!
-          </p>
-        )}
-      </div>
-
+      {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <StatCard
           title="Spese in Cartella"
@@ -268,110 +191,14 @@ export function GroupDetailCard({
         />
       </div>
 
-      {}
-      <div className="flex flex-col flex-1">
-        <h4 className="text-[10px] text-(--text-muted) font-black uppercase tracking-wider mb-3 flex items-center gap-1.5">
-          <Activity size={12} className="opacity-60" />
-          Cronologia Spese Gruppo
-        </h4>
-
-        <div className="flex-1 overflow-y-auto max-h-[200px] pr-1 flex flex-col gap-2.5">
-          {transactions.length === 0 ? (
-            <div className="text-center py-8 text-xs text-(--text-muted) font-semibold">
-              Nessuna spesa inserita per questo gruppo.
-            </div>
-          ) : (
-            transactions.map((tx) => {
-              const isPayer = tx.userId === currentUserId;
-
-              let activeAmount = 0;
-              if (isPayer) {
-                const totalNok = parseFloat(tx.amountNok);
-                const totalOthersSplitsNok = allTransactions
-                  .filter(
-                    (t) =>
-                      t.id === tx.id &&
-                      t.sharedInfo &&
-                      t.sharedInfo.payerId === currentUserId,
-                  )
-                  .reduce(
-                    (sum, t) =>
-                      sum + parseFloat(t.sharedInfo?.splitAmountNok ?? "0"),
-                    0,
-                  );
-
-                const myShareNok = totalNok - totalOthersSplitsNok;
-                activeAmount = convertCurrency(
-                  myShareNok,
-                  "NOK",
-                  displayCurrency,
-                );
-              } else {
-                const mySplit = allTransactions.find(
-                  (t) =>
-                    t.id === tx.id &&
-                    t.sharedInfo &&
-                    t.sharedInfo.borrowerId === currentUserId,
-                );
-
-                const splitNok = mySplit?.sharedInfo
-                  ? parseFloat(mySplit.sharedInfo.splitAmountNok)
-                  : 0;
-                activeAmount = convertCurrency(
-                  splitNok,
-                  "NOK",
-                  displayCurrency,
-                );
-              }
-
-              const originalAmount = convertCurrency(
-                parseFloat(tx.amountEur),
-                "EUR",
-                displayCurrency,
-              );
-
-              return (
-                <div
-                  key={tx.id}
-                  className="flex justify-between items-center p-3 rounded-2xl bg-neutral-500/5 border border-(--card-border) shrink-0"
-                >
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-foreground truncate leading-tight">
-                      {tx.description || "Spesa gruppo"}
-                    </span>
-                    <span className="text-[8px] text-(--text-muted) font-semibold flex items-center gap-2 mt-1">
-                      <span className="flex items-center gap-1">
-                        <Calendar size={9} />
-                        {new Date(tx.date).toLocaleDateString()}
-                      </span>
-                      <span>•</span>
-                      <span>
-                        {isPayer
-                          ? "Hai pagato tu"
-                          : `Ha pagato ${tx.payerName || "Membro"}`}
-                      </span>
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end shrink-0">
-                    <span
-                      className={cn(
-                        "text-xs font-black",
-                        isPayer ? "text-emerald-500" : "text-rose-500",
-                      )}
-                    >
-                      {isPayer ? "+" : "-"}{" "}
-                      {formatCurrency(activeAmount, displayCurrency)}
-                    </span>
-                    <span className="text-[8px] text-(--text-muted) font-semibold mt-0.5">
-                      Totale: {formatCurrency(originalAmount, displayCurrency)}
-                    </span>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
+      {/* Cronologia Spese */}
+      <GroupExpenseList
+        transactions={transactions}
+        allTransactions={allTransactions}
+        currentUserId={currentUserId}
+        displayCurrency={displayCurrency}
+        convertCurrency={convertCurrency}
+      />
     </Card>
   );
 }

@@ -26,6 +26,7 @@ import {
   createTransactionSchema,
   deleteTransactionSchema,
   listTransactionsSchema,
+  updateTransactionSchema,
 } from "@/lib/schemas/transaction";
 import { convertAmounts } from "@/lib/utils";
 import { protectedProcedure, router } from "@/server/trpc";
@@ -368,27 +369,30 @@ export const transactionRouter = router({
           })
           .from(userSettings)
           .where(inArray(userSettings.userId, borrowerIds));
-        const notifySet = new Set(
-          borrowerSettingsList
-            .filter((s) => s.notifyFriendActions)
-            .map((s) => s.userId),
+
+        const borrowerSettingsMap = new Map(
+          borrowerSettingsList.map((bs) => [bs.userId, bs]),
         );
-        const notificationsToInsert = splitsToInsert
-          .filter(
-            (s) =>
-              !borrowerSettingsList.find((bs) => bs.userId === s.borrowerId) ||
-              notifySet.has(s.borrowerId),
-          )
-          .map((s) => ({
-            id: crypto.randomUUID(),
-            userId: s.borrowerId,
-            type: "shared_expense_added",
-            title: "Nuova spesa di gruppo",
-            message: `${ctx.session.user.name || ctx.session.user.email} ha aggiunto una spesa "${newTransaction.description}" nel gruppo.`,
-            read: false,
-            link: "/friends",
-            createdAt: new Date(),
-          }));
+
+        const notificationsToInsert = splitsToInsert.flatMap((s) => {
+          const bs = borrowerSettingsMap.get(s.borrowerId);
+          if (!bs || bs.notifyFriendActions) {
+            return [
+              {
+                id: crypto.randomUUID(),
+                userId: s.borrowerId,
+                type: "shared_expense_added",
+                title: "Nuova spesa di gruppo",
+                message: `${ctx.session.user.name || ctx.session.user.email} ha aggiunto una spesa "${newTransaction.description}" nel gruppo.`,
+                read: false,
+                link: "/friends",
+                createdAt: new Date(),
+              },
+            ];
+          }
+          return [];
+        });
+
         if (notificationsToInsert.length > 0) {
           await ctx.db.insert(notification).values(notificationsToInsert);
         }
@@ -518,6 +522,47 @@ export const transactionRouter = router({
             eq(sharedExpense.borrowerId, userId),
           ),
         );
+
+      return { success: true };
+    }),
+
+  update: protectedProcedure
+    .input(updateTransactionSchema)
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+      const { amountEur, amountNok } = convertAmounts(
+        input.amount,
+        input.currency,
+        input.exchangeRate,
+        input.exchangeRateNok ?? 11.85,
+      );
+
+      await ctx.db
+        .update(transaction)
+        .set({
+          categoryId: input.categoryId || null,
+          type: input.type,
+          amount: input.amount.toFixed(2),
+          currency: input.currency,
+          amountEur: amountEur.toFixed(2),
+          amountNok: amountNok.toFixed(2),
+          exchangeRate: input.exchangeRate.toFixed(4),
+          description: input.description || "",
+          date: new Date(input.date),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(eq(transaction.id, input.id), eq(transaction.userId, userId)),
+        );
+
+      if (input.type === "expense") {
+        await triggerBudgetNotifications(
+          ctx.db,
+          userId,
+          input.categoryId || null,
+          new Date(input.date),
+        );
+      }
 
       return { success: true };
     }),

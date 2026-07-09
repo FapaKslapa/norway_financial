@@ -58,6 +58,7 @@ export function MoneyInput({
     >
       <input
         type="text"
+        aria-label={placeholder || "Importo"}
         inputMode="decimal"
         placeholder={placeholder}
         value={value}

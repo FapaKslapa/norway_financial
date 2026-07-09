@@ -14,9 +14,7 @@ type NotificationsTabProps = {
     | NotificationPermission
     | "unsupported"
     | "default";
-  setPushNotificationPermission: (
-    val: NotificationPermission | "unsupported" | "default",
-  ) => void;
+  onPermissionChange: () => void;
 };
 
 export function NotificationsTab({
@@ -27,7 +25,7 @@ export function NotificationsTab({
   notifyFriendActions,
   setNotifyFriendActions,
   pushNotificationPermission,
-  setPushNotificationPermission,
+  onPermissionChange,
 }: NotificationsTabProps) {
   const items = [
     {
@@ -63,7 +61,7 @@ export function NotificationsTab({
             onChange: async (checked: boolean) => {
               if (checked) {
                 const permission = await Notification.requestPermission();
-                setPushNotificationPermission(permission);
+                onPermissionChange();
                 if (permission === "granted" && "serviceWorker" in navigator) {
                   navigator.serviceWorker.ready.then((reg) => {
                     reg.showNotification("Notifiche Attivate", {
@@ -111,6 +109,8 @@ export function NotificationsTab({
           </div>
           <button
             type="button"
+            aria-label={`Attiva notifiche: ${label}`}
+            aria-pressed={checked}
             onClick={() => onChange(!checked)}
             className={cn(
               "relative h-7 w-12 rounded-full transition-colors shrink-0 border-0 cursor-pointer",

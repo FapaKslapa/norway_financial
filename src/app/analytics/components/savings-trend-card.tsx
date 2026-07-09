@@ -1,10 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Activity } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { cn, formatCurrency } from "@/lib/utils";
 
 type MonthTrend = {
@@ -28,11 +29,7 @@ export function SavingsTrendCard({
     y: number;
     d: MonthTrend;
   } | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsMounted();
 
   const maxSavingsTrendVal = Math.max(
     ...trendData.map((d) => Math.max(d.income, d.expense, 1)),
@@ -79,9 +76,10 @@ export function SavingsTrendCard({
               >
                 <div className="flex items-end justify-center gap-1.5 w-full h-full relative">
                   <div className="w-2.5 bg-neutral-500/10 rounded-full h-full flex items-end">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${incHeight}%` }}
+                    <m.div
+                      style={{ originY: 1, height: "100%" }}
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: incHeight / 100 }}
                       transition={{
                         duration: 0.8,
                         delay: index * 0.05,
@@ -92,9 +90,10 @@ export function SavingsTrendCard({
                   </div>
 
                   <div className="w-2.5 bg-neutral-500/10 rounded-full h-full flex items-end">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${expHeight}%` }}
+                    <m.div
+                      style={{ originY: 1, height: "100%" }}
+                      initial={{ scaleY: 0 }}
+                      animate={{ scaleY: expHeight / 100 }}
                       transition={{
                         duration: 0.8,
                         delay: index * 0.05 + 0.1,

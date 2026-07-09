@@ -63,8 +63,8 @@ export const categoryRouter = router({
         .where(
           and(
             or(eq(category.userId, userId), isNull(category.userId)),
-            eq(category.name, input.name)
-          )
+            eq(category.name, input.name),
+          ),
         )
         .limit(1);
 

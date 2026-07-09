@@ -277,9 +277,9 @@ export const friendRouter = router({
         (balances[exp.payerId] || 0) - parseFloat(exp.splitAmountNok);
     }
 
-    const relevantFriendIds = Object.entries(balances)
-      .filter(([, bal]) => Math.abs(bal) >= 0.01)
-      .map(([id]) => id);
+    const relevantFriendIds = Object.entries(balances).flatMap(([id, bal]) =>
+      Math.abs(bal) >= 0.01 ? [id] : [],
+    );
 
     if (relevantFriendIds.length === 0) return [];
 
@@ -330,42 +330,42 @@ export const friendRouter = router({
 
       if (unsettledExpenses.length === 0) return { success: true };
 
-      const reimbursementTransactions = [];
+      const reimbursementTransactions = await Promise.all(
+        unsettledExpenses.map(async (exp) => {
+          const payerId = exp.payerId;
+          const splitNok = parseFloat(exp.splitAmountNok);
 
-      for (const exp of unsettledExpenses) {
-        const payerId = exp.payerId;
-        const splitNok = parseFloat(exp.splitAmountNok);
+          const [originalTx] = await ctx.db
+            .select()
+            .from(transaction)
+            .where(eq(transaction.id, exp.transactionId))
+            .limit(1);
 
-        const [originalTx] = await ctx.db
-          .select()
-          .from(transaction)
-          .where(eq(transaction.id, exp.transactionId))
-          .limit(1);
+          const exchangeRate = originalTx
+            ? parseFloat(originalTx.exchangeRate)
+            : 11.5;
+          const amountEur = splitNok / exchangeRate;
+          const description = originalTx
+            ? `Rimborso — ${originalTx.description}`
+            : "Rimborso spesa condivisa";
 
-        const exchangeRate = originalTx
-          ? parseFloat(originalTx.exchangeRate)
-          : 11.5;
-        const amountEur = splitNok / exchangeRate;
-        const description = originalTx
-          ? `Rimborso — ${originalTx.description}`
-          : "Rimborso spesa condivisa";
-
-        reimbursementTransactions.push({
-          id: crypto.randomUUID(),
-          userId: payerId,
-          categoryId: null,
-          type: "income" as const,
-          amount: splitNok.toFixed(2),
-          currency: "NOK" as const,
-          amountNok: splitNok.toFixed(2),
-          amountEur: amountEur.toFixed(2),
-          exchangeRate: exchangeRate.toFixed(4),
-          description,
-          date: new Date(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-      }
+          return {
+            id: crypto.randomUUID(),
+            userId: payerId,
+            categoryId: null,
+            type: "income" as const,
+            amount: splitNok.toFixed(2),
+            currency: "NOK" as const,
+            amountNok: splitNok.toFixed(2),
+            amountEur: amountEur.toFixed(2),
+            exchangeRate: exchangeRate.toFixed(4),
+            description,
+            date: new Date(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+        }),
+      );
 
       if (reimbursementTransactions.length > 0) {
         await ctx.db.insert(transaction).values(reimbursementTransactions);

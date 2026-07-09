@@ -202,7 +202,7 @@ export function activationEmail(
   return { html, text };
 }
 
-export function verifyEmailTemplate(url: string): {
+function verifyEmailTemplate(url: string): {
   html: string;
   text: string;
 } {

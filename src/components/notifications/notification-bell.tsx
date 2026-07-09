@@ -1,11 +1,12 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Bell, BellOff, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 type NotificationBellProps = {
@@ -17,41 +18,58 @@ export function NotificationBell({ className }: NotificationBellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const notificationsQuery = trpc.notification.list.useQuery(undefined, {
-    refetchInterval: 15 * 1000,
-  });
+  const trpc = useTRPC();
 
-  const refetch = () => notificationsQuery.refetch();
+  const {
+    data: notificationsData,
+    isSuccess: isNotificationsSuccess,
+    refetch: refetchNotifications,
+  } = useQuery(
+    trpc.notification.list.queryOptions(undefined, {
+      refetchInterval: 15 * 1000,
+    }),
+  );
 
-  const markReadMutation = trpc.notification.markRead.useMutation({
-    onSuccess: refetch,
-  });
-  const markAllReadMutation = trpc.notification.markAllRead.useMutation({
-    onSuccess: refetch,
-  });
-  const deleteMutation = trpc.notification.delete.useMutation({
-    onSuccess: refetch,
-  });
-  const deleteAllMutation = trpc.notification.deleteAll.useMutation({
-    onSuccess: refetch,
-  });
+  const refetch = () => refetchNotifications();
 
-  const notifications = notificationsQuery.data || [];
+  const markReadMutation = useMutation(
+    trpc.notification.markRead.mutationOptions({
+      onSuccess: refetch,
+    }),
+  );
+  const markAllReadMutation = useMutation(
+    trpc.notification.markAllRead.mutationOptions({
+      onSuccess: refetch,
+    }),
+  );
+  const deleteMutation = useMutation(
+    trpc.notification.delete.mutationOptions({
+      onSuccess: refetch,
+    }),
+  );
+  const deleteAllMutation = useMutation(
+    trpc.notification.deleteAll.mutationOptions({
+      onSuccess: refetch,
+    }),
+  );
+
+  const notifications = notificationsData || [];
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const [prevIds, setPrevIds] = useState<string[]>([]);
+  const prevIds = useRef<string[]>([]);
 
   useEffect(() => {
-    if (notificationsQuery.isSuccess && notificationsQuery.data) {
-      const currentIds = notificationsQuery.data.map((n) => n.id);
+    if (isNotificationsSuccess && notificationsData) {
+      const currentIds = notificationsData.map((n) => n.id);
       const isDifferent =
-        currentIds.length !== prevIds.length ||
-        currentIds.some((id, index) => id !== prevIds[index]);
+        currentIds.length !== prevIds.current.length ||
+        currentIds.some((id, index) => id !== prevIds.current[index]);
 
       if (isDifferent) {
-        if (prevIds.length > 0) {
-          const newUnread = notificationsQuery.data.filter(
-            (n) => !n.read && !prevIds.includes(n.id),
+        if (prevIds.current.length > 0) {
+          const prevIdsSet = new Set(prevIds.current);
+          const newUnread = notificationsData.filter(
+            (n) => !n.read && !prevIdsSet.has(n.id),
           );
 
           if (
@@ -89,10 +107,10 @@ export function NotificationBell({ className }: NotificationBellProps) {
             }
           }
         }
-        setPrevIds(currentIds);
+        prevIds.current = currentIds;
       }
     }
-  }, [notificationsQuery.data, notificationsQuery.isSuccess, prevIds]);
+  }, [notificationsData, isNotificationsSuccess]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -125,7 +143,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -209,6 +227,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
                       <button
                         type="button"
                         onClick={() => deleteMutation.mutate({ id: n.id })}
+                        aria-label="Elimina notifica"
                         className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-rose-500/10 text-(--text-muted) hover:text-rose-400 transition-all bg-transparent border-0 cursor-pointer"
                       >
                         <X size={9} />
@@ -218,7 +237,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
                 ))
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

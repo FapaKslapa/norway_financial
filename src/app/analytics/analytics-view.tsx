@@ -1,10 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { m } from "framer-motion";
+import { useState } from "react";
 import { useDashboard } from "@/components/dashboard-layout";
 import { LoadingState } from "@/components/ui/loading-state";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 import { AnalyticsHeader } from "./components/analytics-header";
 import { AnalyticsSummaryCards } from "./components/analytics-summary-cards";
 import { CategoryBreakdown } from "./components/category-breakdown";
@@ -32,28 +33,31 @@ const MONTH_SHORT = [
 export default function AnalyticsView() {
   const { displayCurrency, convertCurrency } = useDashboard();
 
-  const categoriesQuery = trpc.category.list.useQuery();
-  const transactionsQuery = trpc.transaction.list.useQuery();
+  const trpc = useTRPC();
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useQuery(
+    trpc.category.list.queryOptions(),
+  );
+  const { data: transactionsData, isLoading: isTransactionsLoading } = useQuery(
+    trpc.transaction.list.queryOptions(),
+  );
 
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(() =>
+    new Date().getFullYear(),
+  );
+  const [currentMonth, setCurrentMonth] = useState(() => new Date().getMonth());
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
-  useEffect(() => {
-    setSelectedDay(null);
-  }, []);
-
-  if (categoriesQuery.isLoading || transactionsQuery.isLoading) {
+  if (isCategoriesLoading || isTransactionsLoading) {
     return <LoadingState />;
   }
 
-  const rawTxs = transactionsQuery.data || [];
+  const rawTxs = transactionsData || [];
   const transactions = rawTxs.map((t) => ({
     ...t,
     type: t.type as "expense" | "income",
     currency: t.currency,
   }));
-  const categories = categoriesQuery.data || [];
+  const categories = categoriesData || [];
 
   const convertNokAmount = (nokVal: string) =>
     convertCurrency(parseFloat(nokVal) || 0, "NOK", displayCurrency);
@@ -95,13 +99,15 @@ export default function AnalyticsView() {
     { amount: number; color: string; name: string; icon: string }
   > = {};
 
+  const categoriesMap = new Map(categories.map((c) => [c.id, c]));
+
   for (const t of monthTransactions) {
     if (t.type === "expense") {
       const catId = t.categoryId || "uncategorized";
       const amount = convertNokAmount(t.amountNok);
 
       if (!categoryExpensesMap[catId]) {
-        const dbCat = categories.find((c) => c.id === catId);
+        const dbCat = categoriesMap.get(catId);
         categoryExpensesMap[catId] = {
           amount: 0,
           color: dbCat?.color || "#8e8e93",
@@ -157,7 +163,7 @@ export default function AnalyticsView() {
       )
     : monthTransactions;
 
-  const sortedTimeline = [...timelineTransactions].sort(
+  const sortedTimeline = timelineTransactions.toSorted(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
@@ -186,7 +192,7 @@ export default function AnalyticsView() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-7xl mx-auto px-4 py-3 pb-24 md:pb-12 text-foreground">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -198,7 +204,7 @@ export default function AnalyticsView() {
           onNextMonth={handleNextMonth}
           onSelectMonth={handleSelectMonth}
         />
-      </motion.div>
+      </m.div>
 
       <AnalyticsSummaryCards
         totalIncome={totalIncome}
@@ -210,7 +216,7 @@ export default function AnalyticsView() {
 
       <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
         <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
@@ -220,8 +226,8 @@ export default function AnalyticsView() {
               trendData={last6MonthsData}
               displayCurrency={displayCurrency}
             />
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
@@ -232,13 +238,13 @@ export default function AnalyticsView() {
               totalExpense={totalExpense}
               displayCurrency={displayCurrency}
             />
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
       <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
         <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.29, ease: [0.16, 1, 0.3, 1] }}
@@ -248,8 +254,8 @@ export default function AnalyticsView() {
               trendData={last6MonthsData}
               displayCurrency={displayCurrency}
             />
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.36, ease: [0.16, 1, 0.3, 1] }}
@@ -259,13 +265,13 @@ export default function AnalyticsView() {
               trendData={last6MonthsData}
               displayCurrency={displayCurrency}
             />
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
       <div className="overflow-x-auto snap-x snap-mandatory scrollbar-none pb-2 md:pb-0 md:overflow-visible md:snap-none">
         <div className="flex gap-4 md:grid md:grid-cols-2 md:gap-6 w-max md:w-auto">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.43, ease: [0.16, 1, 0.3, 1] }}
@@ -280,9 +286,9 @@ export default function AnalyticsView() {
               setSelectedDay={setSelectedDay}
               displayCurrency={displayCurrency}
             />
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -294,7 +300,7 @@ export default function AnalyticsView() {
               displayCurrency={displayCurrency}
               convertCurrency={convertCurrency}
             />
-          </motion.div>
+          </m.div>
         </div>
       </div>
     </div>

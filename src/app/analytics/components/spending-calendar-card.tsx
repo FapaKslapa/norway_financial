@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { Calendar as CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { cn, formatCurrency } from "@/lib/utils";
 
 const MONTH_NAMES = [
@@ -61,11 +62,7 @@ export function SpendingCalendarCard({
     day: number;
     amount: number;
   } | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsMounted();
 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayIndex =

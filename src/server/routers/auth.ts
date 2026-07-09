@@ -12,7 +12,7 @@ export const authRouter = router({
     .input(
       z.object({
         name: z.string().min(1, "Il nome è obbligatorio"),
-        email: z.string().email("Email non valida"),
+        email: z.email("Email non valida"),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -76,7 +76,7 @@ export const authRouter = router({
     .input(
       z.object({
         token: z.string(),
-        email: z.string().email(),
+        email: z.email(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

@@ -1,11 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import { m } from "framer-motion";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 
 function ActivateContent() {
   const searchParams = useSearchParams();
@@ -19,13 +20,16 @@ function ActivateContent() {
   );
   const [errorMessage, setErrorMessage] = useState("");
 
-  const activateMutation = trpc.auth.activate.useMutation({
-    onSuccess: () => setStatus("success"),
-    onError: (err) => {
-      setStatus("error");
-      setErrorMessage(err.message);
-    },
-  });
+  const trpc = useTRPC();
+  const activateMutation = useMutation(
+    trpc.auth.activate.mutationOptions({
+      onSuccess: () => setStatus("success"),
+      onError: (err) => {
+        setStatus("error");
+        setErrorMessage(err.message);
+      },
+    }),
+  );
 
   useEffect(() => {
     if (hasRun.current) return;
@@ -40,7 +44,7 @@ function ActivateContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -56,7 +60,7 @@ function ActivateContent() {
         <h1 className="text-xl font-bold tracking-tight">Gravio</h1>
 
         {status === "loading" && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="flex flex-col items-center gap-3"
@@ -65,11 +69,11 @@ function ActivateContent() {
             <p className="text-xs text-(--text-muted)">
               Attivazione in corso...
             </p>
-          </motion.div>
+          </m.div>
         )}
 
         {status === "success" && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 120, damping: 14 }}
@@ -85,7 +89,7 @@ function ActivateContent() {
                 invieremo un Magic Link.
               </p>
             </div>
-            <motion.button
+            <m.button
               type="button"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
@@ -93,12 +97,12 @@ function ActivateContent() {
               className="w-full h-11 bg-foreground text-background font-semibold text-xs rounded-xl border-0 cursor-pointer hover:opacity-90 transition-all shadow-sm"
             >
               Vai al login
-            </motion.button>
-          </motion.div>
+            </m.button>
+          </m.div>
         )}
 
         {status === "error" && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", stiffness: 120, damping: 14 }}
@@ -113,7 +117,7 @@ function ActivateContent() {
                 {errorMessage}
               </p>
             </div>
-            <motion.button
+            <m.button
               type="button"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
@@ -121,10 +125,10 @@ function ActivateContent() {
               className="w-full h-11 border border-(--card-border) text-foreground font-semibold text-xs rounded-xl cursor-pointer hover:bg-neutral-500/10 transition-all bg-transparent"
             >
               Torna alla registrazione
-            </motion.button>
-          </motion.div>
+            </m.button>
+          </m.div>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

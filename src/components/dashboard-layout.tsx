@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   BarChart3,
   CheckSquare,
@@ -12,8 +13,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import {
+  createContext,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { useTRPC } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./notifications/notification-bell";
 import { useTheme } from "./theme-provider";
@@ -60,10 +70,35 @@ type DashboardContextType = {
   }) => Promise<void>;
 };
 
+const preferredCurrencyStore = {
+  listeners: new Set<() => void>(),
+  subscribe(onStoreChange: () => void) {
+    preferredCurrencyStore.listeners.add(onStoreChange);
+    window.addEventListener("storage", onStoreChange);
+    return () => {
+      preferredCurrencyStore.listeners.delete(onStoreChange);
+      window.removeEventListener("storage", onStoreChange);
+    };
+  },
+  getSnapshot() {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("preferred_currency") || "EUR";
+    }
+    return "EUR";
+  },
+  getServerSnapshot() {
+    return "EUR";
+  },
+  set(val: string) {
+    localStorage.setItem("preferred_currency", val);
+    preferredCurrencyStore.listeners.forEach((listener) => listener());
+  },
+};
+
 const DashboardContext = createContext<DashboardContextType | null>(null);
 
 export function useDashboard() {
-  const context = useContext(DashboardContext);
+  const context = use(DashboardContext);
   if (!context) {
     throw new Error("useDashboard must be used within a DashboardProvider");
   }
@@ -80,177 +115,195 @@ type DashboardProviderProps = {
   };
 };
 
-export function DashboardProvider({ children, user }: DashboardProviderProps) {
-  const [displayCurrency, setDisplayCurrencyRaw] = useState<string>("EUR");
-  const [exchangeRate, setExchangeRate] = useState<number>(11.85);
-  const [rates, setRates] = useState<Record<string, number>>({
-    EUR: 1,
-    NOK: 11.85,
+function DashboardProvider({ children, user }: DashboardProviderProps) {
+  const displayCurrency = useSyncExternalStore(
+    preferredCurrencyStore.subscribe,
+    preferredCurrencyStore.getSnapshot,
+    preferredCurrencyStore.getServerSnapshot,
+  );
+
+  const { data: ratesData } = useQuery({
+    queryKey: ["exchangeRates"],
+    queryFn: async () => {
+      const res = await fetch("https://open.er-api.com/v6/latest/EUR");
+      if (!res.ok) throw new Error("Failed to fetch rates");
+      return res.json();
+    },
+    refetchInterval: 5 * 60 * 1000,
   });
-  const [isRateFetched, setIsRateFetched] = useState(false);
+
+  const rates = useMemo(
+    () =>
+      (ratesData?.rates || { EUR: 1, NOK: 11.85 }) as Record<string, number>,
+    [ratesData?.rates],
+  );
+  const isRateFetched = !!ratesData?.rates;
+  const exchangeRate = ratesData?.rates?.NOK ?? 11.85;
   const { theme, setTheme, accent, setAccent } = useTheme();
 
-  const settingsQuery = trpc.settings.get.useQuery();
-  const updateSettingsMutation = trpc.settings.update.useMutation({
-    onSuccess: () => {
-      settingsQuery.refetch();
-    },
-  });
+  const trpc = useTRPC();
+  const { data: settingsData, refetch: refetchSettings } = useQuery(
+    trpc.settings.get.queryOptions(),
+  );
+  const updateSettingsMutation = useMutation(
+    trpc.settings.update.mutationOptions({
+      onSuccess: () => {
+        refetchSettings();
+      },
+    }),
+  );
 
-  const [hasProcessed, setHasProcessed] = useState(false);
-  const processDueRecurrentMutation =
-    trpc.recurrentTransaction.processDue.useMutation();
+  const hasProcessed = useRef(false);
+  const processDueRecurrentMutation = useMutation(
+    trpc.recurrentTransaction.processDue.mutationOptions(),
+  );
 
   useEffect(() => {
-    if (isRateFetched && !hasProcessed) {
-      setHasProcessed(true);
+    if (isRateFetched && !hasProcessed.current) {
+      hasProcessed.current = true;
       processDueRecurrentMutation.mutate({ rates });
     }
-  }, [isRateFetched, rates, hasProcessed, processDueRecurrentMutation]);
+  }, [isRateFetched, rates, processDueRecurrentMutation]);
 
   useEffect(() => {
-    const localVal = localStorage.getItem("preferred_currency");
-    if (localVal && localVal.length === 3) {
-      setDisplayCurrencyRaw(localVal);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (settingsQuery.data) {
-      const dbCurrency = settingsQuery.data.preferredCurrency;
-      setDisplayCurrencyRaw(dbCurrency);
+    if (settingsData) {
+      const dbCurrency = settingsData.preferredCurrency;
+      preferredCurrencyStore.set(dbCurrency);
       localStorage.setItem("preferred_currency", dbCurrency);
-      if (settingsQuery.data.themeMode) {
-        setTheme(settingsQuery.data.themeMode as "light" | "dark");
+      if (settingsData.themeMode) {
+        setTheme(settingsData.themeMode as "light" | "dark");
       }
-      if (settingsQuery.data.themeAccent) {
-        setAccent(settingsQuery.data.themeAccent);
-      }
-    }
-  }, [settingsQuery.data, setTheme, setAccent]);
-
-  const setDisplayCurrency = async (
-    val: string | ((prev: string) => string),
-  ) => {
-    const nextVal = typeof val === "function" ? val(displayCurrency) : val;
-    setDisplayCurrencyRaw(nextVal);
-    localStorage.setItem("preferred_currency", nextVal);
-    if (settingsQuery.data) {
-      try {
-        await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
-          maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
-          preferredCurrency: nextVal,
-          themeMode: theme,
-          themeAccent: accent,
-        });
-      } catch (err) {
-        console.error(err);
+      if (settingsData.themeAccent) {
+        setAccent(settingsData.themeAccent);
       }
     }
-  };
+  }, [settingsData, setTheme, setAccent]);
 
-  const changeTheme = async (newTheme: "light" | "dark") => {
-    setTheme(newTheme);
-    if (settingsQuery.data) {
-      try {
-        await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
-          maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
-          preferredCurrency: displayCurrency,
-          themeMode: newTheme,
-          themeAccent: accent,
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const changeAccent = async (newAccent: string) => {
-    setAccent(newAccent);
-    if (settingsQuery.data) {
-      try {
-        await updateSettingsMutation.mutateAsync({
-          targetMonthlyBudget: parseFloat(
-            settingsQuery.data.targetMonthlyBudget,
-          ),
-          maxMonthlyBudget: parseFloat(settingsQuery.data.maxMonthlyBudget),
-          preferredCurrency: displayCurrency,
-          themeMode: theme,
-          themeAccent: newAccent,
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-
-  const saveSettings = async (updates: {
-    targetMonthlyBudget: number;
-    maxMonthlyBudget: number;
-    preferredCurrency: string;
-    themeMode: "light" | "dark";
-    themeAccent: string;
-    notifyBudget80?: boolean;
-    notifyRecurrentApplied?: boolean;
-    notifyFriendActions?: boolean;
-  }) => {
-    await updateSettingsMutation.mutateAsync(updates);
-  };
-
-  const convertCurrency = (amount: number, from: string, to: string) => {
-    if (!rates?.[from] || !rates[to]) return amount;
-    const amountInEur = from === "EUR" ? amount : amount / rates[from];
-    return to === "EUR" ? amountInEur : amountInEur * rates[to];
-  };
-
-  useEffect(() => {
-    async function fetchRate() {
-      try {
-        const res = await fetch("https://open.er-api.com/v6/latest/EUR");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.rates) {
-            setRates(data.rates);
-            setIsRateFetched(true);
-            if (data.rates.NOK) setExchangeRate(data.rates.NOK);
-          }
+  const setDisplayCurrency = useCallback(
+    async (val: string | ((prev: string) => string)) => {
+      const nextVal = typeof val === "function" ? val(displayCurrency) : val;
+      preferredCurrencyStore.set(nextVal);
+      if (settingsData) {
+        try {
+          await updateSettingsMutation.mutateAsync({
+            targetMonthlyBudget: parseFloat(settingsData.targetMonthlyBudget),
+            maxMonthlyBudget: parseFloat(settingsData.maxMonthlyBudget),
+            preferredCurrency: nextVal,
+            themeMode: theme,
+            themeAccent: accent,
+          });
+        } catch (err) {
+          console.error(err);
         }
-      } catch (err) {
-        console.error(err);
       }
-    }
-    fetchRate();
-    const interval = setInterval(fetchRate, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+    },
+    [displayCurrency, settingsData, theme, accent, updateSettingsMutation],
+  );
+
+  const changeTheme = useCallback(
+    async (newTheme: "light" | "dark") => {
+      setTheme(newTheme);
+      if (settingsData) {
+        try {
+          await updateSettingsMutation.mutateAsync({
+            targetMonthlyBudget: parseFloat(settingsData.targetMonthlyBudget),
+            maxMonthlyBudget: parseFloat(settingsData.maxMonthlyBudget),
+            preferredCurrency: displayCurrency,
+            themeMode: newTheme,
+            themeAccent: accent,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [settingsData, displayCurrency, accent, updateSettingsMutation, setTheme],
+  );
+
+  const changeAccent = useCallback(
+    async (newAccent: string) => {
+      setAccent(newAccent);
+      if (settingsData) {
+        try {
+          await updateSettingsMutation.mutateAsync({
+            targetMonthlyBudget: parseFloat(settingsData.targetMonthlyBudget),
+            maxMonthlyBudget: parseFloat(settingsData.maxMonthlyBudget),
+            preferredCurrency: displayCurrency,
+            themeMode: theme,
+            themeAccent: newAccent,
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    },
+    [settingsData, displayCurrency, theme, updateSettingsMutation, setAccent],
+  );
+
+  const saveSettings = useCallback(
+    async (updates: {
+      targetMonthlyBudget: number;
+      maxMonthlyBudget: number;
+      preferredCurrency: string;
+      themeMode: "light" | "dark";
+      themeAccent: string;
+      notifyBudget80?: boolean;
+      notifyRecurrentApplied?: boolean;
+      notifyFriendActions?: boolean;
+    }) => {
+      await updateSettingsMutation.mutateAsync(updates);
+    },
+    [updateSettingsMutation],
+  );
+
+  const convertCurrency = useCallback(
+    (amount: number, from: string, to: string) => {
+      if (!rates?.[from] || !rates[to]) return amount;
+      const amountInEur = from === "EUR" ? amount : amount / rates[from];
+      return to === "EUR" ? amountInEur : amountInEur * rates[to];
+    },
+    [rates],
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      displayCurrency,
+      setDisplayCurrency,
+      exchangeRate,
+      rates,
+      convertCurrency,
+      isRateFetched,
+      user,
+      settings: settingsData || null,
+      refetchSettings: () => {
+        refetchSettings();
+      },
+      theme,
+      changeTheme,
+      accent,
+      changeAccent,
+      saveSettings,
+    }),
+    [
+      displayCurrency,
+      setDisplayCurrency,
+      exchangeRate,
+      rates,
+      convertCurrency,
+      isRateFetched,
+      user,
+      settingsData,
+      refetchSettings,
+      theme,
+      changeTheme,
+      accent,
+      changeAccent,
+      saveSettings,
+    ],
+  );
 
   return (
-    <DashboardContext.Provider
-      value={{
-        displayCurrency,
-        setDisplayCurrency,
-        exchangeRate,
-        rates,
-        convertCurrency,
-        isRateFetched,
-        user,
-        settings: settingsQuery.data || null,
-        refetchSettings: () => {
-          settingsQuery.refetch();
-        },
-        theme,
-        changeTheme,
-        accent,
-        changeAccent,
-        saveSettings,
-      }}
-    >
+    <DashboardContext.Provider value={contextValue}>
       {children}
     </DashboardContext.Provider>
   );
@@ -264,17 +317,17 @@ export function DashboardLayout({ children, user }: DashboardProviderProps) {
   );
 }
 
+const NAV_LINKS = [
+  { label: "Overview", href: "/", icon: Home },
+  { label: "Transazioni", href: "/transactions", icon: CreditCard },
+  { label: "Liste Spesa", href: "/todos", icon: CheckSquare },
+  { label: "Statistiche", href: "/analytics", icon: BarChart3 },
+  { label: "Amici", href: "/friends", icon: Users },
+];
+
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { displayCurrency } = useDashboard();
-
-  const navLinks = [
-    { label: "Overview", href: "/", icon: Home },
-    { label: "Transazioni", href: "/transactions", icon: CreditCard },
-    { label: "Liste Spesa", href: "/todos", icon: CheckSquare },
-    { label: "Statistiche", href: "/analytics", icon: BarChart3 },
-    { label: "Amici", href: "/friends", icon: Users },
-  ];
 
   return (
     <div className="relative min-h-screen bg-transparent text-foreground flex flex-col transition-colors duration-500">
@@ -292,7 +345,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-1">
-            {navLinks.map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = pathname === link.href;
               const Icon = link.icon;
               return (
@@ -368,7 +421,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-40 rounded-full border border-(--card-border) bg-(--card-solid)/90 backdrop-blur-md shadow-2xl transition-all duration-300">
         <div className="flex justify-around items-center h-14 px-1.5">
-          {navLinks.map((link) => {
+          {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             const Icon = link.icon;
             return (

@@ -146,9 +146,9 @@ export function RecentTransactionsCard({
           );
         })}
 
-        {transactions.length === 0 && (
+        {expenses.length === 0 && (
           <div className="text-center py-8 text-xs text-(--text-muted) font-medium">
-            Nessuna transazione registrata.
+            Nessuna spesa registrata.
           </div>
         )}
       </div>

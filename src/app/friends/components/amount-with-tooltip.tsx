@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { cn, formatCurrency } from "@/lib/utils";
 
 function formatCompact(amount: number): string {
@@ -24,11 +25,7 @@ export function AmountWithTooltip({
 }) {
   const [visible, setVisible] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsMounted();
 
   useEffect(() => {
     if (!visible) return;

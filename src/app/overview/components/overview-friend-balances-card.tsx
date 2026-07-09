@@ -1,16 +1,20 @@
 "use client";
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowDownLeft, ArrowUpRight, Check, Users } from "lucide-react";
 import { useDashboard } from "@/components/dashboard-layout";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 import { cn, formatCurrency } from "@/lib/utils";
 
 export function OverviewFriendBalancesCard() {
   const { displayCurrency, convertCurrency } = useDashboard();
-  const query = trpc.friend.getBalanceSummary.useQuery();
+  const trpc = useTRPC();
+  const { data: balanceData, isLoading: isBalanceLoading } = useQuery(
+    trpc.friend.getBalanceSummary.queryOptions(),
+  );
 
-  if (query.isLoading) {
+  if (isBalanceLoading) {
     return (
       <Card className="border border-(--card-border) bg-(--card-solid) shadow-xl p-6 rounded-[2rem] h-full flex flex-col justify-center items-center">
         <span className="text-xs text-(--text-muted) font-bold">
@@ -20,7 +24,7 @@ export function OverviewFriendBalancesCard() {
     );
   }
 
-  const items = query.data || [];
+  const items = balanceData || [];
   const convertedItems = items.map((item) => {
     const val = convertCurrency(item.balanceNok, "NOK", displayCurrency);
     return {

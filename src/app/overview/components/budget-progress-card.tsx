@@ -2,7 +2,7 @@
 
 import { Button, Card, CardContent } from "@heroui/react";
 import dayjs from "dayjs";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { AlertTriangle, CreditCard, Sliders, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -143,7 +143,7 @@ export function BudgetProgressCard({
                   opacity={0.5}
                 />
               )}
-              <motion.circle
+              <m.circle
                 cx="64"
                 cy="64"
                 r="52"
@@ -196,7 +196,7 @@ export function BudgetProgressCard({
                 </span>
               </div>
               <div className="h-1 rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
-                <motion.div
+                <m.div
                   className={cn(
                     "h-full rounded-full",
                     isOverTarget ? "bg-amber-500" : "bg-emerald-500",

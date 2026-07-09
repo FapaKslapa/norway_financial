@@ -15,6 +15,10 @@ import {
 import { StatCard } from "@/components/ui/stat-card";
 import { cn, formatCurrency } from "@/lib/utils";
 
+const nokFormatter = new Intl.NumberFormat(undefined, {
+  maximumFractionDigits: 0,
+});
+
 type FriendUser = {
   id: string;
   name: string;
@@ -88,7 +92,7 @@ export function FriendDetailCard({
     ? `${balVal > 0 ? "+" : "-"}${formatCurrency(convertNokAmount(Math.abs(balVal)), displayCurrency)}`
     : "In pari";
   const subtitle = hasBal
-    ? `${new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(Math.abs(balVal))} NOK`
+    ? `${nokFormatter.format(Math.abs(balVal))} NOK`
     : "Nessun debito o credito";
   const icon =
     balVal > 0 ? (

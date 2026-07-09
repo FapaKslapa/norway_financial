@@ -11,7 +11,7 @@ self.addEventListener("activate", (event) => {
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
+          keys.flatMap((k) => (k !== CACHE ? [caches.delete(k)] : [])),
         ),
       ),
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { Check, ChevronDown } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -105,7 +105,7 @@ export function CustomSelect({
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: openUpward ? 4 : -4, scale: 0.98 }}
             animate={{ opacity: 1, y: openUpward ? -4 : 4, scale: 1 }}
             exit={{ opacity: 0, y: openUpward ? 4 : -4, scale: 0.98 }}
@@ -172,7 +172,7 @@ export function CustomSelect({
                 {footerAction.label}
               </button>
             )}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

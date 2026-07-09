@@ -2,8 +2,8 @@
 
 import { Check, Moon, Sun } from "lucide-react";
 import { CurrencySelect } from "@/components/ui/currency-select";
+import { ACCENT_COLORS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ACCENT_COLORS } from "../settings-page-client";
 
 type GeneralTabProps = {
   preferredCurrency: string;

@@ -1,10 +1,11 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import { AnimatePresence, m } from "framer-motion";
 import { Check, FolderPlus, X } from "lucide-react";
-import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import { useMemo, useState } from "react";
+import { useTRPC } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 
 type FriendUser = {
@@ -35,15 +36,22 @@ export function CreateGroupModal({
   const [selectedGroupMemberIds, setSelectedGroupMemberIds] = useState<
     string[]
   >([]);
+  const selectedGroupMemberIdsSet = useMemo(
+    () => new Set(selectedGroupMemberIds),
+    [selectedGroupMemberIds],
+  );
 
-  const createGroupMutation = trpc.group.create.useMutation({
-    onSuccess: () => {
-      onSuccess();
-      setNewGroupName("");
-      setSelectedGroupMemberIds([]);
-      onClose();
-    },
-  });
+  const trpc = useTRPC();
+  const createGroupMutation = useMutation(
+    trpc.group.create.mutationOptions({
+      onSuccess: () => {
+        onSuccess();
+        setNewGroupName("");
+        setSelectedGroupMemberIds([]);
+        onClose();
+      },
+    }),
+  );
 
   const handleToggleMemberSelection = (friendId: string) => {
     setSelectedGroupMemberIds((prev) =>
@@ -66,14 +74,14 @@ export function CreateGroupModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-4">
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={onClose}
           />
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
@@ -105,6 +113,7 @@ export function CreateGroupModal({
                 <div className="bg-neutral-100 dark:bg-zinc-800/40 border border-neutral-200 dark:border-zinc-800/50 focus-within:border-blue-500/50 h-11 px-3 rounded-2xl flex items-center w-full transition-all">
                   <input
                     type="text"
+                    aria-label="Nome del gruppo"
                     placeholder="Es. Spese Convivenza, Festa Compleanno..."
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
@@ -125,7 +134,7 @@ export function CreateGroupModal({
                     </span>
                   ) : (
                     friends.map((friend) => {
-                      const checked = selectedGroupMemberIds.includes(
+                      const checked = selectedGroupMemberIdsSet.has(
                         friend.user.id,
                       );
                       return (
@@ -189,7 +198,7 @@ export function CreateGroupModal({
                 </Button>
               </div>
             </form>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>

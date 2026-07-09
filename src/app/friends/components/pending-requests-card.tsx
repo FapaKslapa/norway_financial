@@ -1,8 +1,9 @@
 "use client";
 
 import { Button, Card, CardContent } from "@heroui/react";
+import { useMutation } from "@tanstack/react-query";
 import { Check, Handshake, X } from "lucide-react";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 
 type PendingUser = {
   id: string;
@@ -26,11 +27,14 @@ export function PendingRequestsCard({
   outgoingRequests,
   onActionSuccess,
 }: PendingRequestsCardProps) {
-  const respondRequestMutation = trpc.friend.respondRequest.useMutation({
-    onSuccess: () => {
-      onActionSuccess();
-    },
-  });
+  const trpc = useTRPC();
+  const respondRequestMutation = useMutation(
+    trpc.friend.respondRequest.mutationOptions({
+      onSuccess: () => {
+        onActionSuccess();
+      },
+    }),
+  );
 
   const handleRespond = async (
     requestId: string,

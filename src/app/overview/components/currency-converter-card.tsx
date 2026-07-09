@@ -39,43 +39,47 @@ export function CurrencyConverterCard() {
 
   const [fromCurrency, setFromCurrency] = useState(defaultFrom);
   const [toCurrency, setToCurrency] = useState(defaultTo);
-  const [fromAmount, setFromAmount] = useState("100");
-  const [toAmount, setToAmount] = useState("");
+  const [amount, setAmount] = useState("100");
+  const [activeSide, setActiveSide] = useState<"from" | "to">("from");
 
-  useEffect(() => {
-    const parsed = parseFloat(fromAmount);
-    if (!Number.isNaN(parsed) && parsed > 0) {
-      const converted = convertCurrency(parsed, fromCurrency, toCurrency);
-      setToAmount(converted.toFixed(2));
-    }
-  }, [fromCurrency, toCurrency, convertCurrency, fromAmount]);
+  const fromAmount =
+    activeSide === "from"
+      ? amount
+      : convertCurrency(
+          parseFloat(amount) || 0,
+          toCurrency,
+          fromCurrency,
+        ).toFixed(2);
+
+  const toAmount =
+    activeSide === "to"
+      ? amount
+      : convertCurrency(
+          parseFloat(amount) || 0,
+          fromCurrency,
+          toCurrency,
+        ).toFixed(2);
 
   const handleFromChange = (val: string) => {
-    setFromAmount(val);
-    const parsed = parseFloat(val);
-    if (!Number.isNaN(parsed)) {
-      setToAmount(convertCurrency(parsed, fromCurrency, toCurrency).toFixed(2));
-    } else {
-      setToAmount("");
-    }
+    setAmount(val);
+    setActiveSide("from");
   };
 
   const handleToChange = (val: string) => {
-    setToAmount(val);
-    const parsed = parseFloat(val);
-    if (!Number.isNaN(parsed)) {
-      setFromAmount(
-        convertCurrency(parsed, toCurrency, fromCurrency).toFixed(2),
-      );
-    } else {
-      setFromAmount("");
-    }
+    setAmount(val);
+    setActiveSide("to");
   };
 
   const handleSwap = () => {
-    setFromCurrency(toCurrency);
-    setToCurrency(fromCurrency);
-    setFromAmount(toAmount);
+    const nextFrom = toCurrency;
+    const nextTo = fromCurrency;
+    setFromCurrency(nextFrom);
+    setToCurrency(nextTo);
+    if (activeSide === "from") {
+      setActiveSide("to");
+    } else {
+      setActiveSide("from");
+    }
   };
 
   const availableCurrencies = [
@@ -83,7 +87,7 @@ export function CurrencyConverterCard() {
       ...POPULAR_CURRENCIES,
       ...Object.keys(rates).filter((c) => c.length === 3),
     ]),
-  ].sort();
+  ].toSorted();
 
   const rate =
     rates[fromCurrency] && rates[toCurrency]
@@ -120,6 +124,7 @@ export function CurrencyConverterCard() {
             <div className="flex-1 bg-neutral-500/5 dark:bg-zinc-800/30 h-9 px-2 rounded-xl flex items-center focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
               <input
                 type="number"
+                aria-label="Importo di partenza"
                 value={fromAmount}
                 onChange={(e) => handleFromChange(e.target.value)}
                 className="text-xs text-foreground font-semibold flex-1 bg-transparent border-0 outline-none w-full"
@@ -147,6 +152,7 @@ export function CurrencyConverterCard() {
             <div className="flex-1 bg-neutral-500/5 dark:bg-zinc-800/30 h-9 px-2 rounded-xl flex items-center focus-within:ring-2 focus-within:ring-blue-500/30 transition-all">
               <input
                 type="number"
+                aria-label="Importo di destinazione"
                 value={toAmount}
                 onChange={(e) => handleToChange(e.target.value)}
                 className="text-xs text-foreground font-semibold flex-1 bg-transparent border-0 outline-none w-full"

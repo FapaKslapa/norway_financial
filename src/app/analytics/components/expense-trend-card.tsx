@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader } from "@heroui/react";
 import { TrendingDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
+import { useIsMounted } from "@/hooks/use-is-mounted";
 import { formatCurrency } from "@/lib/utils";
 
 type MonthTrend = {
@@ -26,11 +27,7 @@ export function ExpenseTrendCard({
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsMounted();
 
   const maxVal = Math.max(...trendData.map((d) => d.expense), 1000);
 

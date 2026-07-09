@@ -1,9 +1,10 @@
 "use client";
 
 import { Button, Card, CardContent } from "@heroui/react";
+import { useMutation } from "@tanstack/react-query";
 import { Mail, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 
 type AddFriendCardProps = {
   onSuccess: () => void;
@@ -14,19 +15,22 @@ export function AddFriendCard({ onSuccess }: AddFriendCardProps) {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  const sendRequestMutation = trpc.friend.sendRequest.useMutation({
-    onSuccess: () => {
-      onSuccess();
-      setEmailInput("");
-      setSuccessMsg("Richiesta inviata con successo!");
-      setErrorMsg("");
-      setTimeout(() => setSuccessMsg(""), 4000);
-    },
-    onError: (err) => {
-      setErrorMsg(err.message || "Impossibile inviare la richiesta.");
-      setSuccessMsg("");
-    },
-  });
+  const trpc = useTRPC();
+  const sendRequestMutation = useMutation(
+    trpc.friend.sendRequest.mutationOptions({
+      onSuccess: () => {
+        onSuccess();
+        setEmailInput("");
+        setSuccessMsg("Richiesta inviata con successo!");
+        setErrorMsg("");
+        setTimeout(() => setSuccessMsg(""), 4000);
+      },
+      onError: (err) => {
+        setErrorMsg(err.message || "Impossibile inviare la richiesta.");
+        setSuccessMsg("");
+      },
+    }),
+  );
 
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +62,7 @@ export function AddFriendCard({ onSuccess }: AddFriendCardProps) {
                 <Mail size={13} className="text-(--text-muted) shrink-0" />
                 <input
                   type="email"
+                  aria-label="Email dell'amico"
                   placeholder="email@esempio.com"
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}

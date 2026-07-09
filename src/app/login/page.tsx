@@ -1,6 +1,7 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { useMutation } from "@tanstack/react-query";
+import { AnimatePresence, m } from "framer-motion";
 import { gsap } from "gsap";
 import {
   AlertCircle,
@@ -17,7 +18,7 @@ import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { authClient } from "@/lib/auth-client";
-import { trpc } from "@/lib/trpc/client";
+import { useTRPC } from "@/lib/trpc/client";
 
 type Tab = "login" | "register";
 
@@ -54,6 +55,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={toggleTheme}
+          aria-label="Cambia tema"
           className="w-9 h-9 bg-(--card-solid) border border-(--card-border) shadow-sm hover:scale-105 active:scale-95 transition-all text-foreground rounded-full flex items-center justify-center cursor-pointer"
         >
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
@@ -79,7 +81,7 @@ export default function LoginPage() {
           </div>
 
           <div className="relative flex p-1 bg-neutral-500/5 border border-(--card-border) rounded-xl mb-6">
-            <motion.div
+            <m.div
               className="absolute top-1 bottom-1 rounded-lg bg-(--card-solid) shadow-sm border border-(--card-border)"
               animate={{
                 left: tab === "login" ? 4 : "calc(50%)",
@@ -105,7 +107,7 @@ export default function LoginPage() {
 
           <AnimatePresence mode="wait">
             {tab === "login" ? (
-              <motion.div
+              <m.div
                 key="login"
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -113,9 +115,9 @@ export default function LoginPage() {
                 transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
                 <LoginForm />
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 key="register"
                 initial={{ opacity: 0, x: 12 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -123,7 +125,7 @@ export default function LoginPage() {
                 transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               >
                 <RegisterForm onSuccess={() => setTab("login")} />
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
@@ -163,7 +165,7 @@ function LoginForm() {
   return (
     <AnimatePresence mode="wait">
       {isSuccess ? (
-        <motion.div
+        <m.div
           key="success"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -171,14 +173,14 @@ function LoginForm() {
           transition={{ type: "spring", stiffness: 100, damping: 15 }}
           className="flex flex-col items-center text-center py-4"
         >
-          <motion.div
-            initial={{ scale: 0, rotate: -20 }}
-            animate={{ scale: 1, rotate: 0 }}
+          <m.div
+            initial={{ scale: 0.95, opacity: 0, rotate: -20 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 150, delay: 0.1 }}
             className="p-3 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full mb-4"
           >
             <CheckCircle2 size={32} />
-          </motion.div>
+          </m.div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
             Controlla la tua email
           </h3>
@@ -197,9 +199,9 @@ function LoginForm() {
           >
             Usa un'altra email
           </button>
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.form
+        <m.form
           key="form"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -230,7 +232,7 @@ function LoginForm() {
 
           <AnimatePresence>
             {error && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -238,11 +240,11 @@ function LoginForm() {
               >
                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
                 <span>{error}</span>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
-          <motion.button
+          <m.button
             type="submit"
             disabled={isLoading}
             whileHover={{ scale: 1.01 }}
@@ -260,25 +262,28 @@ function LoginForm() {
                 <ArrowRight size={14} />
               </>
             )}
-          </motion.button>
+          </m.button>
 
           <p className="text-center text-[10px] text-(--text-muted) border-t border-(--card-border) pt-4 leading-relaxed">
             Riceverai un link via email. Nessuna password richiesta.
           </p>
-        </motion.form>
+        </m.form>
       )}
     </AnimatePresence>
   );
 }
 
 function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
+  const trpc = useTRPC();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const registerMutation = trpc.auth.register.useMutation({
-    onSuccess: () => setIsSuccess(true),
-  });
+  const registerMutation = useMutation(
+    trpc.auth.register.mutationOptions({
+      onSuccess: () => setIsSuccess(true),
+    }),
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -288,20 +293,20 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 
   if (isSuccess) {
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
         className="flex flex-col items-center text-center py-4"
       >
-        <motion.div
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
+        <m.div
+          initial={{ scale: 0.95, opacity: 0, rotate: -20 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 150, delay: 0.1 }}
           className="p-3 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-full mb-4"
         >
           <CheckCircle2 size={32} />
-        </motion.div>
+        </m.div>
         <h3 className="text-lg font-semibold text-foreground mb-2">
           Controlla la tua email
         </h3>
@@ -317,7 +322,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
         >
           Vai al login
         </button>
-      </motion.div>
+      </m.div>
     );
   }
 
@@ -367,7 +372,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
 
       <AnimatePresence>
         {registerMutation.error && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
@@ -375,11 +380,11 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
           >
             <AlertCircle size={14} className="shrink-0 mt-0.5" />
             <span>{registerMutation.error.message}</span>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
-      <motion.button
+      <m.button
         type="submit"
         disabled={registerMutation.isPending}
         whileHover={{ scale: 1.01 }}
@@ -397,7 +402,7 @@ function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
             <ArrowRight size={14} />
           </>
         )}
-      </motion.button>
+      </m.button>
 
       <p className="text-center text-[10px] text-(--text-muted) border-t border-(--card-border) pt-4 leading-relaxed">
         Riceverai un'email di attivazione. Nessuna password.
