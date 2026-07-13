@@ -59,8 +59,12 @@ export default function AnalyticsView() {
   }));
   const categories = categoriesData || [];
 
-  const convertNokAmount = (nokVal: string) =>
-    convertCurrency(parseFloat(nokVal) || 0, "NOK", displayCurrency);
+  const convertNokAmount = (nokVal: string | number) =>
+    convertCurrency(
+      typeof nokVal === "string" ? parseFloat(nokVal) || 0 : nokVal,
+      "NOK",
+      displayCurrency
+    );
 
   const monthTransactions = transactions.filter((t) => {
     const d = new Date(t.date);

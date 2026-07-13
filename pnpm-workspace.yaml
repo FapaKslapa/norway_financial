@@ -3,4 +3,6 @@ ignoredBuiltDependencies:
   - unrs-resolver
 minimumReleaseAge: 1440
 trustPolicy: no-downgrade
+trustPolicyExclude:
+  - undici
 

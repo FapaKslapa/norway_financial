@@ -39,6 +39,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.2",
     "@changesets/cli": "^2.31.0",
+    "@cloudflare/next-on-pages": "^1.13.16",
     "@tailwindcss/postcss": "^4.3.2",
     "@types/node": "^26.1.0",
     "@types/react": "^19.2.17",
@@ -48,5 +49,11 @@
     "tsx": "^4.23.0",
     "turbo": "^2.10.4",
     "typescript": "^6.0.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd"
+    ]
   }
 }

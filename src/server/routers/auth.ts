@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { and, eq, gte } from "drizzle-orm";
 import { z } from "zod";
@@ -49,7 +48,7 @@ export const authRouter = router({
         });
       }
 
-      const token = crypto.randomBytes(32).toString("hex");
+      const token = Array.from(crypto.getRandomValues(new Uint8Array(32))).map((b) => b.toString(16).padStart(2, "0")).join("");
       const now = new Date();
       await ctx.db.insert(verification).values({
         id: crypto.randomUUID(),

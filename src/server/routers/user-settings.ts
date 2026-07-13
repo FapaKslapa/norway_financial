@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { user, userSettings } from "@/db/schema";

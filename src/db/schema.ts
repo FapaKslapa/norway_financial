@@ -1,279 +1,256 @@
 import {
-  boolean,
-  decimal,
-  mysqlTable,
+  integer,
+  numeric,
+  sqliteTable,
   text,
-  timestamp,
-  varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/sqlite-core";
 
-export const user = mysqlTable("user", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  emailVerified: boolean("email_verified").notNull(),
+export const user = sqliteTable("user", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: integer("email_verified", { mode: "boolean" }).notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const session = mysqlTable("session", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  expiresAt: timestamp("expires_at").notNull(),
-  token: varchar("token", { length: 255 }).notNull().unique(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
-  ipAddress: varchar("ip_address", { length: 255 }),
-  userAgent: varchar("user_agent", { length: 255 }),
-  userId: varchar("user_id", { length: 36 })
+export const session = sqliteTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
 });
 
-export const account = mysqlTable("account", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  accountId: varchar("account_id", { length: 255 }).notNull(),
-  providerId: varchar("provider_id", { length: 255 }).notNull(),
-  userId: varchar("user_id", { length: 36 })
+export const account = sqliteTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   accessToken: text("access_token"),
   refreshToken: text("refresh_token"),
   idToken: text("id_token"),
-  accessTokenExpiresAt: timestamp("access_token_expires_at"),
-  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-  scope: varchar("scope", { length: 255 }),
+  accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp" }),
+  refreshTokenExpiresAt: integer("refresh_token_expires_at", { mode: "timestamp" }),
+  scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const verification = mysqlTable("verification", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  identifier: varchar("identifier", { length: 255 }).notNull(),
-  value: varchar("value", { length: 255 }).notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at"),
+export const verification = sqliteTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }),
+  updatedAt: integer("updated_at", { mode: "timestamp" }),
 });
 
-export const userSettings = mysqlTable("user_settings", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const userSettings = sqliteTable("user_settings", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .unique()
     .references(() => user.id, { onDelete: "cascade" }),
-  targetMonthlyBudget: decimal("target_monthly_budget", {
-    precision: 15,
-    scale: 2,
-  }).notNull(),
-  maxMonthlyBudget: decimal("max_monthly_budget", {
-    precision: 15,
-    scale: 2,
-  }).notNull(),
-  preferredCurrency: varchar("preferred_currency", { length: 3 })
-    .notNull()
-    .default("NOK"),
-  themeMode: varchar("theme_mode", { length: 10 }).notNull().default("dark"),
-  themeAccent: varchar("theme_accent", { length: 20 })
-    .notNull()
-    .default("blue"),
-  aiProvider: varchar("ai_provider", { length: 20 }).notNull().default("local"),
-  geminiApiKey: varchar("gemini_api_key", { length: 255 }),
-  ollamaUrl: varchar("ollama_url", { length: 255 })
-    .notNull()
-    .default("http://localhost:11434"),
-  ollamaModel: varchar("ollama_model", { length: 100 })
-    .notNull()
-    .default("llama3.2:1b"),
-  notifyBudget80: boolean("notify_budget_80").notNull().default(true),
-  notifyRecurrentApplied: boolean("notify_recurrent_applied")
-    .notNull()
-    .default(true),
-  notifyFriendActions: boolean("notify_friend_actions").notNull().default(true),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  targetMonthlyBudget: numeric("target_monthly_budget").notNull(),
+  maxMonthlyBudget: numeric("max_monthly_budget").notNull(),
+  preferredCurrency: text("preferred_currency").notNull().default("NOK"),
+  themeMode: text("theme_mode").notNull().default("dark"),
+  themeAccent: text("theme_accent").notNull().default("blue"),
+  aiProvider: text("ai_provider").notNull().default("local"),
+  geminiApiKey: text("gemini_api_key"),
+  ollamaUrl: text("ollama_url").notNull().default("http://localhost:11434"),
+  ollamaModel: text("ollama_model").notNull().default("llama3.2:1b"),
+  notifyBudget80: integer("notify_budget_80", { mode: "boolean" }).notNull().default(true),
+  notifyRecurrentApplied: integer("notify_recurrent_applied", { mode: "boolean" }).notNull().default(true),
+  notifyFriendActions: integer("notify_friend_actions", { mode: "boolean" }).notNull().default(true),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const friendGroup = mysqlTable("friend_group", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  name: varchar("name", { length: 100 }).notNull(),
-  creatorId: varchar("creator_id", { length: 36 })
+export const friendGroup = sqliteTable("friend_group", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  creatorId: text("creator_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const groupMember = mysqlTable("group_member", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  groupId: varchar("group_id", { length: 36 })
+export const groupMember = sqliteTable("group_member", {
+  id: text("id").primaryKey(),
+  groupId: text("group_id")
     .notNull()
     .references(() => friendGroup.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 36 })
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
-export const category = mysqlTable("category", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 }).references(() => user.id, {
+export const category = sqliteTable("category", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").references(() => user.id, {
     onDelete: "cascade",
   }),
-  name: varchar("name", { length: 255 }).notNull(),
-  icon: varchar("icon", { length: 100 }).notNull(),
-  color: varchar("color", { length: 7 }).notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  color: text("color").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const transaction = mysqlTable("transaction", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const transaction = sqliteTable("transaction", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  categoryId: varchar("category_id", { length: 36 }).references(
+  categoryId: text("category_id").references(
     () => category.id,
     { onDelete: "set null" },
   ),
-  type: varchar("type", { length: 20 }).notNull(),
-  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).notNull(),
-  amountEur: decimal("amount_eur", { precision: 15, scale: 2 }).notNull(),
-  amountNok: decimal("amount_nok", { precision: 15, scale: 2 }).notNull(),
-  exchangeRate: decimal("exchange_rate", { precision: 10, scale: 4 }).notNull(),
+  type: text("type").notNull(),
+  amount: numeric("amount").notNull(),
+  currency: text("currency").notNull(),
+  amountEur: numeric("amount_eur").notNull(),
+  amountNok: numeric("amount_nok").notNull(),
+  exchangeRate: numeric("exchange_rate").notNull(),
   description: text("description"),
-  date: timestamp("date").notNull(),
-  groupId: varchar("group_id", { length: 36 }).references(
+  date: integer("date", { mode: "timestamp" }).notNull(),
+  groupId: text("group_id").references(
     () => friendGroup.id,
     { onDelete: "set null" },
   ),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const todoList = mysqlTable("todo_list", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const todoList = sqliteTable("todo_list", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  name: varchar("name", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  name: text("name").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const todo = mysqlTable("todo", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const todo = sqliteTable("todo", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  todoListId: varchar("todo_list_id", { length: 36 }).references(
+  todoListId: text("todo_list_id").references(
     () => todoList.id,
     { onDelete: "cascade" },
   ),
-  categoryId: varchar("category_id", { length: 36 }).references(
+  categoryId: text("category_id").references(
     () => category.id,
     { onDelete: "set null" },
   ),
-  title: varchar("title", { length: 255 }).notNull(),
+  title: text("title").notNull(),
   notes: text("notes"),
-  completed: boolean("completed").notNull().default(false),
-  estimatedAmount: decimal("estimated_amount", { precision: 15, scale: 2 }),
-  estimatedCurrency: varchar("estimated_currency", { length: 3 }),
-  convertedToTransactionId: varchar("converted_to_transaction_id", {
-    length: 36,
-  }).references(() => transaction.id, { onDelete: "set null" }),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  completed: integer("completed", { mode: "boolean" }).notNull().default(false),
+  estimatedAmount: numeric("estimated_amount"),
+  estimatedCurrency: text("estimated_currency"),
+  convertedToTransactionId: text("converted_to_transaction_id").references(() => transaction.id, { onDelete: "set null" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const friendship = mysqlTable("friendship", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const friendship = sqliteTable("friendship", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  friendId: varchar("friend_id", { length: 36 })
+  friendId: text("friend_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  status: varchar("status", { length: 20 }).notNull(),
-  senderId: varchar("sender_id", { length: 36 })
+  status: text("status").notNull(),
+  senderId: text("sender_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const sharedExpense = mysqlTable("shared_expense", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  transactionId: varchar("transaction_id", { length: 36 })
+export const sharedExpense = sqliteTable("shared_expense", {
+  id: text("id").primaryKey(),
+  transactionId: text("transaction_id")
     .notNull()
     .references(() => transaction.id, { onDelete: "cascade" }),
-  payerId: varchar("payer_id", { length: 36 })
+  payerId: text("payer_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  borrowerId: varchar("borrower_id", { length: 36 })
+  borrowerId: text("borrower_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  amountNok: decimal("amount_nok", { precision: 15, scale: 2 }).notNull(),
-  splitAmountNok: decimal("split_amount_nok", {
-    precision: 15,
-    scale: 2,
-  }).notNull(),
-  settled: boolean("settled").notNull().default(false),
-  groupId: varchar("group_id", { length: 36 }).references(
+  amountNok: numeric("amount_nok").notNull(),
+  splitAmountNok: numeric("split_amount_nok").notNull(),
+  settled: integer("settled", { mode: "boolean" }).notNull().default(false),
+  groupId: text("group_id").references(
     () => friendGroup.id,
     { onDelete: "set null" },
   ),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const categoryBudget = mysqlTable("category_budget", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const categoryBudget = sqliteTable("category_budget", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  categoryId: varchar("category_id", { length: 36 })
+  categoryId: text("category_id")
     .notNull()
     .references(() => category.id, { onDelete: "cascade" }),
-  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  amount: numeric("amount").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const notification = mysqlTable("notification", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const notification = sqliteTable("notification", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  type: varchar("type", { length: 30 }).notNull(),
-  title: varchar("title", { length: 100 }).notNull(),
-  message: varchar("message", { length: 255 }).notNull(),
-  read: boolean("read").notNull().default(false),
-  link: varchar("link", { length: 100 }),
-  createdAt: timestamp("created_at").notNull(),
+  type: text("type").notNull(),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  read: integer("read", { mode: "boolean" }).notNull().default(false),
+  link: text("link"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
-export const recurrentTransaction = mysqlTable("recurrent_transaction", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 })
+export const recurrentTransaction = sqliteTable("recurrent_transaction", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  categoryId: varchar("category_id", { length: 36 }).references(
+  categoryId: text("category_id").references(
     () => category.id,
     { onDelete: "set null" },
   ),
-  type: varchar("type", { length: 10 }).notNull(),
-  amount: decimal("amount", { precision: 15, scale: 2 }).notNull(),
-  currency: varchar("currency", { length: 3 }).notNull().default("EUR"),
-  description: varchar("description", { length: 255 }).notNull(),
-  frequency: varchar("frequency", { length: 20 }).notNull(),
-  startDate: timestamp("start_date").notNull(),
-  nextOccurrence: timestamp("next_occurrence").notNull(),
-  lastExecuted: timestamp("last_executed"),
-  status: varchar("status", { length: 20 }).notNull().default("active"),
-  endDate: timestamp("end_date"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  type: text("type").notNull(),
+  amount: numeric("amount").notNull(),
+  currency: text("currency").notNull().default("EUR"),
+  description: text("description").notNull(),
+  frequency: text("frequency").notNull(),
+  startDate: integer("start_date", { mode: "timestamp" }).notNull(),
+  nextOccurrence: integer("next_occurrence", { mode: "timestamp" }).notNull(),
+  lastExecuted: integer("last_executed", { mode: "timestamp" }),
+  status: text("status").notNull().default("active"),
+  endDate: integer("end_date", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });

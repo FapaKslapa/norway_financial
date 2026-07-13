@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+
+export const runtime = "edge";
 import { PwaRegister } from "@/components/pwa-register";
 import { ThemeProvider, ThemeScript } from "@/components/theme-provider";
 import { TRPCProvider } from "@/lib/trpc/Provider";
